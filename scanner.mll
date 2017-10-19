@@ -19,6 +19,7 @@ rule token = parse
 | '/'       { DIVIDE }
 | '%'       { MODULO }
 | '='       { ASSIGN }
+| "::"      { DOUBLECOL }
 | "=="      { EQ }
 | "!="      { NEQ }
 | '<'       { LT }
