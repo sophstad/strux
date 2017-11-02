@@ -34,7 +34,7 @@ type stmt =
   | Return of expr
   | If of expr * stmt * stmt
   | For of expr * expr * expr * stmt
-  | ForEach of typ * expr * expr * stmt (* Is typ correct here? *))
+  | ForEach of typ * expr * expr * stmt (* Is typ correct here? *)
   | While of expr * stmt
 
 type func_decl = {
