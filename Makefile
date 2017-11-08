@@ -24,7 +24,7 @@ OBJS = ast.cmx parser.cmx scanner.cmx semant.cmx codegen.cmx strux.cmx
 YACC = ocamlyacc
 
 strux: $(OBJS)
-	ocamlfind ocamlopt -linkpkg -package llvm -package llvm.analysis -o javapm $(OBJS)
+	ocamlfind ocamlopt -linkpkg -package llvm -package llvm.analysis $(OBJS) -o strux
 
 scanner.ml: scanner.mll
 	ocamllex scanner.mll
