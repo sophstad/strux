@@ -5,27 +5,30 @@ type op = Add | Sub | Mult | Div | Mod | Equal | Neq | Less | Leq | Greater | Ge
 
 type uop = Neg | Not | Incr | Decr
 
-type typ = Num | String | Bool | Arraytype of typ * int | Void | Stack | Queue | LinkedList | ListNode |
-           BSTree | TreeNode
+type typ = Num | String | Bool | Void
+(* | Array of typ * int | Stack | Queue | LinkedList | ListNode | BSTree | TreeNode *)
 
 type bind = typ * string
 
-type expr =
+and vdecl = typ * string * expr
+
+and expr =
   | NumLit of float
   | StringLit of string
   | BoolLit of bool
+  | Null
   | Id of string
   | Binop of expr * op * expr
   | Unop of uop * expr
   | Assign of string * expr
   | FuncCall of string * expr list
-  | ArrayCreate of typ * expr list
+  (* | ArrayCreate of typ * expr list
   | ArrayAccess of expr * expr list
   | StackCreate of typ * expr list
   | QueueCreate of typ * expr list
   | LinkedListCreate of typ * expr list
   | BSTreeCreate of typ * expr list
-  | Null
+  | Null *)
   | Noexpr
 
 
@@ -43,7 +46,7 @@ type func_decl = {
     fname : string;
     formals : bind list;
     locals : bind list;
-    return : typ;
+    (* return : typ; *)
     body : stmt list;
   }
 
@@ -83,9 +86,22 @@ let rec string_of_expr = function
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Unop(o, e) -> string_of_uop o ^ string_of_expr e
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
-  | Call(f, el) ->
+  | FuncCall(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | Noexpr -> ""
+
+let string_of_typ = function
+    Num -> "num"
+  | String -> "string"
+  | Bool -> "bool"
+  | Void -> "void"
+  (* | Array -> "array"
+  | Stack -> "Stack"
+  | Queue -> "Queue"
+  | LinkedList -> "LinkedList"
+  | ListNode -> "ListNode"
+  | BSTree -> "BSTree"
+  | TreeNode -> "TreeNode" *)
 
 let rec string_of_stmt = function
     Block(stmts) ->
@@ -103,19 +119,6 @@ let rec string_of_stmt = function
       "forEach (" ^ string_of_typ t ^ " " ^ string_of_expr e1 ^ " in " ^
       string_of_expr e2 ^ ") " ^ string_of_stmt s
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
-
-let string_of_typ = function
-    Num -> "num"
-  | String -> "string"
-  | Bool -> "bool"
-  | Arraytype -> "array"
-  | Void -> "void"
-  | Stack -> "Stack"
-  | Queue -> "Queue"
-  | LinkedList -> "LinkedList"
-  | ListNode -> "ListNode"
-  | BSTree -> "BSTree"
-  | TreeNode -> "TreeNode"
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
