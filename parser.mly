@@ -15,7 +15,8 @@ open Ast
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
 %token RETURN NULL IF ELSE FOR FOREACH IN WHILE NUM BOOL STRING VOID
 %token STACK QUEUE LINKEDLIST LISTNODE BSTREE TREENODE
-%token <float> LITERAL
+%token <float> NUM_LITERAL
+%token <string> STRING_LITERAL
 %token <string> ID
 %token EOF
 
@@ -100,7 +101,8 @@ expr_opt:
   | expr          { $1 }
 
 expr:
-    LITERAL          { Literal($1) }
+  | STRING_LITERAL   { StringLit($1) }
+  | NUM_LITERAL      { NumLit($1) }
   | TRUE             { BoolLit(true) }
   | FALSE            { BoolLit(false) }
   | NULL             { Null }

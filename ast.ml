@@ -5,13 +5,14 @@ type op = Add | Sub | Mult | Div | Mod | Equal | Neq | Less | Leq | Greater | Ge
 
 type uop = Neg | Not | Incr | Decr
 
-type typ = Num | String | Bool | Void | Stack | Queue | LinkedList | ListNode |
+type typ = Num | String | Bool | Arraytype of typ * int | Void | Stack | Queue | LinkedList | ListNode |
            BSTree | TreeNode
 
 type bind = typ * string
 
 type expr =
-    Literal of int
+  | NumLit of float
+  | StringLit of string
   | BoolLit of bool
   | Id of string
   | Binop of expr * op * expr
@@ -73,7 +74,8 @@ let string_of_uop = function
   | Decr -> "--"
 
 let rec string_of_expr = function
-    Literal(l) -> string_of_int l
+    StringLit(s) -> "\"" ^ s ^ "\""
+  | NumLit(f) -> string_of_float f
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
   | Id(s) -> s
@@ -106,6 +108,7 @@ let string_of_typ = function
     Num -> "num"
   | String -> "string"
   | Bool -> "bool"
+  | Arraytype -> "array"
   | Void -> "void"
   | Stack -> "Stack"
   | Queue -> "Queue"
