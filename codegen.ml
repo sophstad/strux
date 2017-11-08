@@ -161,18 +161,14 @@ let translate (globals, functions) =
     (* Statement generator *)
     let rec stmt_generator llbuilder = function
       A.Block stmtlist -> List.fold_left stmt_generator llbuilder stmtlist
-    | A.Return e -> generate_return e stmt_generator llbuilder
+    | A.Return e -> ignore (match func_decl.A.typ with
+      A.Void -> L.build_ret_void llbuilder
+      | _ -> L.build_ret (expr_generator llbuilder e) llbuilder); llbuilder
     | A.Expr se -> ignore (expr_generator llbuilder se); llbuilder
     | A.If (predicate, s1, s2) -> generate_if predicate s1 s2 llbuilder
     | A.While (predicate, body) -> generate_while  predicate body llbuilder
     | A.For (e1, e2, e3, s) -> stmt_generator llbuilder ( A.Block [A.Expr e1 ; A.While (e2, A.Block [s ; A.Expr e3]) ] )
     (* | A.ForEach (e1, e2, s) -> generate_for_each typ e1 e2 e3 s llbuilder *)
-
-
-    and generate_return e stmt_generator llbuilder =
-      ignore (match func_decl.A.typ with
-        A.Void -> L.build_ret_void llbuilder
-        | _ -> L.build_ret (expr_generator llbuilder e) llbuilder); llbuilder
 
     and generate_if predicate s1 s2 llbuilder =
       let bool_val = expr_generator llbuilder predicate in

@@ -28,7 +28,7 @@ open Ast
 %left AND
 %left EQ NEQ
 %left LT GT LEQ GEQ
-%left PLUS MINUS
+%left PLUS MINUS MOD
 %left TIMES DIVIDE
 %right NOT NEG
 
@@ -94,7 +94,7 @@ stmt:
   | IF LPAREN expr RPAREN stmt ELSE stmt    { If($3, $5, $7) }
   | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt
      { For($3, $5, $7, $9) }
-  | FOREACH LPAREN typ expr IN expr RPAREN stmt { ForEach($3, $4, $6, $8) }
+  /*| FOREACH LPAREN typ expr IN expr RPAREN stmt { ForEach($3, $4, $6, $8) }*/
   | WHILE LPAREN expr RPAREN stmt { While($3, $5) }
 
 expr_opt:
