@@ -49,8 +49,8 @@ let check (globals, functions) =
   (* Function declaration for a named function *)
   let built_in_decls =  StringMap.add "print"
      { typ = Void; fname = "print"; formals = [(Num, "x")];
-       locals = []; body = [] } (StringMap.singleton "printb"
-     { typ = Void; fname = "printb"; formals = [(Bool, "x")];
+       locals = []; body = [] } (StringMap.singleton "prints"
+     { typ = Void; fname = "prints"; formals = [(String, "x")];
        locals = []; body = [] })
    in
 
@@ -116,17 +116,28 @@ let check (globals, functions) =
         check_assign lt rt (Failure ("illegal assignment " ^ string_of_typ lt ^
 				     " = " ^ string_of_typ rt ^ " in " ^
 				     string_of_expr ex))
-      | FuncCall(fname, actuals) as call -> let fd = function_decl fname in
-         if List.length actuals != List.length fd.formals then
-           raise (Failure ("expecting " ^ string_of_int
-             (List.length fd.formals) ^ " arguments in " ^ string_of_expr call))
-         else
-           List.iter2 (fun (ft, _) e -> let et = expr e in
-              ignore (check_assign ft et
-                (Failure ("illegal actual argument found " ^ string_of_typ et ^
-                " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e))))
-             fd.formals actuals;
-           fd.typ
+      | FuncCall(fname, actuals) as call ->
+        if fname = "print"
+         then (if List.length actuals == 1
+               then let arg_type = string_of_typ (expr (List.hd actuals)) in
+                    if arg_type = string_of_typ (Num) ||
+                       arg_type = string_of_typ (String)
+                    then Void
+                    else raise (Failure ("illegal actual argument found " ^ string_of_typ (expr (List.hd actuals)) ^
+                                                      " in " ^ string_of_expr (List.hd actuals)))
+               else raise (Failure ("expecting 1 argument in " ^ string_of_expr call)))
+
+        else let fd = function_decl fname in
+           if List.length actuals != List.length fd.formals then
+             raise (Failure ("expecting " ^ string_of_int
+               (List.length fd.formals) ^ " arguments in " ^ string_of_expr call))
+           else
+             List.iter2 (fun (ft, _) e -> let et = expr e in
+                ignore (check_assign ft et
+                  (Failure ("illegal actual argument found " ^ string_of_typ et ^
+                  " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e))))
+               fd.formals actuals;
+             fd.typ
     in
 
     let check_bool_expr e = if expr e != Bool

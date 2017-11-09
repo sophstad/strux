@@ -66,7 +66,8 @@ let translate (globals, functions) =
       let (the_function, _) = StringMap.find func_decl.A.fname function_decls in
       let llbuilder = L.builder_at_end context (L.entry_block the_function) in
 
-      let int_format_str = L.build_global_stringptr "%d\n" "fmt" llbuilder in
+      let str_format_str = L.build_global_stringptr "%s\n" "fmt" llbuilder in
+      let flt_format_str = L.build_global_stringptr "%f\n" "fmt" llbuilder in
 
       (* Construct the function's "locals": formal arguments and locally
          declared variables.  Allocate each on the stack, initialize their
@@ -125,22 +126,11 @@ let translate (globals, functions) =
       | A.Assign (s, e) ->
           let e' = expr_generator llbuilder e in
           ignore (L.build_store e' (lookup s) llbuilder); e'
-      | A.FuncCall ("print", [e]) ->
-        L.build_call printf_func [| int_format_str ; (expr_generator llbuilder e) |]
-        "printf" llbuilder
-          (* let num_format_str llbuilder = L.build_global_stringptr "%f\n" "fmt" llbuilder;
-          and str_format_str llbuilder = L.build_global_stringptr "%s\n" "fmt" llbuilder in
-
-          let format_str e_typ llbuilder = match e_typ with
-              A.Num -> num_format_str llbuilder
-            | A.String -> str_format_str llbuilder
-            | _ -> raise (Failure "Invalid print function type")
-          in
-
-          let e' = expr_generator llbuilder e
-          and e_type = expr_generator e in
-          L.build_call printf_func [| format_str e_type llbuilder; e' |]
-              "printf" llbuilder *)
+      | A.FuncCall("print", [e]) ->
+          let e' = expr_generator llbuilder e in
+          if L.type_of e' == ltype_of_typ A.Num
+          then L.build_call printf_func [| flt_format_str ; e' |] "print" llbuilder
+          else L.build_call printf_func [| str_format_str ; e' |] "print" llbuilder
       | A.FuncCall (f, act) ->
            let (fdef, func_decl) = StringMap.find f function_decls in
      let actuals = List.rev (List.map (expr_generator llbuilder) (List.rev act)) in
