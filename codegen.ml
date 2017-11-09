@@ -10,7 +10,6 @@ module StringMap = Map.Make(String)
 let translate (globals, functions) =
   let context = L.global_context () in
   let the_module = L.create_module context "Strux"
-  and llbuilder = L.builder context
   and f_t    = L.double_type context  (* float *)
   and i8_t   = L.i8_type   context    (* print type *)
   and i1_t   = L.i1_type   context    (* bool type *)
@@ -65,7 +64,7 @@ let translate (globals, functions) =
     (* Fill in the body of the given function *)
     let build_function_body func_decl =
       let (the_function, _) = StringMap.find func_decl.A.fname function_decls in
-      let builder = L.builder_at_end context (L.entry_block the_function) in
+      let llbuilder = L.builder_at_end context (L.entry_block the_function) in
 
       let int_format_str = L.build_global_stringptr "%d\n" "fmt" llbuilder in
 
@@ -117,18 +116,18 @@ let translate (globals, functions) =
           | A.Greater -> L.build_fcmp L.Fcmp.Ogt
           | A.Geq     -> L.build_fcmp L.Fcmp.Oge
           | _         -> raise (Failure("unsupported operation for numbers"))
-          ) e1' e2' "tmp" builder
+          ) e1' e2' "tmp" llbuilder
       | A.Unop (op, e) ->
           let e' = expr_generator llbuilder e in
           (match op with
             A.Neg     -> L.build_neg
-          | A.Not     -> L.build_not) e' "tmp" builder
+          | A.Not     -> L.build_not) e' "tmp" llbuilder
       | A.Assign (s, e) ->
           let e' = expr_generator llbuilder e in
           ignore (L.build_store e' (lookup s) llbuilder); e'
       | A.FuncCall ("print", [e]) ->
         L.build_call printf_func [| int_format_str ; (expr_generator llbuilder e) |]
-        "printf" builder
+        "printf" llbuilder
           (* let num_format_str llbuilder = L.build_global_stringptr "%f\n" "fmt" llbuilder;
           and str_format_str llbuilder = L.build_global_stringptr "%s\n" "fmt" llbuilder in
 
@@ -150,7 +149,7 @@ let translate (globals, functions) =
            L.build_call fdef (Array.of_list actuals) result llbuilder
       in
 
-      (* Invoke "f builder" if the current block doesn't already
+      (* Invoke "f llbuilder" if the current block doesn't already
          have a terminal (e.g., a branch). *)
       let add_terminal llbuilder f =
         match L.block_terminator (L.insertion_block llbuilder) with
