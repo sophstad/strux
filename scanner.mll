@@ -2,8 +2,10 @@
 
 { open Parser }
 
-let digit = ['0'-'9']
-let num = ((digit+) '.' (digit+)) | digit+
+let numeric = ['0'-'9']
+let escape = '\\' ['\\' ''' '"' 'n' 'r' 't']
+let ascii = ([' '-'!' '#'-'[' ']'-'~'])
+let string = '"' ( (ascii | escape)* as s) '"'
 
 rule token = parse
   [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
@@ -58,7 +60,10 @@ rule token = parse
   | "ListNode"    { LISTNODE }
   | "BSTree"      { BSTREE }
   | "TreeNode"    { TREENODE } *)
-  | num as lxm    { NUM_LITERAL(float_of_string lxm) }
+  | numeric* '.' numeric+
+  | numeric+ '.'numeric* as floatlit { NUM_LITERAL(float_of_string floatlit)}
+  | numeric+ as intlit               { NUM_LITERAL(float_of_string intlit) }
+  | string                           { STRING_LITERAL(s) }
   | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
   | eof { EOF }
   | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }

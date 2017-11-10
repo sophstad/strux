@@ -6,14 +6,14 @@ type op = Add | Sub | Mult | Div | Mod | Equal | Neq | Less | Leq | Greater | Ge
 type uop = Neg | Not | Incr | Decr
 
 type typ = Num | String | Bool | Void
-(* | Array of typ * int | Stack | Queue | LinkedList | ListNode | BSTree | TreeNode *)
+(* | Array of typ * num | Stack | Queue | LinkedList | ListNode | BSTree | TreeNode *)
 
 type bind = typ * string
 
-and vdecl = typ * string * expr
+(* and vdecl = typ * string * expr *)
 
-and expr =
-  | NumLit of float
+type expr =
+    NumLit of float
   | StringLit of string
   | BoolLit of bool
   | Null
@@ -46,7 +46,6 @@ type func_decl = {
     fname : string;
     formals : bind list;
     locals : bind list;
-    (* return : typ; *)
     body : stmt list;
   }
 

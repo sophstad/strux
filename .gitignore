@@ -1,1 +1,5 @@
 _build/
+parser.output
+testall.log
+strux.native
+fail-*.diff
