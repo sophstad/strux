@@ -6,7 +6,7 @@
 #  Compile and check the error of each expected-to-fail test
 
 # Path to the LLVM interpreter
-LLI="/usr/local/opt/llvm/bin/lli"
+LLI="/usr/bin/lli"
 
 # Path to the strux compiler.  Usually "./strux.native"
 # Try "_build/strux.native" if ocamlbuild was unable to create a symbolic link.
