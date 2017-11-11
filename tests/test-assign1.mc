@@ -1,0 +1,3 @@
+void main() {
+  num i;
+}
