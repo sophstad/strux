@@ -1,3 +1,3 @@
 void main() {
-  num i;
+  num i = 0;
 }
