@@ -94,7 +94,7 @@ let translate (globals, functions) =
 
       (* Return the value for a variable or formal argument *)
       let lookup n = try StringMap.find n local_vars
-                     with Not_found -> StringMap.find n global_vars
+                     with Not_found -> raise (Failure "Variable not found")
       in
 
 
