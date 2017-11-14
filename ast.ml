@@ -5,7 +5,7 @@ type op = Add | Sub | Mult | Div | Mod | Equal | Neq | Less | Leq | Greater | Ge
 
 type uop = Neg | Not
 
-type typ = Num | Int | String | Bool | Void
+type typ = Num | Int | String | Bool | Void | Arraytype of typ
 (* | Array of typ * num | Stack | Queue | LinkedList | ListNode | BSTree | TreeNode *)
 
 type bind = typ * string
@@ -33,6 +33,8 @@ type expr =
   | BSTreeCreate of typ * expr list
   | Null *)
   | Noexpr
+  | ArrayCreate of typ * expr
+  | ArrayAccess of expr * expr
 
 
 type stmt =
@@ -106,6 +108,8 @@ let rec string_of_expr = function
   | Reassign(v, e) -> v ^ "=" ^ string_of_expr e
   | FuncCall(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
+  | ArrayCreate(typ, len) -> "(array of type " ^ string_of_typ typ ^ " with length " ^ string_of_expr len ^ ")"
+  | ArrayAccess(arrayName, index) -> "(array name: " ^ string_of_expr arrayName ^ " index: " ^ string_of_expr index ^ ")"
   | Noexpr -> ""
 
 let rec string_of_stmt = function

@@ -168,6 +168,10 @@ let check (globals, functions) =
                   " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e))))
                fd.formals actuals;
              fd.typ
+      | ArrayCreate(t, len) -> let a = Arraytype(t) and b = expr len in
+            (match b with
+              Num -> a
+            | _ -> raise (Failure("illegal "^ string_of_typ b ^", expected int")))
     in
 
     let check_bool_expr e = if expr e != Bool

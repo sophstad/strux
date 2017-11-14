@@ -1,14 +1,4 @@
-/* Ocamlyacc parser for Strux */
-
-/*
- * TODO
- *
- * Implement NEW keyword
- */
-
-%{
-open Ast
-%}
+%{ open Ast %}
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK COMMA DOUBLECOL
 %token PLUS MINUS TIMES DIVIDE INCR DECR MOD ASSIGN NOT
@@ -62,7 +52,7 @@ formal_list:
     typ ID                   { [($1,$2)] }
   | formal_list COMMA typ ID { ($3,$4) :: $1 }
 
-typ:
+primitive:
     NUM          { Num }
   | INT          { Int }
   | STRING       { String }
@@ -75,7 +65,12 @@ typ:
   | BSTREE       { BSTree }
   | TREENODE     { TreeNode }*/
 
+array_type:
+    primitive LBRACK RBRACK { Arraytype($1) }
 
+typ:
+    primitive   { $1 }
+  | array_type  { $1 }
 
 stmt_list:
     /* nothing */  { [] }
@@ -104,13 +99,7 @@ expr_opt:
   | expr          { $1 }
 
 expr:
-    STRING_LITERAL   { StringLit($1) }
-  | ID               { Id($1) }
-  | INT_LITERAL      { IntLit($1) }
-  | NUM_LITERAL      { NumLit($1) }
-  | TRUE             { BoolLit(true) }
-  | FALSE            { BoolLit(false) }
-  | NULL             { Null }
+    literal          { $1 }
   | expr PLUS   expr { Binop($1, Add,   $3) }
   | expr MINUS  expr { Binop($1, Sub,   $3) }
   | expr TIMES  expr { Binop($1, Mult,  $3) }
@@ -133,6 +122,15 @@ expr:
   | ID ASSIGN expr        { Reassign($1, $3) }
   | ID LPAREN actuals_opt RPAREN { FuncCall($1, $3) }
   | LPAREN expr RPAREN { $2 }
+
+literal:
+    STRING_LITERAL   { StringLit($1) }
+  | ID               { Id($1) }
+  | INT_LITERAL      { IntLit($1) }
+  | NUM_LITERAL      { NumLit($1) }
+  | TRUE             { BoolLit(true) }
+  | FALSE            { BoolLit(false) }
+  | NULL             { Null }
 
 actuals_opt:
     /* nothing */ { [] }
