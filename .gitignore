@@ -5,3 +5,4 @@ strux.native
 *.ll
 *.diff
 fail-*.diff
+/*.out
