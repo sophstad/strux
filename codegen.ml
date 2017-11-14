@@ -19,6 +19,7 @@ let translate (globals, functions) =
 
   let ltype_of_typ datatype = match datatype with (* LLVM type for AST type *)
       A.Num -> f_t
+    | A.Int -> i32_t
     | A.String -> str_t
     | A.Bool -> i1_t
     | A.Void -> void_t in
@@ -98,6 +99,7 @@ let translate (globals, functions) =
     (* Define each function (arguments and return type) so we can call it *)
     let rec expr_generator llbuilder = function
         A.NumLit(n) -> L.const_float f_t n
+      | A.IntLit(i) -> L.const_int i32_t i
       | A.BoolLit(b) -> L.const_int i1_t (if b then 1 else 0)
       | A.StringLit(s) -> L.build_global_stringptr s "string" llbuilder
       | A.Id s -> L.build_load (lookup s) s llbuilder

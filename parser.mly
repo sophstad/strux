@@ -1,14 +1,4 @@
-/* Ocamlyacc parser for Strux */
-
-/*
- * TODO
- *
- * Implement NEW keyword
- */
-
-%{
-open Ast
-%}
+%{ open Ast %}
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK COMMA DOUBLECOL
 %token PLUS MINUS TIMES DIVIDE INCR DECR MOD ASSIGN NOT
@@ -16,6 +6,7 @@ open Ast
 %token RETURN NULL IF ELSE ELIF BREAK CONTINUE NEW FOR FOREACH IN WHILE NUM BOOL STRING VOID
 /*%token STACK QUEUE LINKEDLIST LISTNODE BSTREE TREENODE*/
 %token <float> NUM_LITERAL
+%token <int> INT_LITERAL
 %token <string> STRING_LITERAL
 %token <string> ID
 %token EOF
@@ -61,7 +52,7 @@ formal_list:
     typ ID                   { [($1,$2)] }
   | formal_list COMMA typ ID { ($3,$4) :: $1 }
 
-typ:
+primitive:
     NUM          { Num }
   | STRING       { String }
   | BOOL         { Bool }
@@ -72,6 +63,9 @@ typ:
   | LISTNODE     { ListNode }
   | BSTREE       { BSTree }
   | TREENODE     { TreeNode }*/
+
+typ:
+    primitive   { $1 }
 
 vdecl_list:
     /* nothing */    { [] }
@@ -102,12 +96,7 @@ expr_opt:
   | expr          { $1 }
 
 expr:
-    STRING_LITERAL   { StringLit($1) }
-  | ID               { Id($1) }
-  | NUM_LITERAL      { NumLit($1) }
-  | TRUE             { BoolLit(true) }
-  | FALSE            { BoolLit(false) }
-  | NULL             { Null }
+    literal          { $1 }
   | expr PLUS   expr { Binop($1, Add,   $3) }
   | expr MINUS  expr { Binop($1, Sub,   $3) }
   | expr TIMES  expr { Binop($1, Mult,  $3) }
@@ -127,7 +116,18 @@ expr:
   | expr DECR             { Unop($1, Decr) }*/
   | ID ASSIGN expr   { Assign($1, $3) }
   | ID LPAREN actuals_opt RPAREN { FuncCall($1, $3) }
+  | NEW primitive LBRACK expr RBRACK  { ArrayCreate($2, $4) }
+  | expr LBRACK expr RBRACK  { ArrayAccess($1, $3) }
   | LPAREN expr RPAREN { $2 }
+
+literal:
+    STRING_LITERAL   { StringLit($1) }
+  | TRUE             { BoolLit(true) }
+  | FALSE            { BoolLit(false) }
+  | INT_LITERAL      { IntLit($1) }
+  | NUM_LITERAL      { NumLit($1) }
+  | ID               { Id($1) }
+  | NULL             { Null }
 
 actuals_opt:
     /* nothing */ { [] }

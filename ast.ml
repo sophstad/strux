@@ -5,7 +5,7 @@ type op = Add | Sub | Mult | Div | Mod | Equal | Neq | Less | Leq | Greater | Ge
 
 type uop = Neg | Not | Incr | Decr
 
-type typ = Num | String | Bool | Void
+type typ = Num | Int | String | Bool | Void
 (* | Array of typ * num | Stack | Queue | LinkedList | ListNode | BSTree | TreeNode *)
 
 type bind = typ * string
@@ -14,6 +14,7 @@ type bind = typ * string
 
 type expr =
     NumLit of float
+  | IntLit of int
   | StringLit of string
   | BoolLit of bool
   | Null
@@ -75,8 +76,23 @@ let string_of_uop = function
   | Incr -> "++"
   | Decr -> "--"
 
+let string_of_typ = function
+    Num -> "num"
+  | Int -> "int"
+  | String -> "string"
+  | Bool -> "bool"
+  | Void -> "void"
+  (* | Array -> "array"
+  | Stack -> "Stack"
+  | Queue -> "Queue"
+  | LinkedList -> "LinkedList"
+  | ListNode -> "ListNode"
+  | BSTree -> "BSTree"
+  | TreeNode -> "TreeNode" *)
+
 let rec string_of_expr = function
     StringLit(s) -> "\"" ^ s ^ "\""
+  | IntLit(i) -> string_of_int i
   | NumLit(f) -> string_of_float f
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
@@ -88,19 +104,6 @@ let rec string_of_expr = function
   | FuncCall(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | Noexpr -> ""
-
-let string_of_typ = function
-    Num -> "num"
-  | String -> "string"
-  | Bool -> "bool"
-  | Void -> "void"
-  (* | Array -> "array"
-  | Stack -> "Stack"
-  | Queue -> "Queue"
-  | LinkedList -> "LinkedList"
-  | ListNode -> "ListNode"
-  | BSTree -> "BSTree"
-  | TreeNode -> "TreeNode" *)
 
 let rec string_of_stmt = function
     Block(stmts) ->
