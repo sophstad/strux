@@ -121,7 +121,7 @@ let translate (globals, functions) =
       | A.Unop (op, e) ->
           let e' = expr_generator llbuilder e in
           (match op with
-            A.Neg     -> L.build_neg
+            A.Neg     -> L.build_fneg
           | A.Not     -> L.build_not) e' "tmp" llbuilder
       | A.Assign (s, e) ->
           let e' = expr_generator llbuilder e in

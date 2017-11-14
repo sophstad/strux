@@ -1,5 +1,5 @@
 void main() {
 	num i;
-	i = 5;
-	print(3.0 + -i);
+	i = -5.0;
+	print(i + (3*-2));
 }
