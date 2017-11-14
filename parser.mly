@@ -22,14 +22,16 @@ open Ast
 
 %nonassoc NOELSE
 %nonassoc ELSE
+%nonassoc ELIF
 %left INCR DECR
 %right ASSIGN
 %left OR
 %left AND
 %left EQ NEQ
 %left LT GT LEQ GEQ
-%left PLUS MINUS MOD
+%left PLUS MINUS
 %left TIMES DIVIDE
+%right MOD
 %right NOT NEG
 
 %start program
@@ -79,7 +81,7 @@ vdecl_list:
 
 vdecl:
     typ ID SEMI { ($1, $2) }
-  /*| typ ID ASSIGN expr SEMI { ($1, $2, $4) }*/
+  /*|typ ID ASSIGN expr SEMI { ($1, $2, $4) }*/
 
 stmt_list:
     /* nothing */  { [] }
@@ -92,10 +94,16 @@ stmt:
   | LBRACE stmt_list RBRACE { Block(List.rev $2) }
   | IF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([])) }
   | IF LPAREN expr RPAREN stmt ELSE stmt    { If($3, $5, $7) }
+  | IF LPAREN expr RPAREN stmt else_stmt    { If($3, $5, $6) }
   | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt
      { For($3, $5, $7, $9) }
   /*| FOREACH LPAREN typ expr IN expr RPAREN stmt { ForEach($3, $4, $6, $8) }*/
   | WHILE LPAREN expr RPAREN stmt { While($3, $5) }
+
+else_stmt:
+  ELIF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([])) }
+  | ELIF LPAREN expr RPAREN stmt else_stmt { If($3, $5, $6) }
+  | ELIF LPAREN expr RPAREN stmt ELSE stmt { If($3, $5, $7) }
 
 expr_opt:
     /* nothing */ { Noexpr }
