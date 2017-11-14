@@ -131,8 +131,8 @@ expr:
   | expr OR     expr { Binop($1, Or,    $3) }
   | MINUS expr %prec NEG  { Unop(Neg, $2) }
   | NOT expr              { Unop(Not, $2) }
-  /*| expr INCR             { Unop($1, Incr) }
-  | expr DECR             { Unop($1, Decr) }*/
+  | expr INCR             { Postop($1, Incr) }
+  | expr DECR             { Postop($1, Decr) }
   | ID ASSIGN expr   { Assign($1, $3) }
   | ID LPAREN actuals_opt RPAREN { FuncCall($1, $3) }
   | LPAREN expr RPAREN { $2 }

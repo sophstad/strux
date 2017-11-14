@@ -21,7 +21,7 @@ let translate (globals, functions) =
       A.Num -> f_t
     | A.String -> str_t
     | A.Bool -> i1_t
-    | A.Void -> void_t 
+    | A.Void -> void_t
     | _ -> raise(Failure("Invalid Data Type"))
   in
     (* | A.Array(data_type, i) ->  get_pointer_type (A.Array(data_type, (i)))
@@ -126,6 +126,14 @@ let translate (globals, functions) =
           (match op with
             A.Neg     -> L.build_fneg
           | A.Not     -> L.build_not) e' "tmp" llbuilder
+      | A.Postop (e, op) ->
+          let e' = expr_generator llbuilder e
+          and val' = L.const_float f_t 1.0 in
+          (match op with
+            A.Incr     -> L.build_fadd
+          | A.Decr    -> L.build_fsub
+          | _         -> raise (Failure("unsupported operation for numbers"))
+          ) e' val' "tmp" llbuilder
       | A.Assign (s, e) ->
           let e' = expr_generator llbuilder e in
           ignore (L.build_store e' (lookup s) llbuilder); e'

@@ -1,9 +1,9 @@
 (* Abstract Syntax Tree and functions for printing it *)
 
 type op = Add | Sub | Mult | Div | Mod | Equal | Neq | Less | Leq | Greater | Geq |
-          And | Or
+          And | Or | Incr | Decr
 
-type uop = Neg | Not | Incr | Decr
+type uop = Neg | Not
 
 type typ = Num | String | Bool | Void
 (* | Array of typ * num | Stack | Queue | LinkedList | ListNode | BSTree | TreeNode *)
@@ -20,6 +20,7 @@ type expr =
   | Id of string
   | Binop of expr * op * expr
   | Unop of uop * expr
+  | Postop of expr * op
   | Assign of string * expr
   | FuncCall of string * expr list
   (* | ArrayCreate of typ * expr list
@@ -67,13 +68,13 @@ let string_of_op = function
   | Geq -> ">="
   | And -> "and"
   | Or -> "or"
+  | Incr -> "++"
+  | Decr -> "--"
 (* Does :: belong here? *)
 
 let string_of_uop = function
     Neg -> "-"
   | Not -> "not"
-  | Incr -> "++"
-  | Decr -> "--"
 
 let rec string_of_expr = function
     StringLit(s) -> "\"" ^ s ^ "\""
