@@ -50,6 +50,7 @@ rule token = parse
   | "return"      { RETURN }
   | "num"         { NUM }
   | "bool"        { BOOL }
+  | "int"         { INT }
   | "string"      { STRING }
   | "void"        { VOID }
   | "true"        { TRUE }
