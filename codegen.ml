@@ -69,6 +69,8 @@ let translate (globals, functions) =
 
       let str_format_str = L.build_global_stringptr "%s\n" "fmt" llbuilder in
       let flt_format_str = L.build_global_stringptr "%f\n" "fmt" llbuilder in
+      let bool_format_str = L.build_global_stringptr "%d\n" "fmt" llbuilder in
+      let int_format_str = L.build_global_stringptr "%d\n" "fmt" llbuilder in
 
       (* Construct the function's "locals": formal arguments and locally
          declared variables.  Allocate each on the stack, initialize their
@@ -132,7 +134,13 @@ let translate (globals, functions) =
           let e' = expr_generator llbuilder e in
           if L.type_of e' == ltype_of_typ A.Num
           then L.build_call printf_func [| flt_format_str ; e' |] "print" llbuilder
-          else L.build_call printf_func [| str_format_str ; e' |] "print" llbuilder
+          else if L.type_of e' == ltype_of_typ A.String
+          then L.build_call printf_func [| str_format_str ; e' |] "print" llbuilder
+          else if L.type_of e' == ltype_of_typ A.Bool
+          then L.build_call printf_func [| bool_format_str ; e' |] "print" llbuilder
+          else if L.type_of e' == ltype_of_typ A.Int
+          then L.build_call printf_func [| int_format_str ; e' |] "print" llbuilder
+        else L.build_call printf_func [| str_format_str ; e' |] "print" llbuilder
       | A.FuncCall (f, act) ->
            let (fdef, func_decl) = StringMap.find f function_decls in
      let actuals = List.rev (List.map (expr_generator llbuilder) (List.rev act)) in
