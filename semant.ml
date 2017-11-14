@@ -121,7 +121,8 @@ let check (globals, functions) =
          then (if List.length actuals == 1
                then let arg_type = string_of_typ (expr (List.hd actuals)) in
                     if arg_type = string_of_typ (Num) ||
-                       arg_type = string_of_typ (String)
+                       arg_type = string_of_typ (String) ||
+                       arg_type = string_of_typ (Bool)
                     then Void
                     else raise (Failure ("illegal actual argument found " ^ string_of_typ (expr (List.hd actuals)) ^
                                                       " in " ^ string_of_expr (List.hd actuals)))

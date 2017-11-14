@@ -21,7 +21,9 @@ let translate (globals, functions) =
       A.Num -> f_t
     | A.String -> str_t
     | A.Bool -> i1_t
-    | A.Void -> void_t in
+    | A.Void -> void_t 
+    | _ -> raise(Failure("Invalid Data Type"))
+  in
     (* | A.Array(data_type, i) ->  get_pointer_type (A.Array(data_type, (i)))
     | A.Stack -> f_t
     | A.Queue -> f_t
@@ -68,6 +70,7 @@ let translate (globals, functions) =
 
       let str_format_str = L.build_global_stringptr "%s\n" "fmt" llbuilder in
       let flt_format_str = L.build_global_stringptr "%f\n" "fmt" llbuilder in
+      let bool_format_str = L.build_global_stringptr "%d\n" "fmt" llbuilder in
 
       (* Construct the function's "locals": formal arguments and locally
          declared variables.  Allocate each on the stack, initialize their
@@ -130,7 +133,11 @@ let translate (globals, functions) =
           let e' = expr_generator llbuilder e in
           if L.type_of e' == ltype_of_typ A.Num
           then L.build_call printf_func [| flt_format_str ; e' |] "print" llbuilder
-          else L.build_call printf_func [| str_format_str ; e' |] "print" llbuilder
+          else if L.type_of e' == ltype_of_typ A.String
+          then L.build_call printf_func [| str_format_str ; e' |] "print" llbuilder
+          else if L.type_of e' == ltype_of_typ A.Bool
+          then L.build_call printf_func [| bool_format_str ; e' |] "print" llbuilder
+        else L.build_call printf_func [| str_format_str ; e' |] "print" llbuilder
       | A.FuncCall (f, act) ->
            let (fdef, func_decl) = StringMap.find f function_decls in
      let actuals = List.rev (List.map (expr_generator llbuilder) (List.rev act)) in
@@ -151,8 +158,8 @@ let translate (globals, functions) =
     let rec stmt_generator llbuilder = function
       A.Block stmtlist -> List.fold_left stmt_generator llbuilder stmtlist
     | A.Return e -> ignore (match func_decl.A.typ with
-      A.Void -> L.build_ret_void llbuilder
-      | _ -> L.build_ret (expr_generator llbuilder e) llbuilder); llbuilder
+                            A.Void -> L.build_ret_void llbuilder
+                          | _      -> L.build_ret (expr_generator llbuilder e) llbuilder); llbuilder
     | A.Expr se -> ignore (expr_generator llbuilder se); llbuilder
     | A.If (predicate, s1, s2) -> generate_if predicate s1 s2 llbuilder
     | A.While (predicate, body) -> generate_while  predicate body llbuilder
@@ -195,9 +202,11 @@ let translate (globals, functions) =
 
       (* Add a return if the last block falls off the end *)
       add_terminal llbuilder (match func_decl.A.typ with
-          A.Void -> L.build_ret_void
-        | t -> L.build_ret (L.const_int (ltype_of_typ t) 0))
+         A.String -> L.build_ret (L.build_global_stringptr "" "tmp" llbuilder)
+        | A.Void -> L.build_ret_void
+        | A.Num -> L.build_ret (L.const_float f_t 0.)
+        | A.Bool -> L.build_ret (L.const_int i1_t 0)
+        | _ -> L.build_ret_void)
     in
-
     List.iter build_function_body functions;
     the_module
