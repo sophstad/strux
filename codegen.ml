@@ -105,9 +105,9 @@ let translate (globals, functions) =
       | A.StringLit(s) -> L.build_global_stringptr s "string" llbuilder
       | A.Id s -> L.build_load (lookup s) s llbuilder
       | A.Binop (e1, op, e2) ->
-          let e1' = expr_generator llbuilder e1
-          and e2' = expr_generator llbuilder e2 in
-          (match op with
+        let e1' = expr_generator llbuilder e1 in
+        let e2' = expr_generator llbuilder e2
+        and float_ops = (match op with
             A.Add     -> L.build_fadd
           | A.Sub     -> L.build_fsub
           | A.Mult    -> L.build_fmul
@@ -119,8 +119,30 @@ let translate (globals, functions) =
           | A.Leq     -> L.build_fcmp L.Fcmp.Ole
           | A.Greater -> L.build_fcmp L.Fcmp.Ogt
           | A.Geq     -> L.build_fcmp L.Fcmp.Oge
-          | _         -> raise (Failure("unsupported operation for numbers"))
-          ) e1' e2' "tmp" llbuilder
+          | _ -> L.build_fcmp L.Fcmp.Oeq
+        )
+        and int_ops = (match op with
+            A.Add     -> L.build_add
+          | A.Sub   -> L.build_sub
+          | A.Mult   -> L.build_mul
+          | A.Div  -> L.build_sdiv
+          | A.Equal   -> L.build_icmp L.Icmp.Eq
+          | A.Neq     -> L.build_icmp L.Icmp.Ne
+          | A.Less    -> L.build_icmp L.Icmp.Slt
+          | A.Leq     -> L.build_icmp L.Icmp.Sle
+          | A.Greater -> L.build_icmp L.Icmp.Sgt
+          | A.Geq     -> L.build_icmp L.Icmp.Sge
+          | _ -> L.build_icmp L.Icmp.Eq
+        )
+       (*  and str_ops = (match op with
+            A.Concat -> expr_generator llbuilder (A.StringLit((string_from_expr e1) ^ (string_from_expr e2), t))
+          | _ -> (L.const_int i32_t 0)
+        ) *)
+        in
+       (*  if ((L.type_of e1' = str_t) && (L.type_of e2' = str_t)) then str_ops
+        else  *)
+        if ((L.type_of e1' = f_t) && (L.type_of e2' = f_t)) then float_ops e1' e2' "tmp" llbuilder
+        else int_ops e1' e2' "tmp" llbuilder
       | A.Unop (op, e) ->
           let e' = expr_generator llbuilder e in
           (match op with
