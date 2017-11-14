@@ -102,7 +102,7 @@ let translate (globals, functions) =
     let rec expr_generator llbuilder = function
         A.NumLit(n) -> L.const_float f_t n
       | A.BoolLit(b) -> L.const_int i1_t (if b then 1 else 0)
-      | A.StringLit(s) -> L.build_global_stringptr s "string" llbuilder
+      | A.StringLit(s) -> L.build_global_stringptr s "tmp" llbuilder
       | A.Id s -> L.build_load (lookup s) s llbuilder
       | A.Binop (e1, op, e2) ->
           let e1' = expr_generator llbuilder e1

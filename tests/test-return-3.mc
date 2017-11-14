@@ -5,4 +5,5 @@ string getString() {
 void main() {
 	string s;
 	s = getString();
+	print(s);
 }
