@@ -33,8 +33,8 @@ type expr =
   | BSTreeCreate of typ * expr list
   | Null *)
   | Noexpr
-  | ArrayCreate of typ * expr
-  | ArrayAccess of expr * expr
+  | ArrayCreate of typ * int
+  | ArrayAccess of expr * int
 
 
 type stmt =
@@ -109,8 +109,8 @@ let rec string_of_expr = function
   | Reassign(v, e) -> v ^ "=" ^ string_of_expr e
   | FuncCall(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
-  | ArrayCreate(typ, len) -> "(array of type " ^ string_of_typ typ ^ " with length " ^ string_of_expr len ^ ")"
-  | ArrayAccess(arrayName, index) -> "(array name: " ^ string_of_expr arrayName ^ " index: " ^ string_of_expr index ^ ")"
+  | ArrayCreate(typ, len) -> "(array of type " ^ string_of_typ typ ^ " with length " ^ string_of_int len ^ ")"
+  | ArrayAccess(arrayName, index) -> "(array name: " ^ string_of_expr arrayName ^ " index: " ^ string_of_int index ^ ")"
   | Noexpr -> ""
 
 let rec string_of_stmt = function
