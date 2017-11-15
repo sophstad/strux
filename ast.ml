@@ -79,12 +79,13 @@ let string_of_uop = function
     Neg -> "-"
   | Not -> "not"
 
-let string_of_typ = function
+let rec string_of_typ = function
     Num -> "num"
   | Int -> "int"
   | String -> "string"
   | Bool -> "bool"
   | Void -> "void"
+  | Arraytype(t) -> "array of " ^ string_of_typ t
   (* | Array -> "array"
   | Stack -> "Stack"
   | Queue -> "Queue"

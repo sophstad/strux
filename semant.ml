@@ -28,8 +28,16 @@ let check (globals, functions) =
 
   (* Raise an exception of the given rvalue type cannot be assigned to
      the given lvalue type *)
-  let check_assign lvaluet rvaluet err =
+(*   let check_assign lvaluet rvaluet err =
      if lvaluet == rvaluet then lvaluet else raise err
+  in *)
+
+  let check_assign lvaluet rvaluet err =
+    if lvaluet = rvaluet then rvaluet
+    else if lvaluet = Arraytype(Num) && rvaluet = Num then rvaluet
+    else if lvaluet = Arraytype(String) && rvaluet = String then rvaluet
+    else if lvaluet = Arraytype(Bool) && rvaluet = Bool then rvaluet
+    else raise err
   in
 
   (**** Checking Global Variables ****)
@@ -146,8 +154,8 @@ let check (globals, functions) =
           check_assign lt rt (Failure ("illegal assignment " ^ string_of_typ lt ^ " = " ^ string_of_typ rt ^ " in " ^ string_of_expr ex))
       | FuncCall(fname, actuals) as call ->
         if fname = "print"
-         then (if List.length actuals == 1
-               then let arg_type = string_of_typ (expr (List.hd actuals)) in
+        then (if List.length actuals == 1
+              then let arg_type = string_of_typ (expr (List.hd actuals)) in
                     if arg_type = string_of_typ (Num) ||
                        arg_type = string_of_typ (Int) ||
                        arg_type = string_of_typ (String) ||
@@ -156,10 +164,9 @@ let check (globals, functions) =
                     else raise (Failure ("illegal actual argument found " ^ string_of_typ (expr (List.hd actuals)) ^
                                                       " in " ^ string_of_expr (List.hd actuals)))
                else raise (Failure ("expecting 1 argument in " ^ string_of_expr call)))
-
         else let fd = function_decl fname in
-           if List.length actuals != List.length fd.formals then
-             raise (Failure ("expecting " ^ string_of_int
+           if List.length actuals != List.length fd.formals
+           then raise (Failure ("expecting " ^ string_of_int
                (List.length fd.formals) ^ " arguments in " ^ string_of_expr call))
            else
              List.iter2 (fun (ft, _) e -> let et = expr e in
