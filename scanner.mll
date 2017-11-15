@@ -2,7 +2,9 @@
 
 { open Parser }
 
-let numeric = ['0'-'9']
+let digit = ['0'-'9']
+let int = digit+
+let float = (digit+) '.' (digit+)
 let escape = '\\' ['\\' ''' '"' 'n' 'r' 't']
 let ascii = ([' '-'!' '#'-'[' ']'-'~'])
 let string = '"' ( (ascii | escape)* as s) '"'
@@ -60,9 +62,8 @@ rule token = parse
   | "ListNode"    { LISTNODE }
   | "BSTree"      { BSTREE }
   | "TreeNode"    { TREENODE } *)
-  | numeric* '.' numeric+
-  | numeric+ '.'numeric* as floatlit { NUM_LITERAL(float_of_string floatlit)}
-  | numeric+ as intlit               { NUM_LITERAL(float_of_string intlit) }
+  | float as lxm  { NUM_LITERAL(float_of_string lxm) }
+  | int as lxm    { INT_LITERAL(int_of_string lxm) }
   | string                           { STRING_LITERAL(s) }
   | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
   | eof { EOF }

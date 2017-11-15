@@ -99,6 +99,7 @@ let check (globals, functions) =
     (* Return the type of an expression or throw an exception *)
     let rec expr = function
         NumLit _ -> Num
+      | IntLit _ -> Int
       | StringLit _ -> String
       | BoolLit _ -> Bool
       | Id s -> type_of_identifier s
@@ -137,6 +138,7 @@ let check (globals, functions) =
         then (if List.length actuals == 1
               then let arg_type = string_of_typ (expr (List.hd actuals)) in
                     if arg_type = string_of_typ (Num) ||
+                       arg_type = string_of_typ (Int) ||
                        arg_type = string_of_typ (String) ||
                        arg_type = string_of_typ (Bool)
                     then Void
@@ -154,10 +156,11 @@ let check (globals, functions) =
                   " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e))))
                fd.formals actuals;
              fd.typ
-      | ArrayCreate(t, len) -> let a = Arraytype(t) and b = expr len in
+      | ArrayCreate(t, len) -> t
+(*       | ArrayCreate(t, len) -> let a = Arraytype(t) and b = type_of_identifier len in
             (match b with
               Num -> a
-            | _ -> raise (Failure("illegal "^ string_of_typ b ^", expected int")))
+            | _ -> raise (Failure("illegal "^ string_of_typ b ^", expected int"))) *)
     in
 
     let check_bool_expr e = if expr e != Bool

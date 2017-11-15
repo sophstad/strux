@@ -19,6 +19,7 @@ and i32_t  = L.i32_type  context;;
 
 let rec ltype_of_typ = function (* LLVM type for AST type *)
     A.Num -> f_t
+  | A.Int -> i32_t
   | A.String -> str_t
   | A.Bool -> i1_t
   | A.Void -> void_t
@@ -71,6 +72,7 @@ and translate (globals, functions) =
       let llbuilder = L.builder_at_end context (L.entry_block the_function) in
 
       let str_format_str = L.build_global_stringptr "%s\n" "fmt" llbuilder in
+      let int_format_str = L.build_global_stringptr "%d\n" "fmt" llbuilder in
       let flt_format_str = L.build_global_stringptr "%f\n" "fmt" llbuilder in
       let bool_format_str = L.build_global_stringptr "%d\n" "fmt" llbuilder in
 
@@ -130,6 +132,7 @@ and translate (globals, functions) =
     (* Define each function (arguments and return type) so we can call it *)
     let rec expr_generator llbuilder = function
         A.NumLit(n) -> L.const_float f_t n
+      | A.IntLit(i) -> L.const_int i32_t i
       | A.BoolLit(b) -> L.const_int i1_t (if b then 1 else 0)
       | A.StringLit(s) -> L.build_global_stringptr s "string" llbuilder
       | A.Id s -> L.build_load (lookup s) s llbuilder
@@ -171,18 +174,18 @@ and translate (globals, functions) =
 
           let size = (L.const_int i32_t size) in
 
-          let size_t = L.build_intcast (L.size_of t) i32_t "1tmp" builder in
+          let size_t = L.build_intcast (L.size_of t) i32_t "1tmp" llbuilder in
 
-          let size = L.build_mul size_t size "2tmp" builder in  (* size * length *)
-          let size_real = L.build_add size (L.const_int i32_t 1) "arr_size" builder in
+          let size = L.build_mul size_t size "2tmp" llbuilder in  (* size * length *)
+          let size_real = L.build_add size (L.const_int i32_t 1) "arr_size" llbuilder in
 
-          let arr = L.build_array_malloc t size_real "333tmp" builder in
-          let arr = L.build_pointercast arr (L.pointer_type t) "4tmp" builder in
+          let arr = L.build_array_malloc t size_real "333tmp" llbuilder in
+          let arr = L.build_pointercast arr (L.pointer_type t) "4tmp" llbuilder in
 
-          let arr_len_ptr = L.build_pointercast arr (L.pointer_type i32_t) "5tmp" builder in
+          let arr_len_ptr = L.build_pointercast arr (L.pointer_type i32_t) "5tmp" llbuilder in
 
-          ignore(L.build_store size_real arr_len_ptr builder); 
-          initialise_array arr_len_ptr size_real (L.const_int i32_t 0) 0 builder;
+          ignore(L.build_store size_real arr_len_ptr llbuilder); 
+          initialise_array arr_len_ptr size_real (L.const_int i32_t 0) 0 llbuilder;
           arr
       | A.FuncCall("print", [e]) ->
           let e' = expr_generator llbuilder e in
@@ -192,6 +195,8 @@ and translate (globals, functions) =
           then L.build_call printf_func [| str_format_str ; e' |] "print" llbuilder
           else if L.type_of e' == ltype_of_typ A.Bool
           then L.build_call printf_func [| bool_format_str ; e' |] "print" llbuilder
+          else if L.type_of e' == ltype_of_typ A.Int
+          then L.build_call printf_func [| int_format_str ; e' |] "print" llbuilder
         else L.build_call printf_func [| str_format_str ; e' |] "print" llbuilder
       | A.FuncCall (f, act) ->
           let (fdef, func_decl) = StringMap.find f function_decls in

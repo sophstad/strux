@@ -7,6 +7,7 @@ type uop = Neg | Not
 
 type typ =
     Num
+  | Int
   | String
   | Bool
   | Void
@@ -19,6 +20,7 @@ type bind = typ * string
 
 type expr =
     NumLit of float
+  | IntLit of int
   | StringLit of string
   | BoolLit of bool
   | Null
@@ -36,8 +38,8 @@ type expr =
   | BSTreeCreate of typ * expr list
   | Null *)
   | Noexpr
-  | ArrayCreate of typ * expr
-  | ArrayAccess of expr * expr
+  | ArrayCreate of typ * int
+  | ArrayAccess of expr * int
 
 
 type stmt =
@@ -85,6 +87,7 @@ let string_of_uop = function
 
 let rec string_of_typ = function
     Num -> "num"
+  | Int -> "int"
   | String -> "string"
   | Bool -> "bool"
   | Void -> "void"
@@ -100,6 +103,7 @@ let rec string_of_typ = function
 let rec string_of_expr = function
     StringLit(s) -> "\"" ^ s ^ "\""
   | NumLit(f) -> string_of_float f
+  | IntLit(i) -> string_of_int i
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
   | Id(s) -> s
@@ -109,8 +113,8 @@ let rec string_of_expr = function
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
   | FuncCall(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
-  | ArrayCreate(typ, len) -> "(array of type " ^ string_of_typ typ ^ " with length " ^ string_of_expr len ^ ")"
-  | ArrayAccess(arrayName, index) -> "(array name: " ^ string_of_expr arrayName ^ " index: " ^ string_of_expr index ^ ")"
+  | ArrayCreate(typ, len) -> "(array of type " ^ string_of_typ typ ^ " with length " ^ string_of_int len ^ ")"
+  | ArrayAccess(arrayName, index) -> "(array name: " ^ string_of_expr arrayName ^ " index: " ^ string_of_int index ^ ")"
   | Noexpr -> ""
 
 let rec string_of_stmt = function
