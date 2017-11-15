@@ -5,7 +5,12 @@ type op = Add | Sub | Mult | Div | Mod | Equal | Neq | Less | Leq | Greater | Ge
 
 type uop = Neg | Not
 
-type typ = Num | String | Bool | Void | Arraytype of typ
+type typ =
+    Num
+  | String
+  | Bool
+  | Void
+  | Arraytype of typ
 (* | Array of typ * num | Stack | Queue | LinkedList | ListNode | BSTree | TreeNode *)
 
 type bind = typ * string
@@ -78,11 +83,12 @@ let string_of_uop = function
     Neg -> "-"
   | Not -> "not"
 
-let string_of_typ = function
+let rec string_of_typ = function
     Num -> "num"
   | String -> "string"
   | Bool -> "bool"
   | Void -> "void"
+  | Arraytype(t) -> "array of " ^ string_of_typ t
   (* | Array -> "array"
   | Stack -> "Stack"
   | Queue -> "Queue"

@@ -127,6 +127,8 @@ expr:
   | expr DECR             { Postop($1, Decr) }
   | ID ASSIGN expr   { Assign($1, $3) }
   | ID LPAREN actuals_opt RPAREN { FuncCall($1, $3) }
+  | NEW primitive LBRACK expr RBRACK  { ArrayCreate($2, $4) }
+  | expr LBRACK expr RBRACK  { ArrayAccess($1, $3) }
   | LPAREN expr RPAREN { $2 }
 
 literal:

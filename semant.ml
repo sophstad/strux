@@ -28,8 +28,16 @@ let check (globals, functions) =
 
   (* Raise an exception of the given rvalue type cannot be assigned to
      the given lvalue type *)
-  let check_assign lvaluet rvaluet err =
+(*   let check_assign lvaluet rvaluet err =
      if lvaluet == rvaluet then lvaluet else raise err
+  in *)
+
+  let check_assign lvaluet rvaluet err =
+    if lvaluet = rvaluet then rvaluet
+    else if lvaluet = Arraytype(Num) && rvaluet = Num then rvaluet
+    else if lvaluet = Arraytype(String) && rvaluet = String then rvaluet
+    else if lvaluet = Arraytype(Bool) && rvaluet = Bool then rvaluet
+    else raise err
   in
 
   (**** Checking Global Variables ****)
@@ -90,34 +98,34 @@ let check (globals, functions) =
 
     (* Return the type of an expression or throw an exception *)
     let rec expr = function
-	     NumLit _ -> Num
+        NumLit _ -> Num
       | StringLit _ -> String
       | BoolLit _ -> Bool
       | Id s -> type_of_identifier s
       | Binop(e1, op, e2) as e -> let t1 = expr e1 and t2 = expr e2 in
-	(match op with
-          Add | Sub | Mult | Div | Mod when t1 = Num && t2 = Num -> Num
-	| Equal | Neq when t1 = t2 -> Bool
-	| Less | Leq | Greater | Geq when t1 = Num && t2 = Num -> Bool
-	| And | Or when t1 = Bool && t2 = Bool -> Bool
-        | _ -> raise (Failure ("illegal binary operator " ^
+        (match op with
+            Add | Sub | Mult | Div | Mod  when t1 = Num && t2 = Num -> Num
+          | Equal | Neq                   when t1 = t2 -> Bool
+          | Less | Leq | Greater | Geq    when t1 = Num && t2 = Num -> Bool
+          | And | Or                      when t1 = Bool && t2 = Bool -> Bool
+          | _ -> raise (Failure ("illegal binary operator " ^
               string_of_typ t1 ^ " " ^ string_of_op op ^ " " ^
               string_of_typ t2 ^ " in " ^ string_of_expr e))
         )
-      | Postop (e, op) as ex ->
-            let t1 = expr e
-            and t2 = expr e in
-            (match op with
-              Incr
-            | Decr when t1 = Num && t2 = Num -> Num
-            | _ -> raise (Failure("illegal unary operator " ^
-                  string_of_op op ^ " on " ^ string_of_expr ex)))
+      | Postop (e, op) as ex -> let t1 = expr e and t2 = expr e in
+        (match op with
+            Incr
+          | Decr when t1 = Num && t2 = Num -> Num
+          | _ -> raise (Failure("illegal unary operator " ^
+                string_of_op op ^ " on " ^ string_of_expr ex))
+        )
       | Unop(op, e) as ex -> let t = expr e in
-	 (match op with
-	   Neg when t = Num -> Num
-	 | Not when t = Bool -> Bool
-         | _ -> raise (Failure ("illegal unary operator " ^ string_of_uop op ^
-	  		   string_of_typ t ^ " in " ^ string_of_expr ex)))
+        (match op with
+          Neg when t = Num -> Num
+          | Not when t = Bool -> Bool
+          | _ -> raise (Failure ("illegal unary operator " ^ string_of_uop op ^
+           string_of_typ t ^ " in " ^ string_of_expr ex))
+        )
       | Noexpr -> Void
       | Assign(var, e) as ex -> let lt = type_of_identifier var
                                 and rt = expr e in
@@ -126,8 +134,8 @@ let check (globals, functions) =
 				     string_of_expr ex))
       | FuncCall(fname, actuals) as call ->
         if fname = "print"
-         then (if List.length actuals == 1
-               then let arg_type = string_of_typ (expr (List.hd actuals)) in
+        then (if List.length actuals == 1
+              then let arg_type = string_of_typ (expr (List.hd actuals)) in
                     if arg_type = string_of_typ (Num) ||
                        arg_type = string_of_typ (String) ||
                        arg_type = string_of_typ (Bool)
@@ -135,10 +143,9 @@ let check (globals, functions) =
                     else raise (Failure ("illegal actual argument found " ^ string_of_typ (expr (List.hd actuals)) ^
                                                       " in " ^ string_of_expr (List.hd actuals)))
                else raise (Failure ("expecting 1 argument in " ^ string_of_expr call)))
-
         else let fd = function_decl fname in
-           if List.length actuals != List.length fd.formals then
-             raise (Failure ("expecting " ^ string_of_int
+           if List.length actuals != List.length fd.formals
+           then raise (Failure ("expecting " ^ string_of_int
                (List.length fd.formals) ^ " arguments in " ^ string_of_expr call))
            else
              List.iter2 (fun (ft, _) e -> let et = expr e in
