@@ -1,3 +1,5 @@
 void main() {
-  num i = 0;
+	string s;
+	s = "hello";
+	print(s);
 }

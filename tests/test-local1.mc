@@ -1,9 +1,11 @@
-void foo() {}
+void foo() {
+	
+}
 
-num bar(num a, bool b, num c) { return a + c; }
+num bar(num a, num b) { 
+	return a + b; 
+}
 
-num main()
-{
-  print(bar(17, false, 25));
-  return 0;
+void main() {
+  print(bar(17, 25));
 }
