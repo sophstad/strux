@@ -17,7 +17,7 @@ let translate (globals, functions) =
   and str_t  = L.pointer_type (L.i8_type context) (* string *)
   and i32_t  = L.i32_type  context in
 
-  let ltype_of_typ datatype = match datatype with (* LLVM type for AST type *)
+  let ltype_of_typ = function (* LLVM type for AST type *)
       A.Num -> f_t
     | A.String -> str_t
     | A.Bool -> i1_t
@@ -156,9 +156,15 @@ let translate (globals, functions) =
           | A.Decr    -> L.build_fsub
           | _         -> raise (Failure("unsupported operation for numbers"))
           ) e' val' "tmp" llbuilder
-      | A.Assign (s, e) ->
+(*       | A.Assign (s, e) ->
           let e' = expr_generator llbuilder e in
-          ignore (L.build_store e' (lookup s) llbuilder); e'
+          ignore (L.build_store e' (lookup s) llbuilder); e' *)
+      | A.Assign (e1, e2) -> let e1' = (match e1 with
+                                            A.Id s -> lookup s
+                                          | _ -> raise (Failure("illegal assignment"))
+                                          )
+                            and e2' = expr_generator llbuilder e2 in
+                     ignore (L.build_store e2' e1' llbuilder); e2'
       | A.FuncCall("print", [e]) ->
           let e' = expr_generator llbuilder e in
           if L.type_of e' == ltype_of_typ A.Num

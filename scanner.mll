@@ -1,6 +1,11 @@
 (* Ocamllex scanner for Strux *)
 
-{ open Parser }
+{ 
+  open Parser 
+
+  let unescape s =
+      Scanf.sscanf ("\"" ^ s ^ "\"") "%S%!" (fun x -> x)
+}
 
 let numeric = ['0'-'9']
 let escape = '\\' ['\\' ''' '"' 'n' 'r' 't']
@@ -63,7 +68,7 @@ rule token = parse
   | numeric* '.' numeric+
   | numeric+ '.'numeric* as floatlit { NUM_LITERAL(float_of_string floatlit)}
   | numeric+ as intlit               { NUM_LITERAL(float_of_string intlit) }
-  | string                           { STRING_LITERAL(s) }
+  | string                           { STRING_LITERAL(unescape s) }
   | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
   | eof { EOF }
   | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }

@@ -21,7 +21,7 @@ type expr =
   | Binop of expr * op * expr
   | Unop of uop * expr
   | Postop of expr * op
-  | Assign of string * expr
+  | Assign of expr * expr
   | FuncCall of string * expr list
   (* | ArrayCreate of typ * expr list
   | ArrayAccess of expr * expr list
@@ -77,7 +77,7 @@ let string_of_uop = function
   | Not -> "not"
 
 let rec string_of_expr = function
-    StringLit(s) -> "\"" ^ s ^ "\""
+    StringLit(s) -> s
   | NumLit(f) -> string_of_float f
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
@@ -85,7 +85,7 @@ let rec string_of_expr = function
   | Binop(e1, o, e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Unop(o, e) -> string_of_uop o ^ string_of_expr e
-  | Assign(v, e) -> v ^ " = " ^ string_of_expr e
+  | Assign(r1, r2) -> (string_of_expr r1) ^ " =  " ^ (string_of_expr r2) 
   | FuncCall(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | Noexpr -> ""
