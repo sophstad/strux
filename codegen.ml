@@ -15,10 +15,11 @@ let translate (globals, functions) =
   and i1_t   = L.i1_type   context    (* bool type *)
   and void_t = L.void_type context    (* void type *)
   and str_t  = L.pointer_type (L.i8_type context) (* string *)
-  and i32_t  = L.i32_type  context in
+  and i32_t  = L.i32_type  context (* integer *) in
 
   let ltype_of_typ = function (* LLVM type for AST type *)
       A.Num -> f_t
+    | A.Int -> i32_t
     | A.String -> str_t
     | A.Bool -> i1_t
     | A.Void -> void_t
@@ -70,6 +71,7 @@ let translate (globals, functions) =
 
       let str_format_str = L.build_global_stringptr "%s\n" "fmt" llbuilder in
       let flt_format_str = L.build_global_stringptr "%f\n" "fmt" llbuilder in
+      let int_format_str = L.build_global_stringptr "%d\n" "fmt" llbuilder in
       let bool_format_str = L.build_global_stringptr "%d\n" "fmt" llbuilder in
 
       (* Construct the function's "locals": formal arguments and locally
@@ -101,13 +103,14 @@ let translate (globals, functions) =
     (* Define each function (arguments and return type) so we can call it *)
     let rec expr_generator llbuilder = function
         A.NumLit(n) -> L.const_float f_t n
+      | A.IntLit(i) -> L.const_int i32_t i
       | A.BoolLit(b) -> L.const_int i1_t (if b then 1 else 0)
       | A.StringLit(s) -> L.build_global_stringptr s "string" llbuilder
       | A.Id s -> L.build_load (lookup s) s llbuilder
       | A.Binop (e1, op, e2) ->
         let e1' = expr_generator llbuilder e1 in
         let e2' = expr_generator llbuilder e2
-        and float_ops = (match op with
+        and num_ops = (match op with
             A.Add     -> L.build_fadd
           | A.Sub     -> L.build_fsub
           | A.Mult    -> L.build_fmul
@@ -126,6 +129,7 @@ let translate (globals, functions) =
           | A.Sub   -> L.build_sub
           | A.Mult   -> L.build_mul
           | A.Div  -> L.build_sdiv
+          | A.Mod     -> L.build_srem
           | A.Equal   -> L.build_icmp L.Icmp.Eq
           | A.Neq     -> L.build_icmp L.Icmp.Ne
           | A.Less    -> L.build_icmp L.Icmp.Slt
@@ -138,24 +142,47 @@ let translate (globals, functions) =
             A.Concat -> expr_generator llbuilder (A.StringLit((string_from_expr e1) ^ (string_from_expr e2), t))
           | _ -> (L.const_int i32_t 0)
         ) *)
+
+        (*  if ((L.type_of e1' = str_t) && (L.type_of e2' = str_t)) then str_ops
+         else  *)
         in
-       (*  if ((L.type_of e1' = str_t) && (L.type_of e2' = str_t)) then str_ops
-        else  *)
-        if ((L.type_of e1' = f_t) && (L.type_of e2' = f_t)) then float_ops e1' e2' "tmp" llbuilder
+
+        if ((L.type_of e1' = f_t) && (L.type_of e2' = f_t)) then num_ops e1' e2' "tmp" llbuilder
         else int_ops e1' e2' "tmp" llbuilder
       | A.Unop (op, e) ->
           let e' = expr_generator llbuilder e in
-          (match op with
-            A.Neg     -> L.build_fneg
-          | A.Not     -> L.build_not) e' "tmp" llbuilder
+          let int_unops op e' = (match op with
+              A.Neg     -> L.build_neg e' "tmp" llbuilder
+            | A.Not     -> L.build_not e' "tmp" llbuilder
+          )
+          and num_unops op e' = (match op with
+              A.Neg     -> L.build_fneg e' "tmp" llbuilder )
+          in
+          if ((L.type_of e' = f_t))
+          then num_unops op e'
+          else int_unops op e'
+
       | A.Postop (e, op) ->
           let e' = expr_generator llbuilder e
-          and val' = L.const_float f_t 1.0 in
-          (match op with
-            A.Incr     -> L.build_fadd
-          | A.Decr    -> L.build_fsub
+          and vali' = L.const_int i32_t 1
+          and valn' = L.const_float f_t 1.0
+          in
+
+          let num_postops e' op = (match op with
+            A.Incr     -> L.build_fadd e' valn' "tmp" llbuilder
+          | A.Decr    -> L.build_fsub e' valn' "tmp" llbuilder
           | _         -> raise (Failure("unsupported operation for numbers"))
-          ) e' val' "tmp" llbuilder
+          )
+          and int_postops e' op = (match op with
+            A.Incr     -> L.build_add e' vali' "tmp" llbuilder
+          | A.Decr    -> L.build_sub e' vali' "tmp" llbuilder
+          | _         -> raise (Failure("unsupported operation for numbers"))
+          ) in
+
+          if ((L.type_of e' = f_t))
+          then num_postops e' op
+          else int_postops e' op
+
 (*       | A.Assign (s, e) ->
           let e' = expr_generator llbuilder e in
           ignore (L.build_store e' (lookup s) llbuilder); e' *)
@@ -171,6 +198,8 @@ let translate (globals, functions) =
           then L.build_call printf_func [| flt_format_str ; e' |] "print" llbuilder
           else if L.type_of e' == ltype_of_typ A.String
           then L.build_call printf_func [| str_format_str ; e' |] "print" llbuilder
+          else if L.type_of e' == ltype_of_typ A.Int
+          then L.build_call printf_func [| int_format_str ; e' |] "print" llbuilder
           else if L.type_of e' == ltype_of_typ A.Bool
           then L.build_call printf_func [| bool_format_str ; e' |] "print" llbuilder
         else L.build_call printf_func [| str_format_str ; e' |] "print" llbuilder

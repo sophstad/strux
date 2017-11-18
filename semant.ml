@@ -91,14 +91,17 @@ let check (globals, functions) =
     (* Return the type of an expression or throw an exception *)
     let rec expr = function
 	     NumLit _ -> Num
+      | IntLit _ -> Int
       | StringLit _ -> String
       | BoolLit _ -> Bool
       | Id s -> type_of_identifier s
       | Binop(e1, op, e2) as e -> let t1 = expr e1 and t2 = expr e2 in
 	(match op with
-          Add | Sub | Mult | Div | Mod when t1 = Num && t2 = Num -> Num
+          Add | Sub | Mult | Div | Mod when t1 = Int && t2 = Int -> Int
+  | Add | Sub | Mult | Div | Mod when t1 = Num && t2 = Num -> Num
 	| Equal | Neq when t1 = t2 -> Bool
-	| Less | Leq | Greater | Geq when t1 = Num && t2 = Num -> Bool
+	| Less | Leq | Greater | Geq when t1 = Int && t2 = Int -> Bool
+  | Less | Leq | Greater | Geq when t1 = Num && t2 = Num -> Bool
 	| And | Or when t1 = Bool && t2 = Bool -> Bool
         | _ -> raise (Failure ("illegal binary operator " ^
               string_of_typ t1 ^ " " ^ string_of_op op ^ " " ^
@@ -108,13 +111,16 @@ let check (globals, functions) =
             let t1 = expr e
             and t2 = expr e in
             (match op with
-              Incr
+              Incr when t1 = Int && t2 = Int  -> Int
+            | Decr when t1 = Int && t2 = Int -> Int
+            | Incr when t1 = Num && t2 = Num -> Num
             | Decr when t1 = Num && t2 = Num -> Num
             | _ -> raise (Failure("illegal unary operator " ^
                   string_of_op op ^ " on " ^ string_of_expr ex)))
       | Unop(op, e) as ex -> let t = expr e in
 	 (match op with
 	   Neg when t = Num -> Num
+   | Neg when t = Int -> Int
 	 | Not when t = Bool -> Bool
          | _ -> raise (Failure ("illegal unary operator " ^ string_of_uop op ^
 	  		   string_of_typ t ^ " in " ^ string_of_expr ex)))
@@ -129,6 +135,7 @@ let check (globals, functions) =
          then (if List.length actuals == 1
                then let arg_type = string_of_typ (expr (List.hd actuals)) in
                     if arg_type = string_of_typ (Num) ||
+                       arg_type = string_of_typ (Int) ||
                        arg_type = string_of_typ (String) ||
                        arg_type = string_of_typ (Bool)
                     then Void

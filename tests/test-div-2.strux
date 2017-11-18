@@ -1,7 +1,7 @@
 void main() {
-	num i;
-	num j;
+	int i;
+	int j;
 	j = 6;
 	i = 0;
-	print(j/i);
+	print(i/j);
 }

@@ -1,14 +1,8 @@
 (* Ocamllex scanner for Strux *)
 
-{ 
-  open Parser 
-
-  let unescape s =
-      Scanf.sscanf ("\"" ^ s ^ "\"") "%S%!" (fun x -> x)
-}
+{ open Parser }
 
 let whitespace = [' ' '\t' '\r' '\n']
-let numeric = ['0'-'9']
 let digits = ['0'-'9']
 let integer = digits+
 let decimal = ['.']
@@ -61,6 +55,7 @@ rule token = parse
   | "continue"    { CONTINUE }
   | "return"      { RETURN }
   | "num"         { NUM }
+  | "int"         { INT }
   | "bool"        { BOOL }
   | "string"      { STRING }
   | "void"        { VOID }
@@ -74,10 +69,9 @@ rule token = parse
   | "ListNode"    { LISTNODE }
   | "BSTree"      { BSTREE }
   | "TreeNode"    { TREENODE } *)
-  | numeric* '.' numeric+
-  | numeric+ '.'numeric* as floatlit { NUM_LITERAL(float_of_string floatlit)}
-  | numeric+ as intlit               { NUM_LITERAL(float_of_string intlit) }
-  | string                           { STRING_LITERAL(unescape s) }
+  | float as lxm { NUM_LITERAL(float_of_string lxm)}
+  | digits+ as intlit               { INT_LITERAL(int_of_string intlit) }
+  | string                           { STRING_LITERAL(s) }
   | id as lxm                        { ID(lxm) }
   | eof { EOF }
   | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
