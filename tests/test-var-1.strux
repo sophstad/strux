@@ -1,11 +1,11 @@
-num getNum() {
+int getInt() {
 	return 0;
 }
 
 void main() {
-	num i;
+	int i;
+	int j;
 	i = 3;
-	num j;
 	j = 7;
 	print(i+j);
 }
