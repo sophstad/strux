@@ -13,9 +13,10 @@ open Ast
 %token SEMI LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK COMMA DOUBLECOL
 %token PLUS MINUS TIMES DIVIDE INCR DECR MOD ASSIGN NOT
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
-%token RETURN NULL IF ELSE ELIF BREAK CONTINUE NEW FOR FOREACH IN WHILE NUM BOOL STRING VOID
+%token RETURN NULL IF ELSE ELIF BREAK CONTINUE NEW FOR FOREACH IN WHILE NUM INT BOOL STRING VOID
 /*%token STACK QUEUE LINKEDLIST LISTNODE BSTREE TREENODE*/
 %token <float> NUM_LITERAL
+%token <int> INT_LITERAL
 %token <string> STRING_LITERAL
 %token <string> ID
 %token EOF
@@ -65,6 +66,7 @@ formal_list:
 
 typ:
     NUM          { Num }
+  | INT          { Int }
   | STRING       { String }
   | BOOL         { Bool }
   | VOID         { Void }
@@ -112,6 +114,7 @@ expr_opt:
 expr:
     STRING_LITERAL   { StringLit($1) }
   | ID               { Id($1) }
+  | INT_LITERAL      { IntLit($1) }
   | NUM_LITERAL      { NumLit($1) }
   | TRUE             { BoolLit(true) }
   | FALSE            { BoolLit(false) }

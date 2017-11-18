@@ -1,0 +1,7 @@
+void main() {
+ num i;
+ num j;
+ i = 9.0;
+ j = 3.0;
+ print(j/i);
+}
