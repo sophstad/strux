@@ -1,16 +1,10 @@
 (* Ocamllex scanner for Strux *)
 
-{
-  open Parser
-
-  let unescape s =
-      Scanf.sscanf ("\"" ^ s ^ "\"") "%S%!" (fun x -> x)
-}
+{ open Parser }
 
 let whitespace = [' ' '\t' '\r' '\n']
 let digits = ['0'-'9']
 let integer = digits+
-let float = (digits+) '.' digits*
 let decimal = ['.']
 let esc = '\\' ['\\' ''' '"' 'n' 'r' 't']
 let ascii = ([' '-'!' '#'-'[' ']'-'~'])
@@ -77,7 +71,7 @@ rule token = parse
   | "TreeNode"    { TREENODE } *)
   | float as lxm { NUM_LITERAL(float_of_string lxm)}
   | digits+ as intlit               { INT_LITERAL(int_of_string intlit) }
-  | string                           { STRING_LITERAL(unescape s) }
+  | string                           { STRING_LITERAL(s) }
   | id as lxm                        { ID(lxm) }
   | eof { EOF }
   | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
