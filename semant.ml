@@ -90,6 +90,11 @@ let check (globals, functions) =
       with Not_found -> raise (Failure ("undeclared identifier " ^ s))
     in
 
+    let getQueueType = function
+       QueueType(typ) -> typ
+      | _ -> Void  
+    in 
+
     (* Return the type of an expression or throw an exception *)
     let rec expr = function
 	     NumLit _ -> Num

@@ -1,0 +1,4 @@
+void main() {
+	Queue<string> q;
+	q = new Queue<string>();
+}
