@@ -16,7 +16,7 @@ strux.native :
 clean :
 	ocamlbuild -clean
 	rm -rf testall.log strux scanner.ml parser.ml parser.mli
-	rm -rf *.cmx *.cmi *.cmo *.cmx *.o
+	rm -rf *.cmx *.cmi *.cmo *.cmx *.o *.strux *.s *.exe
 	rm -rf *.diff *.err *.ll *.pretty *.prettytokens *.out
 
 OBJS = ast.cmx parser.cmx scanner.cmx semant.cmx codegen.cmx strux.cmx

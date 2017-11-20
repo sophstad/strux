@@ -9,6 +9,13 @@
 LLI="lli"
 #LLI="/usr/local/opt/llvm/bin/lli"
 
+# Path to the LLVM compiler
+ #LLC="llc"
+LLC="/usr/local/opt/llvm@3.7/bin/llc-3.7"
+
+# Path to the C compiler
+CC="clang"
+
 # Path to the strux compiler.  Usually "./strux.native"
 # Try "_build/strux.native" if ocamlbuild was unable to create a symbolic link.
 STRUX="./strux.native"
@@ -88,6 +95,10 @@ Check() {
     generatedfiles="$generatedfiles ${basename}.ll ${basename}.out" &&
     Run "$STRUX" "<" $1 ">" "${basename}.ll" &&
     Run "$LLI" "${basename}.ll" ">" "${basename}.out" &&
+    # Run "$LLC" "${basename}.ll" ">" "${basename}.s" &&
+    # Run "$CC" "-o" "${basename}.exe" "${basename}.s" "queue.bc" "pqueue.bc" "linkedlist.bc" "graph.bc" "node.bc" "map.bc"  &&
+    # Run "./${basename}.exe" > "${basename}.out" &&
+   
     Compare ${basename}.out ${reffile}.out ${basename}.diff
 
     # Report the status and clean up the generated files
