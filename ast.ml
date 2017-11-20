@@ -5,7 +5,8 @@ type op = Add | Sub | Mult | Div | Mod | Equal | Neq | Less | Leq | Greater | Ge
 
 type uop = Neg | Not
 
-type typ = Num | Int | String | Bool | Void
+type typ = Num | Int | String | Bool | Void 
+          | QueueType of typ
 (* | Array of typ * num | Stack | Queue | LinkedList | ListNode | BSTree | TreeNode *)
 
 type bind = typ * string
@@ -24,6 +25,7 @@ type expr =
   | Postop of expr * op
   | Assign of expr * expr
   | FuncCall of string * expr list
+  | Queue of typ * expr list
   (* | ArrayCreate of typ * expr list
   | ArrayAccess of expr * expr list
   | StackCreate of typ * expr list
@@ -77,6 +79,14 @@ let string_of_uop = function
     Neg -> "-"
   | Not -> "not"
 
+let rec string_of_typ = function
+    Num -> "num"
+  | Int -> "int"
+  | String -> "string"
+  | Bool -> "bool"
+  | Void -> "void"
+  | QueueType(typ) -> "queue " ^ string_of_typ typ
+  
 let rec string_of_expr = function
     StringLit(s) -> s
   | NumLit(f) -> string_of_float f
@@ -92,13 +102,8 @@ let rec string_of_expr = function
   | FuncCall(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | Noexpr -> ""
+  | Queue(typ, e1) -> "new " ^ "Queue" ^ "<" ^ string_of_typ typ ^ ">" ^ "(" ^ String.concat ", " (List.map string_of_expr e1) ^ ")"
 
-let string_of_typ = function
-    Num -> "num"
-  | Int -> "int"
-  | String -> "string"
-  | Bool -> "bool"
-  | Void -> "void"
   (* | Array -> "array"
   | Stack -> "Stack"
   | Queue -> "Queue"

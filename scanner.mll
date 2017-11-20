@@ -63,7 +63,9 @@ rule token = parse
   | "false"       { FALSE }
   | "new"         { NEW }
   | "null"        { NULL }
-  (* | "Stack"       { STACK }
+  
+    (* 
+  | "Stack"       { STACK }
   | "Queue"       { QUEUE }
   | "LinkedList"  { LINKEDLIST }
   | "ListNode"    { LISTNODE }
