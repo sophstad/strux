@@ -6,8 +6,8 @@
 #  Compile and check the error of each expected-to-fail test
 
 # Path to the LLVM interpreter
-LLI="lli"
-#LLI="/usr/local/opt/llvm/bin/lli"
+#LLI="lli"
+LLI="/usr/local/opt/llvm/bin/lli"
 
 # Path to the LLVM compiler
  #LLC="llc"
@@ -92,13 +92,13 @@ Check() {
 
     generatedfiles=""
 
-    generatedfiles="$generatedfiles ${basename}.ll ${basename}.out" &&
+    # generatedfiles="$generatedfiles ${basename}.ll ${basename}.out" &&
+    generatedfiles="$generatedfiles ${basename}.ll ${basename}.s ${basename}.exe ${basename}.out" &&
     Run "$STRUX" "<" $1 ">" "${basename}.ll" &&
-    Run "$LLI" "${basename}.ll" ">" "${basename}.out" &&
-    # Run "$LLC" "${basename}.ll" ">" "${basename}.s" &&
-    # Run "$CC" "-o" "${basename}.exe" "${basename}.s" "queue.bc" "pqueue.bc" "linkedlist.bc" "graph.bc" "node.bc" "map.bc"  &&
-    # Run "./${basename}.exe" > "${basename}.out" &&
-   
+    # Run "$LLI" "${basename}.ll" ">" "${basename}.out" &&
+    Run "$LLC" "${basename}.ll" ">" "${basename}.s" &&
+    Run "$CC" "-o" "${basename}.exe" "${basename}.s" "queue.bc" "stack.bc" &&
+    Run "./${basename}.exe" > "${basename}.out" &&
     Compare ${basename}.out ${reffile}.out ${basename}.diff
 
     # Report the status and clean up the generated files

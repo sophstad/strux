@@ -9,13 +9,22 @@ module StringMap = Map.Make(String)
 
 let translate (globals, functions) =
   let context = L.global_context () in
-  let the_module = L.create_module context "Strux"
-  and f_t    = L.double_type context  (* float *)
+  let llctx = L.global_context () in
+  let the_module = L.create_module context "Strux" in
+  
+  let qcontext = L.global_context () in
+  let queueBC = L.MemoryBuffer.of_file "queue.bc" in
+  let qqm = Llvm_bitreader.parse_bitcode qcontext queueBC in
+
+  let f_t    = L.double_type context  (* float *)
   and i8_t   = L.i8_type   context    (* print type *)
   and i1_t   = L.i1_type   context    (* bool type *)
   and void_t = L.void_type context    (* void type *)
   and str_t  = L.pointer_type (L.i8_type context) (* string *)
-  and i32_t  = L.i32_type  context (* integer *) in
+  and i32_t  = L.i32_type  context (* integer *) 
+  and queue_t = L.pointer_type (match L.type_by_name qqm "struct.Queue" with
+    None -> raise (Invalid_argument "Option.get queue") | Some x -> x)
+in
 
   let ltype_of_typ = function (* LLVM type for AST type *)
       A.Num -> f_t
@@ -23,6 +32,7 @@ let translate (globals, functions) =
     | A.String -> str_t
     | A.Bool -> i1_t
     | A.Void -> void_t
+    | A.QueueType _ -> queue_t
     | _ -> raise(Failure("Invalid Data Type"))
   in
     (* | A.Array(data_type, i) ->  get_pointer_type (A.Array(data_type, (i)))
@@ -186,12 +196,11 @@ let translate (globals, functions) =
 (*       | A.Assign (s, e) ->
           let e' = expr_generator llbuilder e in
           ignore (L.build_store e' (lookup s) llbuilder); e' *)
-      | A.Assign (e1, e2) -> let e1' = (match e1 with
-                                            A.Id s -> lookup s
+      | A.Assign (e1, e2) -> let e2' = expr_generator llbuilder e2 in
+                                          (match e1 with
+                                            A.Id s -> ignore (L.build_store e2' (lookup s) llbuilder); e2'
                                           | _ -> raise (Failure("illegal assignment"))
                                           )
-                            and e2' = expr_generator llbuilder e2 in
-                     ignore (L.build_store e2' e1' llbuilder); e2'
       | A.FuncCall("print", [e]) ->
           let e' = expr_generator llbuilder e in
           if L.type_of e' == ltype_of_typ A.Num
