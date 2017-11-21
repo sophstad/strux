@@ -14,7 +14,7 @@ struct Node {
 };
 
 
-int isFull(struct Stack *stack) {
+int stack_isFull(struct Stack *stack) {
 	return (stack->size >= stack->capacity);
 }
 
@@ -27,12 +27,12 @@ struct Stack* initStack(unsigned capacity) {
 	return stack;
 }
 
-int size(struct Stack* stack) {
+int stack_size(struct Stack* stack) {
 	return stack->size;
 }
 
 void push(struct Stack *stack, void *data) {
-	if (isFull(stack)) {
+	if (stack_isFull(stack)) {
 		return;
 	}
 	struct Node* node = (struct Node*)malloc(sizeof(struct Node));

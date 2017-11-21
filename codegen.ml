@@ -13,17 +13,17 @@ let translate (globals, functions) =
   let the_module = L.create_module context "Strux" in
   
   let qcontext = L.global_context () in
-  let queueBC = L.MemoryBuffer.of_file "queue.bc" in
-  let qqm = Llvm_bitreader.parse_bitcode qcontext queueBC in
+(*   let queueBC = L.MemoryBuffer.of_file "queue.bc" in
+  let qqm = Llvm_bitreader.parse_bitcode qcontext queueBC in *)
 
   let f_t    = L.double_type context  (* float *)
   and i8_t   = L.i8_type   context    (* print type *)
   and i1_t   = L.i1_type   context    (* bool type *)
   and void_t = L.void_type context    (* void type *)
   and str_t  = L.pointer_type (L.i8_type context) (* string *)
-  and i32_t  = L.i32_type  context (* integer *) 
+  and i32_t  = L.i32_type  context (* integer *) (* 
   and queue_t = L.pointer_type (match L.type_by_name qqm "struct.Queue" with
-    None -> raise (Invalid_argument "Option.get queue") | Some x -> x)
+    None -> raise (Invalid_argument "Option.get queue") | Some x -> x) *)
 in
 
   let ltype_of_typ = function (* LLVM type for AST type *)
@@ -32,7 +32,7 @@ in
     | A.String -> str_t
     | A.Bool -> i1_t
     | A.Void -> void_t
-    | A.QueueType _ -> queue_t
+(*     | A.QueueType _ -> queue_t *)
     | _ -> raise(Failure("Invalid Data Type"))
   in
     (* | A.Array(data_type, i) ->  get_pointer_type (A.Array(data_type, (i)))

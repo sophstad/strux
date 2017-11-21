@@ -13,7 +13,8 @@ struct Node {
 	void *data;
 };
 
-int isFull(struct Queue *q) {
+
+int queue_isFull(struct Queue *q) {
 	return (q->size >= q->capacity);
 }
 
@@ -26,12 +27,12 @@ struct Queue* initQueue(unsigned capacity) {
 	return q;
 }
 
-int size(struct Queue* queue) {
+int queue_size(struct Queue* queue) {
 	return queue->size;
 }
 
 void enqueue(struct Queue *q, void *data) {
-	if (isFull(q)) {
+	if (queue_isFull(q)) {
 		return;
 	}
 	struct Node* node = (struct Node*)malloc(sizeof(struct Node));
@@ -73,10 +74,12 @@ void *front(struct Queue *q) {
 // int main()
 // {
 //     struct Queue* queue = initQueue(10);
- 
-//     enqueue(queue, 10);
-//     enqueue(queue, 20);
-//     enqueue(queue, 30);
+//  	int ten = 10;
+//  	int twenty = 20;
+//  	int thirty = 30;
+//     enqueue(queue, &ten);
+//     enqueue(queue, &twenty);
+//     enqueue(queue, &thirty);
  
 //     printf("Front item is %p\n", front(queue));
  
