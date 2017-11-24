@@ -278,7 +278,7 @@ and translate (globals, functions) =
          have a terminal (e.g., a branch). *)
       let add_terminal llbuilder f =
         match L.block_terminator (L.insertion_block llbuilder) with
-    Some _ -> ()
+          Some _ -> ()
         | None -> ignore (f llbuilder) in
 
 

@@ -28,10 +28,6 @@ let check (globals, functions) =
 
   (* Raise an exception of the given rvalue type cannot be assigned to
      the given lvalue type *)
-(*   let check_assign lvaluet rvaluet err =
-     if lvaluet == rvaluet then lvaluet else raise err
-  in *)
-
   let check_assign lvaluet rvaluet err =
     if lvaluet = rvaluet then rvaluet
     else if lvaluet = Arraytype(Num) && rvaluet = Num then rvaluet
@@ -42,13 +38,11 @@ let check (globals, functions) =
   in
 
   (**** Checking Global Variables ****)
-
   List.iter (check_not_void (fun n -> "illegal void global " ^ n)) globals;
 
   report_duplicate (fun n -> "duplicate global " ^ n) (List.map snd globals);
 
   (**** Checking Functions ****)
-
   if List.mem "print" (List.map (fun fd -> fd.fname) functions)
   then raise (Failure ("function print may not be defined")) else ();
 
@@ -127,15 +121,15 @@ let check (globals, functions) =
               string_of_typ t2 ^ " in " ^ string_of_expr e))
         )
       | Postop (e, op) as ex ->
-            let t1 = expr e
-            and t2 = expr e in
-            (match op with
-              Incr when t1 = Int && t2 = Int  -> Int
-            | Decr when t1 = Int && t2 = Int -> Int
-            | Incr when t1 = Num && t2 = Num -> Num
-            | Decr when t1 = Num && t2 = Num -> Num
-            | _ -> raise (Failure("illegal unary operator " ^
-                  string_of_op op ^ " on " ^ string_of_expr ex)))
+          let t1 = expr e
+          and t2 = expr e in
+          (match op with
+            Incr when t1 = Int && t2 = Int  -> Int
+          | Decr when t1 = Int && t2 = Int -> Int
+          | Incr when t1 = Num && t2 = Num -> Num
+          | Decr when t1 = Num && t2 = Num -> Num
+          | _ -> raise (Failure("illegal unary operator " ^
+                string_of_op op ^ " on " ^ string_of_expr ex)))
       | Unop(op, e) as ex -> let t = expr e in
         (match op with
           Neg when t = Num -> Num

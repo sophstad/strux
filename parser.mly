@@ -38,11 +38,11 @@ decls:
  | decls fdecl { fst $1, ($2 :: snd $1) }
 
 fdecl:
-   typ ID LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
+  typ ID LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
      { { typ = $1;
-	 fname = $2;
-	 formals = $4;
-	 body = List.rev $7 } }
+      fname = $2;
+      formals = $4;
+      body = List.rev $7 } }
 
 formals_opt:
     /* nothing */ { [] }
