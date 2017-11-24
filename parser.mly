@@ -122,7 +122,8 @@ expr:
   | ID ASSIGN expr        { Reassign($1, $3) }
   | ID LPAREN actuals_opt RPAREN { FuncCall($1, $3) }
   | NEW primitive LBRACK INT_LITERAL RBRACK  { ArrayCreate($2, $4) }
-  | expr LBRACK INT_LITERAL RBRACK  { ArrayAccess($1, $3) }
+  | LBRACK actuals_opt RBRACK                { ArrayLit($2) }
+  | expr LBRACK INT_LITERAL RBRACK           { ArrayAccess($1, $3) }
   | LPAREN expr RPAREN { $2 }
 
 literal:

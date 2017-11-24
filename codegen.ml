@@ -95,7 +95,7 @@ and translate (globals, functions) =
         with Not_found -> (snd (StringMap.find n !global_vars))
       in
 
-    (*Array functions*)
+(*     (*Array functions*)
     let initialise_array arr arr_len init_val start_pos llbuilder =
       let new_block label =
         let f = L.block_parent (L.insertion_block llbuilder) in
@@ -120,8 +120,50 @@ and translate (globals, functions) =
         ignore (build_store init_val arr_ptr llbuilder);
         ignore (build_br bbcond llbuilder);
         position_at_end bbdone llbuilder
+    in *)
+
+    (* Array creation, initialization, access *)
+    let create_array t len builder =
+      let ltype = ltype_of_typ t in
+      let size_t = L.build_intcast (L.size_of ltype) i32_t "tmp" builder in
+      let total_size = L.build_mul size_t len "tmp" builder in
+      let total_size = L.build_add total_size (L.const_int i32_t 1) "tmp" builder in
+      let arr_malloc = L.build_array_malloc ltype total_size "tmp" builder in
+      let arr = L.build_pointercast arr_malloc (L.pointer_type ltype) "tmp" builder in
+      arr
     in
 
+    let initialize_array t el builder =
+      let len = L.const_int i32_t (List.length el) in
+      let arr = create_array t len builder in
+      let _ =
+        let assign_value i =
+          let index = L.const_int i32_t i in
+          let index = L.build_add index (L.const_int i32_t 1) "tmp" builder in
+          let _val = L.build_gep arr [| index |] "tmp" builder in
+          L.build_store (List.nth el i) _val builder
+        in
+        for i = 0 to (List.length el)-1 do
+          ignore (assign_value i)
+        done
+      in
+      arr
+    in
+
+    let access_array arr index assign builder =
+      let index = L.build_add index (L.const_int i32_t 1) "tmp" builder in
+      let arr = L.build_load arr "tmp" builder in
+      let _val = L.build_gep arr [| index |] "tmp" builder in
+      if assign then _val else L.build_load _val "tmp" builder
+    in
+
+    let rec gen_type = function
+        A.IntLit _ -> A.Int
+      | A.NumLit _ -> A.Num
+      | A.StringLit _ -> A.String
+      | A.BoolLit _ -> A.Bool
+      | A.ArrayLit el -> A.Arraytype (gen_type (List.nth el 0))
+    in
 
     (* Define each function (arguments and return type) so we can call it *)
     let rec expr_generator llbuilder = function
@@ -224,8 +266,9 @@ and translate (globals, functions) =
       | A.Reassign (s, e) ->
           let e' = expr_generator llbuilder e and llval = lookup s in
           ignore (L.build_store e' llval llbuilder); e'
-      | A.ArrayCreate(typ, size) ->
-          let t = ltype_of_typ typ in
+      | A.ArrayCreate(typ, size) -> let len = L.const_int i32_t size in
+        create_array typ len llbuilder
+(*           let t = ltype_of_typ typ in
 
           let size = (L.const_int i32_t size) in
 
@@ -234,14 +277,20 @@ and translate (globals, functions) =
           let size = L.build_mul size_t size "2tmp" llbuilder in  (* size * length *)
           let size_real = L.build_add size (L.const_int i32_t 1) "arr_size" llbuilder in
 
-          let arr = L.build_array_malloc t size_real "333tmp" llbuilder in
+          let arr = L.build_array_malloc t size_real "3tmp" llbuilder in
           let arr = L.build_pointercast arr (L.pointer_type t) "4tmp" llbuilder in
 
           let arr_len_ptr = L.build_pointercast arr (L.pointer_type i32_t) "5tmp" llbuilder in
 
           ignore(L.build_store size_real arr_len_ptr llbuilder); 
           initialise_array arr_len_ptr size_real (L.const_int i32_t 0) 0 llbuilder;
-          arr
+          arr *)
+      | A.ArrayLit el -> let t = gen_type (List.nth el 0) in
+        initialize_array t (List.map (expr_generator llbuilder) el) llbuilder
+      | A.ArrayAccess (s, i) ->
+          (* let index = expr_generator llbuilder i in *)
+          let llval = lookup s in
+          access_array llval (L.const_int i32_t i) false llbuilder
       | A.FuncCall("print", [e]) ->
           let e' = expr_generator llbuilder e in
           if L.type_of e' == ltype_of_typ A.Num

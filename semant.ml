@@ -35,6 +35,7 @@ let check (globals, functions) =
   let check_assign lvaluet rvaluet err =
     if lvaluet = rvaluet then rvaluet
     else if lvaluet = Arraytype(Num) && rvaluet = Num then rvaluet
+    else if lvaluet = Arraytype(Int) && rvaluet = Int then rvaluet
     else if lvaluet = Arraytype(String) && rvaluet = String then rvaluet
     else if lvaluet = Arraytype(Bool) && rvaluet = Bool then rvaluet
     else raise err
@@ -175,11 +176,15 @@ let check (globals, functions) =
                   " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e))))
                fd.formals actuals;
              fd.typ
+      | ArrayLit(el) -> expr (List.nth el 0)
       | ArrayCreate(t, len) -> t
 (*       | ArrayCreate(t, len) -> let a = Arraytype(t) and b = type_of_identifier len in
             (match b with
               Num -> a
             | _ -> raise (Failure("illegal "^ string_of_typ b ^", expected int"))) *)
+      | ArrayAccess(var, el) as element->
+        if expr el != Int then raise (Failure ("Invalid element access in " ^ string_of_expr element))
+        else array_typ (type_of_identifier var)
     in
 
     let check_bool_expr e = if expr e != Bool

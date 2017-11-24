@@ -34,6 +34,7 @@ type expr =
   | Null *)
   | Noexpr
   | ArrayCreate of typ * int
+  | ArrayLit of expr list
   | ArrayAccess of expr * int
 
 
@@ -85,7 +86,7 @@ let rec string_of_typ = function
   | String -> "string"
   | Bool -> "bool"
   | Void -> "void"
-  | Arraytype(t) -> "array of " ^ string_of_typ t
+  | Arraytype(t) -> string_of_typ t ^ "[]"
   (* | Array -> "array"
   | Stack -> "Stack"
   | Queue -> "Queue"
@@ -110,6 +111,7 @@ let rec string_of_expr = function
   | FuncCall(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | ArrayCreate(typ, len) -> "(array of type " ^ string_of_typ typ ^ " with length " ^ string_of_int len ^ ")"
+  | ArrayLit a -> "[" ^ String.concat " " (List.map string_of_expr a) ^ "]"
   | ArrayAccess(arrayName, index) -> "(array name: " ^ string_of_expr arrayName ^ " index: " ^ string_of_int index ^ ")"
   | Noexpr -> ""
 
