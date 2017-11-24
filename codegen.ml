@@ -34,11 +34,7 @@ let translate (globals, functions) =
     | A.TreeNode -> f_t *)
 
   (* Declare each global variable; remember its value in a map *)
-  let global_vars =
-    let global_var m (t, n) =
-      let init = L.const_int (ltype_of_typ t) 0
-      in StringMap.add n (L.define_global n init the_module) m in
-    List.fold_left global_var StringMap.empty globals in
+  let global_vars = ref StringMap.empty in
 
   (* -------BUILT IN FUNCTIONS----------- *)
 
@@ -77,26 +73,23 @@ let translate (globals, functions) =
       (* Construct the function's "locals": formal arguments and locally
          declared variables.  Allocate each on the stack, initialize their
          value, if appropriate, and remember their values in the "locals" map *)
+
+      (* function to add local variables to a map *)
       let local_vars =
-        let add_formal m (t, n) p = L.set_value_name n p;
-          let local = L.build_alloca (ltype_of_typ t) n llbuilder in
-  	      ignore (L.build_store p local llbuilder);
-          StringMap.add n local m
-        in
+        let add_formal m (t,n) p = L.set_value_name n p;
+        let local = L.build_alloca (ltype_of_typ t) n llbuilder in
+        ignore (L.build_store p local llbuilder);
+        StringMap.add n (t,local) m in
 
-        let add_local m (t, n) =
-          let local_var = L.build_alloca (ltype_of_typ t) n llbuilder in
-          StringMap.add n local_var m
-        in
+        (* add formals to the map *)
+        ref (List.fold_left2 add_formal StringMap.empty func_decl.A.formals
+          (Array.to_list (L.params the_function))) in
 
-        let formals = List.fold_left2 add_formal StringMap.empty func_decl.A.formals
-            (Array.to_list (L.params the_function)) in
-        List.fold_left add_local formals func_decl.A.locals
-      in
-
-      (* Return the value for a variable or formal argument *)
-      let lookup n = try StringMap.find n local_vars
-                     with Not_found -> raise (Failure "Variable not found")
+      (* Return the value or the type for a variable or formal argument *)
+      (* All the tables have the structure (type, llvalue) *)
+      let lookup n : L.llvalue =
+        try (snd (StringMap.find n !local_vars))
+        with Not_found -> (snd (StringMap.find n !global_vars))
       in
 
 
@@ -182,16 +175,25 @@ let translate (globals, functions) =
           if ((L.type_of e' = f_t))
           then num_postops e' op
           else int_postops e' op
-
-(*       | A.Assign (s, e) ->
-          let e' = expr_generator llbuilder e in
-          ignore (L.build_store e' (lookup s) llbuilder); e' *)
-      | A.Assign (e1, e2) -> let e1' = (match e1 with
-                                            A.Id s -> lookup s
-                                          | _ -> raise (Failure("illegal assignment"))
-                                          )
-                            and e2' = expr_generator llbuilder e2 in
-                     ignore (L.build_store e2' e1' llbuilder); e2'
+      | A.Assign (t, s, e) ->
+          let _ = (match func_decl.A.fname with
+            "main" ->
+              let init = (match t with
+                A.Int   -> expr_generator llbuilder (A.IntLit(0))
+              | A.Num -> expr_generator llbuilder (A.NumLit(0.0))
+              | A.String -> expr_generator llbuilder (A.StringLit(""))
+              | A.Bool   -> expr_generator llbuilder (A.BoolLit(false))
+              | t -> L.const_null (ltype_of_typ t)
+            )
+          in
+                (global_vars := StringMap.add s (t, (L.define_global s init the_module)) !global_vars)
+            | _ -> (local_vars := StringMap.add s (t, (L.build_alloca (ltype_of_typ t)) s llbuilder) !local_vars)
+            ) in
+          let e' = expr_generator llbuilder e and llval = lookup s in
+          ignore (L.build_store e' llval llbuilder); e'
+      | A.Reassign (s, e) ->
+          let e' = expr_generator llbuilder e and llval = lookup s in
+          ignore (L.build_store e' llval llbuilder); e'
       | A.FuncCall("print", [e]) ->
           let e' = expr_generator llbuilder e in
           if L.type_of e' == ltype_of_typ A.Num

@@ -1,5 +1,4 @@
 void main() {
-	int j;
-	j = 7;
+	int j = 7;
 	print(j % 2);
 }

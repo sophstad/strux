@@ -1,5 +1,4 @@
 void main() {
-	num j;
-	j = 7.0;
+	num j = 7.0;
 	print(j % 3.0);
 }

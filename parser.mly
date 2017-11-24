@@ -45,16 +45,14 @@ program:
 
 decls:
    /* nothing */ { [], [] }
- | decls vdecl { ($2 :: fst $1), snd $1 }
  | decls fdecl { fst $1, ($2 :: snd $1) }
 
 fdecl:
-   typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+   typ ID LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
      { { typ = $1;
 	 fname = $2;
 	 formals = $4;
-	 locals = List.rev $7;
-	 body = List.rev $8 } }
+	 body = List.rev $7 } }
 
 formals_opt:
     /* nothing */ { [] }
@@ -77,13 +75,7 @@ typ:
   | BSTREE       { BSTree }
   | TREENODE     { TreeNode }*/
 
-vdecl_list:
-    /* nothing */    { [] }
-  | vdecl_list vdecl { $2 :: $1 }
 
-vdecl:
-    typ ID SEMI { ($1, $2) }
-  /*|typ ID ASSIGN expr SEMI { ($1, $2, $4) }*/
 
 stmt_list:
     /* nothing */  { [] }
@@ -136,7 +128,9 @@ expr:
   | NOT expr              { Unop(Not, $2) }
   | expr INCR             { Postop($1, Incr) }
   | expr DECR             { Postop($1, Decr) }
-  | expr ASSIGN expr   { Assign($1, $3) }
+  | typ ID                { Assign($1, $2, Noexpr) }
+  | typ ID ASSIGN expr    { Assign($1, $2, $4) }
+  | ID ASSIGN expr        { Reassign($1, $3) }
   | ID LPAREN actuals_opt RPAREN { FuncCall($1, $3) }
   | LPAREN expr RPAREN { $2 }
 

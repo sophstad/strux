@@ -1,5 +1,5 @@
 void main() {
-	num k;
-	k = 2.5;
+	num k = 6.6;
+  k = 2.5;
 	print(k);
 }
