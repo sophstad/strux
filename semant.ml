@@ -95,7 +95,7 @@ let check (globals, functions) =
 
     (* Return the type of an expression or throw an exception *)
     let rec expr = function
-	     NumLit _ -> Num
+        NumLit _ -> Num
       | IntLit _ -> Int
       | StringLit _ -> String
       | BoolLit _ -> Bool
@@ -132,6 +132,7 @@ let check (globals, functions) =
       | Noexpr -> Void
       | Assign(typ, var, e) as ex ->
           let rt = expr e in
+          if rt == Void then raise (Failure("Must initialize variable with a value.")) else
           ignore (check_assign typ rt (Failure ("illegal assignment " ^ string_of_typ typ ^ " = " ^ string_of_typ rt ^ " in " ^ string_of_expr ex)));
           check_var_decl var (Failure ("duplicate declaration of variable " ^ var));
           let _ =

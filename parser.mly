@@ -128,6 +128,7 @@ expr:
   | NOT expr              { Unop(Not, $2) }
   | expr INCR             { Postop($1, Incr) }
   | expr DECR             { Postop($1, Decr) }
+  | typ ID                { Assign($1, $2, Noexpr) }
   | typ ID ASSIGN expr    { Assign($1, $2, $4) }
   | ID ASSIGN expr        { Reassign($1, $3) }
   | ID LPAREN actuals_opt RPAREN { FuncCall($1, $3) }
