@@ -1,5 +1,4 @@
 void main() {
-	int i;
-	i = 3;
+	int i = 3;
 	print(i/i);
 }

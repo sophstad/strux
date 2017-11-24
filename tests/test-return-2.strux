@@ -3,8 +3,7 @@ bool returnBoolean() {
 }
 
 void main() {
-	bool b;
-	b = returnBoolean();
+	bool b = returnBoolean();
 	print(b);
 }
 

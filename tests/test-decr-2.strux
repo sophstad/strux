@@ -1,5 +1,4 @@
 void main() {
-	num m;
-	m = 5.5;
+	num m = 5.5;
 	print(m--);
 }

@@ -1,5 +1,4 @@
 void main() {
-	bool b;
-	b = true;
+	bool b = true;
 	print(b);
 }

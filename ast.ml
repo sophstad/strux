@@ -22,7 +22,8 @@ type expr =
   | Binop of expr * op * expr
   | Unop of uop * expr
   | Postop of expr * op
-  | Assign of expr * expr
+  | Assign of typ * string * expr
+  | Reassign of string * expr
   | FuncCall of string * expr list
   (* | ArrayCreate of typ * expr list
   | ArrayAccess of expr * expr list
@@ -47,7 +48,6 @@ type func_decl = {
     typ : typ;
     fname : string;
     formals : bind list;
-    locals : bind list;
     body : stmt list;
   }
 
@@ -77,22 +77,6 @@ let string_of_uop = function
     Neg -> "-"
   | Not -> "not"
 
-let rec string_of_expr = function
-    StringLit(s) -> s
-  | NumLit(f) -> string_of_float f
-  | IntLit(i) -> string_of_int i
-  | BoolLit(true) -> "true"
-  | BoolLit(false) -> "false"
-  | Id(s) -> s
-  | Binop(e1, o, e2) ->
-      string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
-  | Unop(o, e) -> string_of_uop o ^ string_of_expr e
-  | Postop(e, o) -> string_of_expr e ^ string_of_op o
-  | Assign(r1, r2) -> (string_of_expr r1) ^ " =  " ^ (string_of_expr r2)
-  | FuncCall(f, el) ->
-      f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
-  | Noexpr -> ""
-
 let string_of_typ = function
     Num -> "num"
   | Int -> "int"
@@ -106,6 +90,23 @@ let string_of_typ = function
   | ListNode -> "ListNode"
   | BSTree -> "BSTree"
   | TreeNode -> "TreeNode" *)
+
+let rec string_of_expr = function
+    StringLit(s) -> s
+  | NumLit(f) -> string_of_float f
+  | IntLit(i) -> string_of_int i
+  | BoolLit(true) -> "true"
+  | BoolLit(false) -> "false"
+  | Id(s) -> s
+  | Binop(e1, o, e2) ->
+      string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
+  | Unop(o, e) -> string_of_uop o ^ string_of_expr e
+  | Postop(e, o) -> string_of_expr e ^ string_of_op o
+  | Assign(t, v, e) -> string_of_typ t ^ " " ^ v ^ " = " ^ string_of_expr e
+  | Reassign(v, e) -> v ^ "=" ^ string_of_expr e
+  | FuncCall(f, el) ->
+      f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
+  | Noexpr -> ""
 
 let rec string_of_stmt = function
     Block(stmts) ->
@@ -130,7 +131,6 @@ let string_of_fdecl fdecl =
   string_of_typ fdecl.typ ^ " " ^
   fdecl.fname ^ "(" ^ String.concat ", " (List.map snd fdecl.formals) ^
   ")\n{\n" ^
-  String.concat "" (List.map string_of_vdecl fdecl.locals) ^
   String.concat "" (List.map string_of_stmt fdecl.body) ^
   "}\n"
 

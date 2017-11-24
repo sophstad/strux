@@ -1,5 +1,4 @@
 void main() {
-	num i;
-	i = 0.0;
+	num i = 0.0;
 	print(i++);
 }

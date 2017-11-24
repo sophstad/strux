@@ -1,5 +1,4 @@
 void main() {
-	string s;
-	s = "hello";
+	string s = "hello";
 	print(s);
 }

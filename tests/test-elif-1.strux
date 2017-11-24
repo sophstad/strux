@@ -1,13 +1,12 @@
 void main() {
-	int i;
-	i = 3;
+	int i = 3;
   if (i > 5) {
-	print(i);
+    print(i);
   }
   elif (true) {
-	print("hello world");
+    print("hello world");
   }
   else {
-	 print("didn't work");
+    print("didn't work");
   }
 }

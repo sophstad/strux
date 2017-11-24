@@ -49,9 +49,9 @@ let check (globals, functions) =
   (* Function declaration for a named function *)
   let built_in_decls =  StringMap.add "print"
      { typ = Void; fname = "print"; formals = [(Num, "x")];
-       locals = []; body = [] } (StringMap.singleton "prints"
+       body = [] } (StringMap.singleton "prints"
      { typ = Void; fname = "prints"; formals = [(String, "x")];
-       locals = []; body = [] })
+       body = [] })
    in
 
   let function_decls = List.fold_left (fun m fd -> StringMap.add fd.fname fd m)
@@ -61,6 +61,9 @@ let check (globals, functions) =
   let function_decl s = try StringMap.find s function_decls
        with Not_found -> raise (Failure ("unrecognized function " ^ s))
   in
+
+  (* Store global variables from Ast.Id to llvalue *)
+  let global_vars = ref StringMap.empty in
 
   let _ = function_decl "main" in (* Ensure "main" is defined *)
 
@@ -72,20 +75,22 @@ let check (globals, functions) =
     report_duplicate (fun n -> "duplicate formal " ^ n ^ " in " ^ func.fname)
       (List.map snd func.formals);
 
-    List.iter (check_not_void (fun n -> "illegal void local " ^ n ^
-      " in " ^ func.fname)) func.locals;
-
-    report_duplicate (fun n -> "duplicate local " ^ n ^ " in " ^ func.fname)
-      (List.map snd func.locals);
-
-    (* Type of each variable (global, formal, or local *)
-    let symbols = List.fold_left (fun m (t, n) -> StringMap.add n t m)
-	StringMap.empty (globals @ func.formals @ func.locals )
+    (* Store type and names of variables - formal *)
+    let variables = ref (List.fold_left (fun m (t, n) -> StringMap.add n t m)
+    StringMap.empty (func.formals))
     in
 
-    let type_of_identifier s =
-      try StringMap.find s symbols
-      with Not_found -> raise (Failure ("undeclared identifier " ^ s))
+    (* Helper: Returns type of identifier *)
+    let type_of_identifier name =
+      try StringMap.find name (!variables)
+      with Not_found -> try StringMap.find name (!global_vars)
+      with Not_found -> raise (Failure ("undeclared identifier " ^ name))
+    in
+
+    (* Helper: Check if variable is already declared *)
+    let check_var_decl var_name err =
+      if StringMap.mem var_name (!variables) || StringMap.mem var_name (!global_vars)
+      then raise err
     in
 
     (* Return the type of an expression or throw an exception *)
@@ -125,11 +130,19 @@ let check (globals, functions) =
          | _ -> raise (Failure ("illegal unary operator " ^ string_of_uop op ^
 	  		   string_of_typ t ^ " in " ^ string_of_expr ex)))
       | Noexpr -> Void
-      | Assign(e1, e2) as ex -> let lt = expr e1
-                                and rt = expr e2 in
-        check_assign lt rt (Failure ("illegal assignment " ^ string_of_typ lt ^
-				     " = " ^ string_of_typ rt ^ " in " ^
-				     string_of_expr ex))
+      | Assign(typ, var, e) as ex ->
+          let rt = expr e in
+          ignore (check_assign typ rt (Failure ("illegal assignment " ^ string_of_typ typ ^ " = " ^ string_of_typ rt ^ " in " ^ string_of_expr ex)));
+          check_var_decl var (Failure ("duplicate declaration of variable " ^ var));
+          let _ =
+            (match func.fname with
+              "main" -> global_vars := StringMap.add var typ (!global_vars)
+              | _ -> variables := StringMap.add var typ (!variables)
+            )
+          in rt
+      | Reassign(var, e) as ex ->
+          let rt = expr e and lt = type_of_identifier var in
+          check_assign lt rt (Failure ("illegal assignment " ^ string_of_typ lt ^ " = " ^ string_of_typ rt ^ " in " ^ string_of_expr ex))
       | FuncCall(fname, actuals) as call ->
         if fname = "print"
          then (if List.length actuals == 1
