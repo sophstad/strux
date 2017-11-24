@@ -121,10 +121,10 @@ expr:
   | typ ID ASSIGN expr    { Assign($1, $2, $4) }
   | ID ASSIGN expr        { Reassign($1, $3) }
   | ID LPAREN actuals_opt RPAREN { FuncCall($1, $3) }
-  | NEW primitive LBRACK INT_LITERAL RBRACK  { ArrayCreate($2, $4) }
   | LBRACK actuals_opt RBRACK                { ArrayLit($2) }
-  | expr LBRACK INT_LITERAL RBRACK           { ArrayAccess($1, $3) }
-  | LPAREN expr RPAREN { $2 }
+  | ID LBRACK expr RBRACK                    { ArrayAccess($1, $3) }
+  | ID LBRACK expr RBRACK ASSIGN expr        { ArrayElementAssign($1, $3, $6) }
+  | LPAREN expr RPAREN                       { $2 }
 
 literal:
     STRING_LITERAL   { StringLit($1) }

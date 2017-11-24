@@ -25,8 +25,7 @@ let rec ltype_of_typ = function (* LLVM type for AST type *)
   | A.Void -> void_t
   | A.Arraytype(t) -> L.pointer_type (ltype_of_typ t)
   | _ -> raise(Failure("Invalid Data Type"))
-  (* | A.Array(data_type, i) ->  get_pointer_type (A.Array(data_type, (i)))
-    | A.Stack -> f_t
+  (* | A.Stack -> f_t
     | A.Queue -> f_t
     | A.LinkedList -> f_t
     | A.ListNode -> f_t
@@ -94,33 +93,6 @@ and translate (globals, functions) =
         try (snd (StringMap.find n !local_vars))
         with Not_found -> (snd (StringMap.find n !global_vars))
       in
-
-(*     (*Array functions*)
-    let initialise_array arr arr_len init_val start_pos llbuilder =
-      let new_block label =
-        let f = L.block_parent (L.insertion_block llbuilder) in
-        L.append_block (context) label f
-      in
-        let bbcurr = L.insertion_block llbuilder in
-        let bbcond = new_block "array.cond" in
-        let bbbody = new_block "array.init" in
-        let bbdone = new_block "array.done" in
-        ignore (L.build_br bbcond llbuilder);
-        L.position_at_end bbcond llbuilder;
-
-        (* Counter into the length of the array *)
-        let counter = L.build_phi [const_int i32_t start_pos, bbcurr] "counter" llbuilder in
-        add_incoming ((build_add counter (const_int i32_t 1) "tmp" llbuilder), bbbody) counter;
-        let cmp = build_icmp Icmp.Slt counter arr_len "tmp" llbuilder in
-        ignore (build_cond_br cmp bbbody bbdone llbuilder);
-        position_at_end bbbody llbuilder;
-
-        (* Assign array position to init_val *)
-        let arr_ptr = build_gep arr [| counter |] "tmp" llbuilder in
-        ignore (build_store init_val arr_ptr llbuilder);
-        ignore (build_br bbcond llbuilder);
-        position_at_end bbdone llbuilder
-    in *)
 
     (* Array creation, initialization, access *)
     let create_array t len builder =
@@ -266,31 +238,18 @@ and translate (globals, functions) =
       | A.Reassign (s, e) ->
           let e' = expr_generator llbuilder e and llval = lookup s in
           ignore (L.build_store e' llval llbuilder); e'
-      | A.ArrayCreate(typ, size) -> let len = L.const_int i32_t size in
-        create_array typ len llbuilder
-(*           let t = ltype_of_typ typ in
-
-          let size = (L.const_int i32_t size) in
-
-          let size_t = L.build_intcast (L.size_of t) i32_t "1tmp" llbuilder in
-
-          let size = L.build_mul size_t size "2tmp" llbuilder in  (* size * length *)
-          let size_real = L.build_add size (L.const_int i32_t 1) "arr_size" llbuilder in
-
-          let arr = L.build_array_malloc t size_real "3tmp" llbuilder in
-          let arr = L.build_pointercast arr (L.pointer_type t) "4tmp" llbuilder in
-
-          let arr_len_ptr = L.build_pointercast arr (L.pointer_type i32_t) "5tmp" llbuilder in
-
-          ignore(L.build_store size_real arr_len_ptr llbuilder); 
-          initialise_array arr_len_ptr size_real (L.const_int i32_t 0) 0 llbuilder;
-          arr *)
       | A.ArrayLit el -> let t = gen_type (List.nth el 0) in
-        initialize_array t (List.map (expr_generator llbuilder) el) llbuilder
+          initialize_array t (List.map (expr_generator llbuilder) el) llbuilder
       | A.ArrayAccess (s, i) ->
-          (* let index = expr_generator llbuilder i in *)
+          let index = expr_generator llbuilder i and llval = lookup s in
+          (* if (List.length llval < index) || (index < 0) then raise (Failure ("Array index out of bounds")) else *)
+          access_array llval index false llbuilder
+      | A.ArrayElementAssign (s, i, e) ->
+          let e' = expr_generator llbuilder e in
+          let index = expr_generator llbuilder i in
           let llval = lookup s in
-          access_array llval (L.const_int i32_t i) false llbuilder
+          let var = access_array llval index true llbuilder in
+          ignore (L.build_store e' var llbuilder); e'
       | A.FuncCall("print", [e]) ->
           let e' = expr_generator llbuilder e in
           if L.type_of e' == ltype_of_typ A.Num

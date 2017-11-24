@@ -102,6 +102,11 @@ let check (globals, functions) =
       then raise err
     in
 
+    let array_typ = function
+        Arraytype(typ) -> typ
+      | _ -> raise(Failure("Expecting an array and was not an array"))
+    in
+
     (* Return the type of an expression or throw an exception *)
     let rec expr = function
         NumLit _ -> Num
@@ -177,14 +182,16 @@ let check (globals, functions) =
                fd.formals actuals;
              fd.typ
       | ArrayLit(el) -> expr (List.nth el 0)
-      | ArrayCreate(t, len) -> t
-(*       | ArrayCreate(t, len) -> let a = Arraytype(t) and b = type_of_identifier len in
-            (match b with
-              Num -> a
-            | _ -> raise (Failure("illegal "^ string_of_typ b ^", expected int"))) *)
       | ArrayAccess(var, el) as element->
-        if expr el != Int then raise (Failure ("Invalid element access in " ^ string_of_expr element))
-        else array_typ (type_of_identifier var)
+          if expr el != Int then raise (Failure ("Invalid element access in " ^ string_of_expr element))
+          else array_typ (type_of_identifier var)
+      | ArrayElementAssign (s, i, e) as ex ->
+          let lt =
+            if expr i != Int then raise (Failure ("invalid element access in " ^ string_of_expr ex))
+            else array_typ (type_of_identifier s)
+          in
+          let rt = expr e in
+          check_assign lt rt (Failure ("illegal assignment " ^ string_of_typ lt ^ " = " ^ string_of_typ rt ^ " in " ^ string_of_expr ex));
     in
 
     let check_bool_expr e = if expr e != Bool

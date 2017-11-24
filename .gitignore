@@ -5,4 +5,5 @@ strux.native
 *.ll
 *.diff
 fail-*.diff
+/*.err
 /*.out

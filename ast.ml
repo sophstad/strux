@@ -33,10 +33,9 @@ type expr =
   | BSTreeCreate of typ * expr list
   | Null *)
   | Noexpr
-  | ArrayCreate of typ * int
   | ArrayLit of expr list
-  | ArrayAccess of expr * int
-
+  | ArrayAccess of string * expr
+  | ArrayElementAssign of string * expr * expr
 
 type stmt =
     Block of stmt list
@@ -87,8 +86,7 @@ let rec string_of_typ = function
   | Bool -> "bool"
   | Void -> "void"
   | Arraytype(t) -> string_of_typ t ^ "[]"
-  (* | Array -> "array"
-  | Stack -> "Stack"
+  (* | Stack -> "Stack"
   | Queue -> "Queue"
   | LinkedList -> "LinkedList"
   | ListNode -> "ListNode"
@@ -110,9 +108,9 @@ let rec string_of_expr = function
   | Reassign(v, e) -> v ^ "=" ^ string_of_expr e
   | FuncCall(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
-  | ArrayCreate(typ, len) -> "(array of type " ^ string_of_typ typ ^ " with length " ^ string_of_int len ^ ")"
   | ArrayLit a -> "[" ^ String.concat " " (List.map string_of_expr a) ^ "]"
-  | ArrayAccess(arrayName, index) -> "(array name: " ^ string_of_expr arrayName ^ " index: " ^ string_of_int index ^ ")"
+  | ArrayAccess(v, i) -> v ^ "[" ^ string_of_expr i ^ "]"
+  | ArrayElementAssign(s, i, e) -> s ^ "[" ^ string_of_expr i ^ "]" ^ " = " ^ string_of_expr e
   | Noexpr -> ""
 
 let rec string_of_stmt = function
