@@ -5,9 +5,15 @@ void main() {
   print(a[2]);
 
   print(testBoolArray());
+  print(testStringArray());
 }
 
 bool testBoolArray() {
   bool[] myBoolArray = [true, false, true];
   return myBoolArray[1];
+}
+
+string testStringArray() {
+  string[] myStringArray = ["hello", "world"];
+  return myStringArray[1];
 }
