@@ -14,7 +14,7 @@ let check (globals, functions) =
   (* Raise an exception if the given list has a duplicate *)
   let report_duplicate exceptf list =
     let rec helper = function
-	n1 :: n2 :: _ when n1 = n2 -> raise (Failure (exceptf n1))
+         n1 :: n2 :: _ when n1 = n2 -> raise (Failure (exceptf n1))
       | _ :: t -> helper t
       | [] -> ()
     in helper (List.sort compare list)
@@ -118,10 +118,10 @@ let check (globals, functions) =
         (match op with
           Add | Sub | Mult | Div | Mod when t1 = Int && t2 = Int -> Int
         | Add | Sub | Mult | Div | Mod when t1 = Num && t2 = Num -> Num
-      	| Equal | Neq when t1 = t2 -> Bool
-      	| Less | Leq | Greater | Geq when t1 = Int && t2 = Int -> Bool
+        | Equal | Neq when t1 = t2 -> Bool
+        | Less | Leq | Greater | Geq when t1 = Int && t2 = Int -> Bool
         | Less | Leq | Greater | Geq when t1 = Num && t2 = Num -> Bool
-      	| And | Or when t1 = Bool && t2 = Bool -> Bool
+        | And | Or when t1 = Bool && t2 = Bool -> Bool
         | _ -> raise (Failure ("illegal binary operator " ^
               string_of_typ t1 ^ " " ^ string_of_op op ^ " " ^
               string_of_typ t2 ^ " in " ^ string_of_expr e))
@@ -200,7 +200,7 @@ let check (globals, functions) =
 
     (* Verify a statement or throw an exception *)
     let rec stmt = function
-	Block sl -> let rec check_block = function
+        Block sl -> let rec check_block = function
            [Return _ as s] -> stmt s
          | Return _ :: _ -> raise (Failure "nothing may follow a return")
          | Block sl :: ss -> check_block (sl @ ss)
