@@ -115,6 +115,7 @@ let check (globals, functions) =
       | BoolLit _ -> Bool
       | Id s -> type_of_identifier s
       | Binop(e1, op, e2) as e -> let t1 = expr e1 and t2 = expr e2 in
+<<<<<<< HEAD
 	(match op with
           Add | Sub | Mult | Div | Mod when t1 = Int && t2 = Int -> Int
   | Add | Sub | Mult | Div | Mod when t1 = Num && t2 = Num -> Num
@@ -143,6 +144,31 @@ let check (globals, functions) =
 	 | Not when t = Bool -> Bool
          | _ -> raise (Failure ("illegal unary operator " ^ string_of_uop op ^
 	  		   string_of_typ t ^ " in " ^ string_of_expr ex)))
+=======
+        (match op with
+            Add | Sub | Mult | Div | Mod  when t1 = Num && t2 = Num -> Num
+          | Equal | Neq                   when t1 = t2 -> Bool
+          | Less | Leq | Greater | Geq    when t1 = Num && t2 = Num -> Bool
+          | And | Or                      when t1 = Bool && t2 = Bool -> Bool
+          | _ -> raise (Failure ("illegal binary operator " ^
+              string_of_typ t1 ^ " " ^ string_of_op op ^ " " ^
+              string_of_typ t2 ^ " in " ^ string_of_expr e))
+        )
+      | Postop (e, op) as ex -> let t1 = expr e and t2 = expr e in
+        (match op with
+            Incr
+          | Decr when t1 = Num && t2 = Num -> Num
+          | _ -> raise (Failure("illegal unary operator " ^
+                string_of_op op ^ " on " ^ string_of_expr ex))
+        )
+      | Unop(op, e) as ex -> let t = expr e in
+        (match op with
+          Neg when t = Num -> Num
+          | Not when t = Bool -> Bool
+          | _ -> raise (Failure ("illegal unary operator " ^ string_of_uop op ^
+           string_of_typ t ^ " in " ^ string_of_expr ex))
+        )
+>>>>>>> df9068bb59097216cc069ffed19b568915dc141d
       | Noexpr -> Void
       | Assign(typ, var, e) as ex ->
           let rt = expr e in
@@ -181,6 +207,7 @@ let check (globals, functions) =
                   " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e))))
                fd.formals actuals;
              fd.typ
+<<<<<<< HEAD
       | ArrayLit(el) -> expr (List.nth el 0)
       | ArrayAccess(var, el) as element->
           if expr el != Int then raise (Failure ("Invalid element access in " ^ string_of_expr element))
@@ -192,6 +219,13 @@ let check (globals, functions) =
           in
           let rt = expr e in
           check_assign lt rt (Failure ("illegal assignment " ^ string_of_typ lt ^ " = " ^ string_of_typ rt ^ " in " ^ string_of_expr ex));
+=======
+      | ArrayCreate(t, len) -> t
+(*       | ArrayCreate(t, len) -> let a = Arraytype(t) and b = type_of_identifier len in
+            (match b with
+              Num -> a
+            | _ -> raise (Failure("illegal "^ string_of_typ b ^", expected int"))) *)
+>>>>>>> df9068bb59097216cc069ffed19b568915dc141d
     in
 
     let check_bool_expr e = if expr e != Bool

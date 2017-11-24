@@ -6,7 +6,7 @@ type op = Add | Sub | Mult | Div | Mod | Equal | Neq | Less | Leq | Greater | Ge
 type uop = Neg | Not
 
 type typ = Num | Int | String | Bool | Void | Arraytype of typ
-(* | Array of typ * num | Stack | Queue | LinkedList | ListNode | BSTree | TreeNode *)
+(* | Stack | Queue | LinkedList | ListNode | BSTree | TreeNode *)
 
 type bind = typ * string
 
