@@ -1,7 +1,7 @@
 %{ open Ast %}
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK COMMA DOUBLECOL
-%token PLUS MINUS TIMES DIVIDE INCR DECR MOD ASSIGN NOT
+%token PLUS MINUS TIMES DIVIDE INCR DECR MOD ASSIGN CONCAT NOT
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
 %token RETURN NULL IF ELSE ELIF BREAK CONTINUE NEW FOR FOREACH IN WHILE NUM INT BOOL STRING VOID
 /*%token STACK QUEUE LINKEDLIST LISTNODE BSTREE TREENODE*/
@@ -20,7 +20,7 @@
 %left AND
 %left EQ NEQ
 %left LT GT LEQ GEQ
-%left PLUS MINUS
+%left PLUS MINUS CONCAT
 %left TIMES DIVIDE
 %right MOD
 %right NOT NEG
@@ -125,6 +125,10 @@ expr:
   | ID LBRACK expr RBRACK                    { ArrayAccess($1, $3) }
   | ID LBRACK expr RBRACK ASSIGN expr        { ArrayElementAssign($1, $3, $6) }
   | LPAREN expr RPAREN                       { $2 }
+  | string_concat         {$1}
+
+string_concat:
+  	  expr CONCAT expr {Binop($1, Concat, $3)}
 
 literal:
     STRING_LITERAL   { StringLit($1) }

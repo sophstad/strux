@@ -129,6 +129,15 @@ and translate (globals, functions) =
       if assign then _val else L.build_load _val "tmp" builder
     in
 
+    let string_from_expr = function
+      A.NumLit(f) -> string_of_float f
+    | A.IntLit(i) -> string_of_int i
+    | A.BoolLit(b) -> string_of_bool b
+    | A.StringLit(s) -> s
+    | A.Id(x) -> x
+    | _ -> ""
+    in
+
     let rec gen_type = function
         A.IntLit _ -> A.Int
       | A.NumLit _ -> A.Num
@@ -175,16 +184,13 @@ and translate (globals, functions) =
           | A.Geq     -> L.build_icmp L.Icmp.Sge
           | _ -> L.build_icmp L.Icmp.Eq
         )
-       (*  and str_ops = (match op with
-            A.Concat -> expr_generator llbuilder (A.StringLit((string_from_expr e1) ^ (string_from_expr e2), t))
+        and str_ops = (match op with
+            A.Concat -> expr_generator llbuilder (A.StringLit(string_from_expr e1 ^ string_from_expr e2))
           | _ -> (L.const_int i32_t 0)
-        ) *)
-
-        (*  if ((L.type_of e1' = str_t) && (L.type_of e2' = str_t)) then str_ops
-         else  *)
+        )
         in
-
-        if ((L.type_of e1' = f_t) && (L.type_of e2' = f_t)) then num_ops e1' e2' "tmp" llbuilder
+        if ((L.type_of e1' = str_t) && (L.type_of e2' = str_t)) then str_ops
+        else if ((L.type_of e1' = f_t) && (L.type_of e2' = f_t)) then num_ops e1' e2' "tmp" llbuilder
         else int_ops e1' e2' "tmp" llbuilder
       | A.Unop (op, e) ->
           let e' = expr_generator llbuilder e in

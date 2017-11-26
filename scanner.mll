@@ -34,6 +34,7 @@ rule token = parse
   | "++"      { INCR }
   | "--"      { DECR }
   | '='       { ASSIGN }
+  | '^'      { CONCAT }
   | "::"      { DOUBLECOL }
   | "=="      { EQ }
   | "!="      { NEQ }

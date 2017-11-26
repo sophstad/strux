@@ -1,7 +1,7 @@
 (* Abstract Syntax Tree and functions for printing it *)
 
 type op = Add | Sub | Mult | Div | Mod | Equal | Neq | Less | Leq | Greater | Geq |
-          And | Or | Incr | Decr
+          And | Or | Incr | Decr | Concat
 
 type uop = Neg | Not
 
@@ -22,6 +22,7 @@ type expr =
   | Binop of expr * op * expr
   | Unop of uop * expr
   | Postop of expr * op
+  | Concat of expr * expr
   | Assign of typ * string * expr
   | Reassign of string * expr
   | FuncCall of string * expr list
@@ -67,6 +68,7 @@ let string_of_op = function
   | Neq -> "!="
   | Less -> "<"
   | Leq -> "<="
+  | Concat -> "^"
   | Greater -> ">"
   | Geq -> ">="
   | And -> "and"
@@ -111,6 +113,7 @@ let rec string_of_expr = function
   | ArrayLit a -> "[" ^ String.concat " " (List.map string_of_expr a) ^ "]"
   | ArrayAccess(v, i) -> v ^ "[" ^ string_of_expr i ^ "]"
   | ArrayElementAssign(s, i, e) -> s ^ "[" ^ string_of_expr i ^ "]" ^ " = " ^ string_of_expr e
+  | Concat(l, r) -> string_of_expr l ^ "^" ^ string_of_expr r
   | Noexpr -> ""
 
 let rec string_of_stmt = function
