@@ -10,13 +10,13 @@ module StringMap = Map.Make(String)
 let translate (globals, functions) =
   let context = L.global_context () in
   let llctx = L.global_context () in
-  let the_module = L.create_module context "Strux" in
+  
   
   let qcontext = L.global_context () in
 (*   let queueBC = L.MemoryBuffer.of_file "queue.bc" in
   let qqm = Llvm_bitreader.parse_bitcode qcontext queueBC in *)
-
-  let f_t    = L.double_type context  (* float *)
+  let the_module = L.create_module context "Strux" 
+  and f_t    = L.double_type context  (* float *)
   and i8_t   = L.i8_type   context    (* print type *)
   and i1_t   = L.i1_type   context    (* bool type *)
   and void_t = L.void_type context    (* void type *)

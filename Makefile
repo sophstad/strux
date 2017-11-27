@@ -11,7 +11,7 @@ all : strux.native
 # 		strux.native
 
 strux.native :
-	ocamlbuild -use-ocamlfind -pkgs llvm,llvm.analysis,llvm.linker,llvm.bitreader,llvm.irreader -cflags -w,+a-4 \
+	ocamlbuild -use-ocamlfind -pkgs llvm,llvm.analysis,llvm.linker,llvm.bitreader,llvm.irreader,str -cflags -w,+a-4 \
 		strux.native
 
 # "make clean" removes all generated files
