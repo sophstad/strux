@@ -96,7 +96,7 @@ Check() {
     Run "$STRUX" "<" "$1" ">" "${basename}.ll" &&
     # Run "$LLI" "${basename}.ll" ">" "${basename}.out" &&
     Run "$LLC" "${basename}.ll" ">" "${basename}.s" &&
-    Run "$CC" "-o" "${basename}.exe" "${basename}.s" "printbig.o" &&
+    Run "$CC" "-o" "${basename}.exe" "${basename}.s" "printbig.o" "stack.o" "queue.o" &&
     Run "./${basename}.exe" > "${basename}.out" &&
     Compare ${basename}.out ${reffile}.out ${basename}.diff
 
@@ -171,6 +171,20 @@ if [ ! -f printbig.o ]
     then        
         echo "Could not find printbig.o"        
         echo "Try \"make printbig.o\""      
+        exit 1      
+fi
+
+if [ ! -f stack.o ]      
+    then        
+        echo "Could not find stack.o"        
+        echo "Try \"make stack.o\""      
+        exit 1      
+fi
+
+if [ ! -f queue.o ]      
+    then        
+        echo "Could not find queue.o"        
+        echo "Try \"make queue.o\""      
         exit 1      
 fi
 
