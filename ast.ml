@@ -79,7 +79,7 @@ let string_of_uop = function
     Neg -> "-"
   | Not -> "not"
 
-let rec string_of_typ = function
+let string_of_typ = function
     Num -> "num"
   | Int -> "int"
   | String -> "string"

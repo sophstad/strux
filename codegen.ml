@@ -9,13 +9,13 @@ module StringMap = Map.Make(String)
 
 let translate (globals, functions) =
   let context = L.global_context () in
-  let llctx = L.global_context () in
-  
-  
-  let qcontext = L.global_context () in
-(*   let queueBC = L.MemoryBuffer.of_file "queue.bc" in
-  let qqm = Llvm_bitreader.parse_bitcode qcontext queueBC in *)
+(*   let llctx = L.global_context () in *)
   let the_module = L.create_module context "Strux" 
+  
+ (*  let qcontext = L.global_context () in
+  let queueBC = L.MemoryBuffer.of_file "queue.bc" in
+  let qqm = Llvm_bitreader.parse_bitcode qcontext queueBC in
+   *)
   and f_t    = L.double_type context  (* float *)
   and i8_t   = L.i8_type   context    (* print type *)
   and i1_t   = L.i1_type   context    (* bool type *)
@@ -198,11 +198,16 @@ in
 (*       | A.Assign (s, e) ->
           let e' = expr_generator llbuilder e in
           ignore (L.build_store e' (lookup s) llbuilder); e' *)
-      | A.Assign (e1, e2) -> let e2' = expr_generator llbuilder e2 in
+  (*     | A.Assign (e1, e2) -> let e2' = expr_generator llbuilder e2 in
                                           (match e1 with
                                             A.Id s -> ignore (L.build_store e2' (lookup s) llbuilder); e2'
                                           | _ -> raise (Failure("illegal assignment"))
-                                          )
+                                          ) *)
+          | A.Assign (e1, e2) -> let e1' = (match e1 with
+                                            A.Id s -> lookup s
+                                            | _ -> raise (Failure("illegal assignment"))
+                                          ) and e2' = expr_generator llbuilder e2 in
+           ignore (L.build_store e2' e1' llbuilder); e2'
       | A.FuncCall("print", [e]) ->
           let e' = expr_generator llbuilder e in
           if L.type_of e' == ltype_of_typ A.Num
