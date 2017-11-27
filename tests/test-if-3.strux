@@ -1,9 +1,10 @@
-void main() {
-  num i;
-  i = 3.5;
+int main() {
+  	num i;
+  	i = 3.5;
 	if (i > 3.0) {
 		print("it's true!");
 	} else {
 		print("it's not true here!");
 	}
+	return 0;
 }

@@ -3,9 +3,10 @@ void foo() {
 }
 
 int bar(int a, int b) {
-  return a + b;
+  	return a + b;
 }
 
-void main() {
-  print(bar(17, 25));
+int main() {
+	print(bar(17, 25));
+  	return 0;
 }

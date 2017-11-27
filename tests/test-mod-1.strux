@@ -1,5 +1,6 @@
-void main() {
+int main() {
 	num j;
 	j = 7.0;
 	print(j % 3.0);
+	return 0;
 }

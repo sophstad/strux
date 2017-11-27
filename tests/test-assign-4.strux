@@ -1,5 +1,6 @@
-void main() {
+int main() {
 	bool b;
 	b = true;
 	print(b);
+	return 0;
 }

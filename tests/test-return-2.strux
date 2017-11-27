@@ -2,9 +2,10 @@ bool returnBoolean() {
 	return true;
 }
 
-void main() {
+int main() {
 	bool b;
 	b = returnBoolean();
 	print(b);
+	return 0;
 }
 

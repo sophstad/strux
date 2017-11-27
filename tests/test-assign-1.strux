@@ -1,5 +1,6 @@
-void main() {
+int main() {
 	string s;
 	s = "hello";
 	print(s);
+	return 0;
 }

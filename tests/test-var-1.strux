@@ -2,10 +2,11 @@ int getInt() {
 	return 0;
 }
 
-void main() {
+int main() {
 	int i;
 	int j;
 	i = 3;
 	j = 7;
 	print(i+j);
+	return 0;
 }
