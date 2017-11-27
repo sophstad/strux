@@ -33,15 +33,15 @@ scanner.ml: scanner.mll
 	ocamllex scanner.mll
 
 parser.ml parser.mli: parser.mly
-	ocamlyacc parser.mly
+	$(YACC) parser.mly
 
-%.cmo: %.ml
+%.cmo : %.ml
 	ocamlc -c $<
 
-%.cmi: %.mli
+%.cmi : %.mli
 	ocamlc -c $<
 
-%.cmx: %.ml
+%.cmx : %.ml
 	ocamlfind ocamlopt -c -package llvm $<
 
 printbig : printbig.c
