@@ -1,5 +1,6 @@
-void main() {
+int main() {
 	int i = 0;
 	int j = 6;
 	print(i/j);
+	return 0;
 }

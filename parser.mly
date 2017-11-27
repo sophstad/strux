@@ -4,6 +4,7 @@
 %token PLUS MINUS TIMES DIVIDE INCR DECR MOD ASSIGN NOT
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
 %token RETURN NULL IF ELSE ELIF BREAK CONTINUE NEW FOR FOREACH IN WHILE NUM INT BOOL STRING VOID
+/*%token QUEUE*/
 /*%token STACK QUEUE LINKEDLIST LISTNODE BSTREE TREENODE*/
 %token <float> NUM_LITERAL
 %token <int> INT_LITERAL
@@ -58,6 +59,7 @@ primitive:
   | STRING       { String }
   | BOOL         { Bool }
   | VOID         { Void }
+  /*| QUEUE LT typ GT { QueueType($3)}*/
   /*| STACK        { Stack }
   | QUEUE        { Queue }
   | LINKEDLIST   { LinkedList }

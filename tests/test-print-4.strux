@@ -1,4 +1,5 @@
-void main() {
+int main() {
 	print(52);
 	print(16);
+	return 0;
 }

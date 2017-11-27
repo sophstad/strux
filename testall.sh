@@ -8,13 +8,12 @@
 # Path to the LLVM interpreter
 LLI="lli"
 #LLI="/usr/local/opt/llvm/bin/lli"
-
 # Path to the LLVM compiler
  #LLC="llc"
 LLC="/usr/local/opt/llvm@3.7/bin/llc-3.7"
 
 # Path to the C compiler
-CC="clang"
+CC="cc"
 
 # Path to the strux compiler.  Usually "./strux.native"
 # Try "_build/strux.native" if ocamlbuild was unable to create a symbolic link.
@@ -92,13 +91,13 @@ Check() {
 
     generatedfiles=""
 
-    generatedfiles="$generatedfiles ${basename}.ll ${basename}.out" &&
-    Run "$STRUX" "<" $1 ">" "${basename}.ll" &&
-    Run "$LLI" "${basename}.ll" ">" "${basename}.out" &&
-    # Run "$LLC" "${basename}.ll" ">" "${basename}.s" &&
-    # Run "$CC" "-o" "${basename}.exe" "${basename}.s" "queue.bc" "pqueue.bc" "linkedlist.bc" "graph.bc" "node.bc" "map.bc"  &&
-    # Run "./${basename}.exe" > "${basename}.out" &&
-   
+    # generatedfiles="$generatedfiles ${basename}.ll ${basename}.out" &&
+    generatedfiles="$generatedfiles ${basename}.ll ${basename}.s ${basename}.exe ${basename}.out" &&
+    Run "$STRUX" "<" "$1" ">" "${basename}.ll" &&
+    # Run "$LLI" "${basename}.ll" ">" "${basename}.out" &&
+    Run "$LLC" "${basename}.ll" ">" "${basename}.s" &&
+    Run "$CC" "-o" "${basename}.exe" "${basename}.s" "printbig.o" "stack.o" "queue.o" &&
+    Run "./${basename}.exe" > "${basename}.out" &&
     Compare ${basename}.out ${reffile}.out ${basename}.diff
 
     # Report the status and clean up the generated files
@@ -167,6 +166,27 @@ LLIFail() {
 }
 
 which "$LLI" >> $globallog || LLIFail
+
+if [ ! -f printbig.o ]      
+    then        
+        echo "Could not find printbig.o"        
+        echo "Try \"make printbig.o\""      
+        exit 1      
+fi
+
+if [ ! -f stack.o ]      
+    then        
+        echo "Could not find stack.o"        
+        echo "Try \"make stack.o\""      
+        exit 1      
+fi
+
+if [ ! -f queue.o ]      
+    then        
+        echo "Could not find queue.o"        
+        echo "Try \"make queue.o\""      
+        exit 1      
+fi
 
 
 if [ $# -ge 1 ]

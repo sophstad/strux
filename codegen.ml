@@ -17,6 +17,14 @@ and void_t = L.void_type context    (* void type *)
 and str_t  = L.pointer_type (L.i8_type context) (* string *)
 and i32_t  = L.i32_type  context;;
 
+(*   let llctx = L.global_context () in *)
+ (*  let qcontext = L.global_context () in
+  let queueBC = L.MemoryBuffer.of_file "queue.bc" in
+  let qqm = Llvm_bitreader.parse_bitcode qcontext queueBC in
+   *) (* 
+  and queue_t = L.pointer_type (match L.type_by_name qqm "struct.Queue" with
+    None -> raise (Invalid_argument "Option.get queue") | Some x -> x) *)
+
 let rec ltype_of_typ = function (* LLVM type for AST type *)
     A.Num -> f_t
   | A.Int -> i32_t
@@ -24,8 +32,10 @@ let rec ltype_of_typ = function (* LLVM type for AST type *)
   | A.Bool -> i1_t
   | A.Void -> void_t
   | A.Arraytype(t) -> L.pointer_type (ltype_of_typ t)
+  (*     | A.QueueType _ -> queue_t *)
   | _ -> raise(Failure("Invalid Data Type"))
   (* | A.Stack -> f_t
+>>>>>>> master
     | A.Queue -> f_t
     | A.LinkedList -> f_t
     | A.ListNode -> f_t
@@ -50,6 +60,8 @@ and translate (globals, functions) =
   let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
   let printf_func = L.declare_function "printf" printf_t the_module in
 
+  let printbig_t = L.function_type i32_t [| i32_t |] in
+  let printbig_func = L.declare_function "printbig" printbig_t the_module in
 
   (* Define each function (arguments and return type) so we can call it *)
   let function_decls =
@@ -263,6 +275,8 @@ and translate (globals, functions) =
           else if L.type_of e' == ltype_of_typ A.Int
           then L.build_call printf_func [| int_format_str ; e' |] "print" llbuilder
         else L.build_call printf_func [| str_format_str ; e' |] "print" llbuilder
+      | A.FuncCall ("printbig", [e]) ->
+    L.build_call printbig_func [| (expr_generator llbuilder e) |] "printbig" llbuilder
       | A.FuncCall (f, act) ->
           let (fdef, func_decl) = StringMap.find f function_decls in
           let actuals = List.rev (List.map (expr_generator llbuilder) (List.rev act)) in

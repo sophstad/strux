@@ -1,3 +1,4 @@
-void main() {
+int main() {
   print(6);
+  return 0;
 }

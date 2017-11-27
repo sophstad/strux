@@ -1,4 +1,5 @@
-void main() {
+int main() {
 	num i = 0.0;
 	print(i++);
+	return 0;
 }

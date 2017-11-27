@@ -1,0 +1,12 @@
+void foo() {
+	
+}
+
+int bar(int a, int b) {
+  	return a + b;
+}
+
+int main() {
+	print(bar(17, 25));
+  	return 0;
+}

@@ -52,9 +52,11 @@ let check (globals, functions) =
   (* Function declaration for a named function *)
   let built_in_decls =  StringMap.add "print"
      { typ = Void; fname = "print"; formals = [(Num, "x")];
-       body = [] } (StringMap.singleton "prints"
-     { typ = Void; fname = "prints"; formals = [(String, "x")];
-       body = [] })
+       body = [] } (StringMap.add "printb"
+     { typ = Void; fname = "printb"; formals = [(Bool, "x")];
+       body = [] } (StringMap.singleton "printbig"
+     { typ = Void; fname = "printbig"; formals = [(Int, "x")];
+       body = [] }))
    in
 
   let function_decls = List.fold_left (fun m fd -> StringMap.add fd.fname fd m)
@@ -101,11 +103,17 @@ let check (globals, functions) =
       | _ -> raise(Failure("Expecting an array and was not an array"))
     in
 
+(*     let getQueueType = function
+       QueueType(typ) -> typ
+      | _ -> Void  
+    in  *)
+
     (* Return the type of an expression or throw an exception *)
     let rec expr = function
         NumLit _ -> Num
       | IntLit _ -> Int
       | StringLit _ -> String
+(*       | Queue (t, _) -> QueueType(t) *)
       | BoolLit _ -> Bool
       | Id s -> type_of_identifier s
       | Binop(e1, op, e2) as e -> let t1 = expr e1 and t2 = expr e2 in

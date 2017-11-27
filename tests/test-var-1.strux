@@ -2,8 +2,9 @@ int getInt() {
 	return 0;
 }
 
-void main() {
+int main() {
 	int i = 3;
 	int j = 7;
 	print(i+j);
+	return 0;
 }
