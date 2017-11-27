@@ -13,7 +13,7 @@ LLI="lli"
 LLC="/usr/local/opt/llvm@3.7/bin/llc-3.7"
 
 # Path to the C compiler
-CC="clang"
+CC="cc"
 
 # Path to the strux compiler.  Usually "./strux.native"
 # Try "_build/strux.native" if ocamlbuild was unable to create a symbolic link.
@@ -93,10 +93,10 @@ Check() {
 
     # generatedfiles="$generatedfiles ${basename}.ll ${basename}.out" &&
     generatedfiles="$generatedfiles ${basename}.ll ${basename}.s ${basename}.exe ${basename}.out" &&
-    Run "$STRUX" "<" $1 ">" "${basename}.ll" &&
+    Run "$STRUX" "<" "$1" ">" "${basename}.ll" &&
     # Run "$LLI" "${basename}.ll" ">" "${basename}.out" &&
     Run "$LLC" "${basename}.ll" ">" "${basename}.s" &&
-    Run "$CC" "-o" "${basename}.exe" "${basename}.s" "queue.bc" "stack.bc" &&
+    Run "$CC" "-o" "${basename}.exe" "${basename}.s" "printbig.o" &&
     Run "./${basename}.exe" > "${basename}.out" &&
     Compare ${basename}.out ${reffile}.out ${basename}.diff
 
@@ -166,6 +166,13 @@ LLIFail() {
 }
 
 which "$LLI" >> $globallog || LLIFail
+
+if [ ! -f printbig.o ]      
+    then        
+        echo "Could not find printbig.o"        
+        echo "Try \"make printbig.o\""      
+        exit 1      
+fi
 
 
 if [ $# -ge 1 ]

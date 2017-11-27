@@ -14,7 +14,7 @@ open Ast
 %token PLUS MINUS TIMES DIVIDE INCR DECR MOD ASSIGN NOT
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
 %token RETURN NULL IF ELSE ELIF BREAK CONTINUE NEW FOR FOREACH IN WHILE NUM INT BOOL STRING VOID
-%token QUEUE
+/*%token QUEUE*/
 /*%token STACK QUEUE LINKEDLIST LISTNODE BSTREE TREENODE*/
 %token <float> NUM_LITERAL
 %token <int> INT_LITERAL
@@ -71,7 +71,7 @@ typ:
   | STRING       { String }
   | BOOL         { Bool }
   | VOID         { Void }
-  | QUEUE LT typ GT { QueueType($3)}
+  /*| QUEUE LT typ GT { QueueType($3)}*/
   /*| STACK        { Stack }
   | QUEUE        { Queue }
   | LINKEDLIST   { LinkedList }
@@ -121,7 +121,7 @@ expr:
   | TRUE             { BoolLit(true) }
   | FALSE            { BoolLit(false) }
   | NULL             { Null }
-  | NEW QUEUE LT typ GT LPAREN actuals_opt RPAREN { Queue($4, $7) }
+  /*| NEW QUEUE LT typ GT LPAREN actuals_opt RPAREN { Queue($4, $7) }*/
   | expr PLUS   expr { Binop($1, Add,   $3) }
   | expr MINUS  expr { Binop($1, Sub,   $3) }
   | expr TIMES  expr { Binop($1, Mult,  $3) }

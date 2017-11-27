@@ -48,12 +48,12 @@ let check (globals, functions) =
 
   (* Function declaration for a named function *)
   let built_in_decls =  StringMap.add "print"
-     { typ = Void; fname = "print"; formals = [(Num, "x")];
-       locals = []; body = [] } 
-
-       (StringMap.singleton "prints"
-     { typ = Void; fname = "prints"; formals = [(String, "x")];
-       locals = []; body = [] })
+     { typ = Void; fname = "print"; formals = [(Int, "x")];
+       locals = []; body = [] } (StringMap.add "printb"
+     { typ = Void; fname = "printb"; formals = [(Bool, "x")];
+       locals = []; body = [] } (StringMap.singleton "printbig"
+     { typ = Void; fname = "printbig"; formals = [(Int, "x")];
+       locals = []; body = [] }))
    in
 
   let function_decls = List.fold_left (fun m fd -> StringMap.add fd.fname fd m)
@@ -90,17 +90,17 @@ let check (globals, functions) =
       with Not_found -> raise (Failure ("undeclared identifier " ^ s))
     in
 
-    let getQueueType = function
+(*     let getQueueType = function
        QueueType(typ) -> typ
       | _ -> Void  
-    in 
+    in  *)
 
     (* Return the type of an expression or throw an exception *)
     let rec expr = function
 	     NumLit _ -> Num
       | IntLit _ -> Int
       | StringLit _ -> String
-      | Queue (t, _) -> QueueType(t)
+(*       | Queue (t, _) -> QueueType(t) *)
       | BoolLit _ -> Bool
       | Id s -> type_of_identifier s
       | Binop(e1, op, e2) as e -> let t1 = expr e1 and t2 = expr e2 in

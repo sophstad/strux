@@ -63,6 +63,8 @@ in
   let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
   let printf_func = L.declare_function "printf" printf_t the_module in
 
+  let printbig_t = L.function_type i32_t [| i32_t |] in
+  let printbig_func = L.declare_function "printbig" printbig_t the_module in
 
   (* Define each function (arguments and return type) so we can call it *)
   let function_decls =
@@ -212,6 +214,8 @@ in
           else if L.type_of e' == ltype_of_typ A.Bool
           then L.build_call printf_func [| bool_format_str ; e' |] "print" llbuilder
         else L.build_call printf_func [| str_format_str ; e' |] "print" llbuilder
+      | A.FuncCall ("printbig", [e]) ->
+    L.build_call printbig_func [| (expr_generator llbuilder e) |] "printbig" llbuilder
       | A.FuncCall (f, act) ->
            let (fdef, func_decl) = StringMap.find f function_decls in
      let actuals = List.rev (List.map (expr_generator llbuilder) (List.rev act)) in
