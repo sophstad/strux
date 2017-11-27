@@ -5,9 +5,9 @@ type op = Add | Sub | Mult | Div | Mod | Equal | Neq | Less | Leq | Greater | Ge
 
 type uop = Neg | Not
 
-type typ = Num | Int | String | Bool | Void 
+type typ = Num | Int | String | Bool | Void | Arraytype of typ
 (*           | QueueType of typ *)
-(* | Array of typ * num | Stack | Queue | LinkedList | ListNode | BSTree | TreeNode *)
+(* | Stack | Queue | LinkedList | ListNode | BSTree | TreeNode *)
 
 type bind = typ * string
 
@@ -23,7 +23,8 @@ type expr =
   | Binop of expr * op * expr
   | Unop of uop * expr
   | Postop of expr * op
-  | Assign of expr * expr
+  | Assign of typ * string * expr
+  | Reassign of string * expr
   | FuncCall of string * expr list
 (*   | Queue of typ * expr list *)
   (* | ArrayCreate of typ * expr list
@@ -34,7 +35,9 @@ type expr =
   | BSTreeCreate of typ * expr list
   | Null *)
   | Noexpr
-
+  | ArrayLit of expr list
+  | ArrayAccess of string * expr
+  | ArrayElementAssign of string * expr * expr
 
 type stmt =
     Block of stmt list
@@ -49,7 +52,6 @@ type func_decl = {
     typ : typ;
     fname : string;
     formals : bind list;
-    locals : bind list;
     body : stmt list;
   }
 
@@ -79,14 +81,22 @@ let string_of_uop = function
     Neg -> "-"
   | Not -> "not"
 
-let string_of_typ = function
+let rec string_of_typ = function
     Num -> "num"
   | Int -> "int"
   | String -> "string"
   | Bool -> "bool"
   | Void -> "void"
 (*   | QueueType(typ) -> "queue " ^ string_of_typ typ *)
-  
+  | Arraytype(t) -> string_of_typ t ^ "[]"
+  (* | Stack -> "Stack"
+  | Queue -> "Queue"
+  | LinkedList -> "LinkedList"
+  | ListNode -> "ListNode"
+  | BSTree -> "BSTree"
+  | TreeNode -> "TreeNode" *)
+
+
 let rec string_of_expr = function
     StringLit(s) -> s
   | NumLit(f) -> string_of_float f
@@ -98,9 +108,13 @@ let rec string_of_expr = function
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
   | Unop(o, e) -> string_of_uop o ^ string_of_expr e
   | Postop(e, o) -> string_of_expr e ^ string_of_op o
-  | Assign(r1, r2) -> (string_of_expr r1) ^ " =  " ^ (string_of_expr r2)
+  | Assign(t, v, e) -> string_of_typ t ^ " " ^ v ^ " = " ^ string_of_expr e
+  | Reassign(v, e) -> v ^ "=" ^ string_of_expr e
   | FuncCall(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
+  | ArrayLit a -> "[" ^ String.concat " " (List.map string_of_expr a) ^ "]"
+  | ArrayAccess(v, i) -> v ^ "[" ^ string_of_expr i ^ "]"
+  | ArrayElementAssign(s, i, e) -> s ^ "[" ^ string_of_expr i ^ "]" ^ " = " ^ string_of_expr e
   | Noexpr -> ""
 (*   | Queue(typ, e1) -> "new " ^ "Queue" ^ "<" ^ string_of_typ typ ^ ">" ^ "(" ^ String.concat ", " (List.map string_of_expr e1) ^ ")"
  *)
@@ -111,7 +125,6 @@ let rec string_of_expr = function
   | ListNode -> "ListNode"
   | BSTree -> "BSTree"
   | TreeNode -> "TreeNode" *)
-
 let rec string_of_stmt = function
     Block(stmts) ->
       "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
@@ -135,7 +148,6 @@ let string_of_fdecl fdecl =
   string_of_typ fdecl.typ ^ " " ^
   fdecl.fname ^ "(" ^ String.concat ", " (List.map snd fdecl.formals) ^
   ")\n{\n" ^
-  String.concat "" (List.map string_of_vdecl fdecl.locals) ^
   String.concat "" (List.map string_of_stmt fdecl.body) ^
   "}\n"
 

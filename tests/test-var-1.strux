@@ -3,10 +3,8 @@ int getInt() {
 }
 
 int main() {
-	int i;
-	int j;
-	i = 3;
-	j = 7;
+	int i = 3;
+	int j = 7;
 	print(i+j);
 	return 0;
 }

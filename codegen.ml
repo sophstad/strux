@@ -1,54 +1,51 @@
 (* Code generation: translate takes a semantically checked AST and
 produces LLVM IR
 *)
+open Llvm
 
 module L = Llvm
 module A = Ast
 
 module StringMap = Map.Make(String)
 
-let translate (globals, functions) =
-  let context = L.global_context () in
+let context = L.global_context ()
+let the_module = L.create_module context "Strux"
+and f_t    = L.double_type context  (* float *)
+and i8_t   = L.i8_type   context    (* print type *)
+and i1_t   = L.i1_type   context    (* bool type *)
+and void_t = L.void_type context    (* void type *)
+and str_t  = L.pointer_type (L.i8_type context) (* string *)
+and i32_t  = L.i32_type  context;;
+
 (*   let llctx = L.global_context () in *)
-  let the_module = L.create_module context "Strux" 
-  
  (*  let qcontext = L.global_context () in
   let queueBC = L.MemoryBuffer.of_file "queue.bc" in
   let qqm = Llvm_bitreader.parse_bitcode qcontext queueBC in
-   *)
-  and f_t    = L.double_type context  (* float *)
-  and i8_t   = L.i8_type   context    (* print type *)
-  and i1_t   = L.i1_type   context    (* bool type *)
-  and void_t = L.void_type context    (* void type *)
-  and str_t  = L.pointer_type (L.i8_type context) (* string *)
-  and i32_t  = L.i32_type  context (* integer *) (* 
+   *) (* 
   and queue_t = L.pointer_type (match L.type_by_name qqm "struct.Queue" with
     None -> raise (Invalid_argument "Option.get queue") | Some x -> x) *)
-in
 
-  let ltype_of_typ = function (* LLVM type for AST type *)
-      A.Num -> f_t
-    | A.Int -> i32_t
-    | A.String -> str_t
-    | A.Bool -> i1_t
-    | A.Void -> void_t
-(*     | A.QueueType _ -> queue_t *)
-    | _ -> raise(Failure("Invalid Data Type"))
-  in
-    (* | A.Array(data_type, i) ->  get_pointer_type (A.Array(data_type, (i)))
-    | A.Stack -> f_t
+let rec ltype_of_typ = function (* LLVM type for AST type *)
+    A.Num -> f_t
+  | A.Int -> i32_t
+  | A.String -> str_t
+  | A.Bool -> i1_t
+  | A.Void -> void_t
+  | A.Arraytype(t) -> L.pointer_type (ltype_of_typ t)
+  (*     | A.QueueType _ -> queue_t *)
+  | _ -> raise(Failure("Invalid Data Type"))
+  (* | A.Stack -> f_t
+>>>>>>> master
     | A.Queue -> f_t
     | A.LinkedList -> f_t
     | A.ListNode -> f_t
     | A.BSTree -> f_t
     | A.TreeNode -> f_t *)
 
+and translate (globals, functions) =
+
   (* Declare each global variable; remember its value in a map *)
-  let global_vars =
-    let global_var m (t, n) =
-      let init = L.const_int (ltype_of_typ t) 0
-      in StringMap.add n (L.define_global n init the_module) m in
-    List.fold_left global_var StringMap.empty globals in
+  let global_vars = ref StringMap.empty in
 
   (* -------BUILT IN FUNCTIONS----------- *)
 
@@ -82,6 +79,7 @@ in
       let llbuilder = L.builder_at_end context (L.entry_block the_function) in
 
       let str_format_str = L.build_global_stringptr "%s\n" "fmt" llbuilder in
+      let int_format_str = L.build_global_stringptr "%d\n" "fmt" llbuilder in
       let flt_format_str = L.build_global_stringptr "%f\n" "fmt" llbuilder in
       let int_format_str = L.build_global_stringptr "%d\n" "fmt" llbuilder in
       let bool_format_str = L.build_global_stringptr "%d\n" "fmt" llbuilder in
@@ -89,28 +87,67 @@ in
       (* Construct the function's "locals": formal arguments and locally
          declared variables.  Allocate each on the stack, initialize their
          value, if appropriate, and remember their values in the "locals" map *)
+
+      (* function to add local variables to a map *)
       let local_vars =
-        let add_formal m (t, n) p = L.set_value_name n p;
-          let local = L.build_alloca (ltype_of_typ t) n llbuilder in
-  	      ignore (L.build_store p local llbuilder);
-          StringMap.add n local m
-        in
+        let add_formal m (t,n) p = L.set_value_name n p;
+        let local = L.build_alloca (ltype_of_typ t) n llbuilder in
+        ignore (L.build_store p local llbuilder);
+        StringMap.add n (t,local) m in
 
-        let add_local m (t, n) =
-          let local_var = L.build_alloca (ltype_of_typ t) n llbuilder in
-          StringMap.add n local_var m
-        in
+        (* add formals to the map *)
+        ref (List.fold_left2 add_formal StringMap.empty func_decl.A.formals
+          (Array.to_list (L.params the_function))) in
 
-        let formals = List.fold_left2 add_formal StringMap.empty func_decl.A.formals
-            (Array.to_list (L.params the_function)) in
-        List.fold_left add_local formals func_decl.A.locals
+      (* Return the value or the type for a variable or formal argument *)
+      (* All the tables have the structure (type, llvalue) *)
+      let lookup n : L.llvalue =
+        try (snd (StringMap.find n !local_vars))
+        with Not_found -> (snd (StringMap.find n !global_vars))
       in
 
-      (* Return the value for a variable or formal argument *)
-      let lookup n = try StringMap.find n local_vars
-                     with Not_found -> raise (Failure "Variable not found")
-      in
+    (* Array creation, initialization, access *)
+    let create_array t len builder =
+      let ltype = ltype_of_typ t in
+      let size_t = L.build_intcast (L.size_of ltype) i32_t "tmp" builder in
+      let total_size = L.build_mul size_t len "tmp" builder in
+      let total_size = L.build_add total_size (L.const_int i32_t 1) "tmp" builder in
+      let arr_malloc = L.build_array_malloc ltype total_size "tmp" builder in
+      let arr = L.build_pointercast arr_malloc (L.pointer_type ltype) "tmp" builder in
+      arr
+    in
 
+    let initialize_array t el builder =
+      let len = L.const_int i32_t (List.length el) in
+      let arr = create_array t len builder in
+      let _ =
+        let assign_value i =
+          let index = L.const_int i32_t i in
+          let index = L.build_add index (L.const_int i32_t 1) "tmp" builder in
+          let _val = L.build_gep arr [| index |] "tmp" builder in
+          L.build_store (List.nth el i) _val builder
+        in
+        for i = 0 to (List.length el)-1 do
+          ignore (assign_value i)
+        done
+      in
+      arr
+    in
+
+    let access_array arr index assign builder =
+      let index = L.build_add index (L.const_int i32_t 1) "tmp" builder in
+      let arr = L.build_load arr "tmp" builder in
+      let _val = L.build_gep arr [| index |] "tmp" builder in
+      if assign then _val else L.build_load _val "tmp" builder
+    in
+
+    let rec gen_type = function
+        A.IntLit _ -> A.Int
+      | A.NumLit _ -> A.Num
+      | A.StringLit _ -> A.String
+      | A.BoolLit _ -> A.Bool
+      | A.ArrayLit el -> A.Arraytype (gen_type (List.nth el 0))
+    in
 
     (* Define each function (arguments and return type) so we can call it *)
     let rec expr_generator llbuilder = function
@@ -194,20 +231,37 @@ in
           if ((L.type_of e' = f_t))
           then num_postops e' op
           else int_postops e' op
-
-(*       | A.Assign (s, e) ->
+      | A.Assign (t, s, e) ->
+          let _ = (match func_decl.A.fname with
+            "main" ->
+              let init = (match t with
+                A.Int   -> expr_generator llbuilder (A.IntLit(0))
+              | A.Num -> expr_generator llbuilder (A.NumLit(0.0))
+              | A.String -> expr_generator llbuilder (A.StringLit(""))
+              | A.Bool   -> expr_generator llbuilder (A.BoolLit(false))
+              | t -> L.const_null (ltype_of_typ t)
+            )
+          in
+                (global_vars := StringMap.add s (t, (L.define_global s init the_module)) !global_vars)
+            | _ -> (local_vars := StringMap.add s (t, (L.build_alloca (ltype_of_typ t)) s llbuilder) !local_vars)
+            ) in
+          let e' = expr_generator llbuilder e and llval = lookup s in
+          ignore (L.build_store e' llval llbuilder); e'
+      | A.Reassign (s, e) ->
+          let e' = expr_generator llbuilder e and llval = lookup s in
+          ignore (L.build_store e' llval llbuilder); e'
+      | A.ArrayLit el -> let t = gen_type (List.nth el 0) in
+          initialize_array t (List.map (expr_generator llbuilder) el) llbuilder
+      | A.ArrayAccess (s, i) ->
+          let index = expr_generator llbuilder i and llval = lookup s in
+          (* if (List.length llval < index) || (index < 0) then raise (Failure ("Array index out of bounds")) else *)
+          access_array llval index false llbuilder
+      | A.ArrayElementAssign (s, i, e) ->
           let e' = expr_generator llbuilder e in
-          ignore (L.build_store e' (lookup s) llbuilder); e' *)
-  (*     | A.Assign (e1, e2) -> let e2' = expr_generator llbuilder e2 in
-                                          (match e1 with
-                                            A.Id s -> ignore (L.build_store e2' (lookup s) llbuilder); e2'
-                                          | _ -> raise (Failure("illegal assignment"))
-                                          ) *)
-          | A.Assign (e1, e2) -> let e1' = (match e1 with
-                                            A.Id s -> lookup s
-                                            | _ -> raise (Failure("illegal assignment"))
-                                          ) and e2' = expr_generator llbuilder e2 in
-           ignore (L.build_store e2' e1' llbuilder); e2'
+          let index = expr_generator llbuilder i in
+          let llval = lookup s in
+          let var = access_array llval index true llbuilder in
+          ignore (L.build_store e' var llbuilder); e'
       | A.FuncCall("print", [e]) ->
           let e' = expr_generator llbuilder e in
           if L.type_of e' == ltype_of_typ A.Num
@@ -218,22 +272,27 @@ in
           then L.build_call printf_func [| int_format_str ; e' |] "print" llbuilder
           else if L.type_of e' == ltype_of_typ A.Bool
           then L.build_call printf_func [| bool_format_str ; e' |] "print" llbuilder
+          else if L.type_of e' == ltype_of_typ A.Int
+          then L.build_call printf_func [| int_format_str ; e' |] "print" llbuilder
         else L.build_call printf_func [| str_format_str ; e' |] "print" llbuilder
       | A.FuncCall ("printbig", [e]) ->
     L.build_call printbig_func [| (expr_generator llbuilder e) |] "printbig" llbuilder
       | A.FuncCall (f, act) ->
-           let (fdef, func_decl) = StringMap.find f function_decls in
-     let actuals = List.rev (List.map (expr_generator llbuilder) (List.rev act)) in
-     let result = (match func_decl.A.typ with A.Void -> ""
-                                              | _ -> f ^ "_result") in
-           L.build_call fdef (Array.of_list actuals) result llbuilder
+          let (fdef, func_decl) = StringMap.find f function_decls in
+          let actuals = List.rev (List.map (expr_generator llbuilder) (List.rev act)) in
+          let result =
+            (match func_decl.A.typ with
+              A.Void -> ""
+            | _ -> f ^ "_result")
+          in
+          L.build_call fdef (Array.of_list actuals) result llbuilder
       in
 
       (* Invoke "f llbuilder" if the current block doesn't already
          have a terminal (e.g., a branch). *)
       let add_terminal llbuilder f =
         match L.block_terminator (L.insertion_block llbuilder) with
-    Some _ -> ()
+          Some _ -> ()
         | None -> ignore (f llbuilder) in
 
 

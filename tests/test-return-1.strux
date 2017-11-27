@@ -2,8 +2,7 @@ num returnNum() {
 	return 0.000000;
 }
 void main() {
-	num n;
-	n = returnNum();
+	num n = returnNum();
 	print(n);
 }
 
