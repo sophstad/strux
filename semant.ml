@@ -58,14 +58,18 @@ let check (globals, functions) =
      { typ = Void; fname = "printb"; formals = [(Bool, "x")];
        body = [] } 
 
-       (StringMap.add "offer"
-    { typ = QueueType(AnyType); fname = "offer"; formals = [(AnyType, "x")];
+       (StringMap.add "enqueue"
+    { typ = QueueType(AnyType); fname = "enqueue"; formals = [(AnyType, "x")];
+        body = [] }
+
+        (StringMap.add "dequeue"
+    { typ = QueueType(AnyType); fname = "dequeue"; formals = [(AnyType, "x")];
         body = [] }
 
         (StringMap.singleton "printbig"
      { typ = Void; fname = "printbig"; formals = [(Int, "x")];
        body = [] }
-     )))
+     ))))
    in
 
   let function_decls = List.fold_left (fun m fd -> StringMap.add fd.fname fd m)
@@ -213,12 +217,16 @@ let check (globals, functions) =
              List.iter2 (fun (ft, _) e -> let et = expr e in
              
               (* if fname = "qfront" then let _ = print_endline (string_of_typ actqtype) in returntype := actqtype *)
-                if fname = "offer" then
+                if fname = "enqueue" then
                    let acttype = expr oname in 
                    let actqtype = getQueueType acttype in 
-                  ignore(check_assign actqtype et (Failure ("illegal actual queue argument found " ^ string_of_typ et ^
+                  ignore(check_assign actqtype et (Failure ("illegal actual enqueue argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
-
+                else if fname = "dequeue" then
+                   let acttype = expr oname in 
+                   let actqtype = getQueueType acttype in 
+                  ignore(check_assign actqtype et (Failure ("illegal actual dequeue argument found " ^ string_of_typ et ^
+                  " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
                 else if fname = "weight" then 
                    let acttype = expr (List.hd actuals) in 
                     ignore(check_assign acttype et (Failure ("illegal actual node argument found " ^ string_of_typ et ^
