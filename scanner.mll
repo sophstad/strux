@@ -63,7 +63,7 @@ rule token = parse
   | "false"       { FALSE }
   | "new"         { NEW }
   | "null"        { NULL }
-  (*| "Queue"       { QUEUE }*)
+  | "Queue"       { QUEUE }
     (* 
   | "Stack"       { STACK }
   | "Queue"       { QUEUE }

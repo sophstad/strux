@@ -103,17 +103,17 @@ let check (globals, functions) =
       | _ -> raise(Failure("Expecting an array and was not an array"))
     in
 
-(*     let getQueueType = function
+    let getQueueType = function
        QueueType(typ) -> typ
       | _ -> Void  
-    in  *)
+    in 
 
     (* Return the type of an expression or throw an exception *)
     let rec expr = function
         NumLit _ -> Num
       | IntLit _ -> Int
       | StringLit _ -> String
-(*       | Queue (t, _) -> QueueType(t) *)
+      | Queue (t, _) -> QueueType(t)
       | BoolLit _ -> Bool
       | Id s -> type_of_identifier s
       | Binop(e1, op, e2) as e -> let t1 = expr e1 and t2 = expr e2 in

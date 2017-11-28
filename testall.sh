@@ -96,7 +96,9 @@ Check() {
     Run "$STRUX" "<" "$1" ">" "${basename}.ll" &&
     # Run "$LLI" "${basename}.ll" ">" "${basename}.out" &&
     Run "$LLC" "${basename}.ll" ">" "${basename}.s" &&
-    Run "$CC" "-o" "${basename}.exe" "${basename}.s" "printbig.o" "stack.o" "queue.o" "linkedlist.o" &&
+    Run "$CC" "-emit-llvm" "-o" "queue.bc" "-c" "queue.c" &&
+    # Run "$CC" "-o" "${basename}.exe" "${basename}.s" "printbig.o" &&
+    Run "$CC" "-o" "${basename}.exe" "${basename}.s" "queue.bc" "printbig.o" &&
     Run "./${basename}.exe" > "${basename}.out" &&
     Compare ${basename}.out ${reffile}.out ${basename}.diff
 
