@@ -3,7 +3,7 @@
 %token SEMI LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK COMMA DOUBLECOL
 %token PLUS MINUS TIMES DIVIDE INCR DECR MOD ASSIGN NOT
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
-%token RETURN NULL IF ELSE ELIF BREAK CONTINUE NEW FOR FOREACH IN WHILE NUM INT BOOL STRING VOID
+%token RETURN NULL IF ELSE ELIF BREAK CONTINUE NEW FOR FOREACH IN WHILE NUM INT BOOL STRING VOID DOT
 %token QUEUE
 /*%token STACK QUEUE LINKEDLIST LISTNODE BSTREE TREENODE*/
 %token <float> NUM_LITERAL
@@ -18,13 +18,13 @@
 %left INCR DECR
 %right ASSIGN
 %left OR
-%left AND
+%left AND DOT
 %left EQ NEQ
 %left LT GT LEQ GEQ
 %left PLUS MINUS
 %left TIMES DIVIDE
 %right MOD
-%right NOT NEG
+%right NOT NEG 
 
 %start program
 %type <Ast.program> program
@@ -122,6 +122,7 @@ expr:
   | expr DECR             { Postop($1, Decr) }
   | typ ID                { Assign($1, $2, Noexpr) }
   | typ ID ASSIGN expr    { Assign($1, $2, $4) }
+  | expr DOT ID LPAREN actuals_opt RPAREN { ObjectCall($1, $3, $5) }  
   | ID ASSIGN expr        { Reassign($1, $3) }
   | ID LPAREN actuals_opt RPAREN { FuncCall($1, $3) }
   | LBRACK actuals_opt RBRACK                { ArrayLit($2) }
