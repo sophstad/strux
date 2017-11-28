@@ -24,6 +24,32 @@ void printTree(struct BSTreeNode *node)
     printTree(node->right);
 }
 
+
+void postorder(struct BSTreeNode *node, int indent)
+{
+    if(node != NULL) {
+
+        if(node->right) {
+            postorder(node->right, indent+4);
+        }
+
+        if (indent) {
+            printf("%4s  ", "");
+        }
+
+        if (node->right) {
+            printf("%4s  /\n ", "");
+        }
+
+        printf("%d\n ", node->data);
+
+        if(node->left) {
+            printf("%4s\n  \\\n", "");
+            postorder(node->left, indent+4);
+        }
+    }
+}
+
 /* Adds the given data to the tree */
 struct BSTreeNode *addElementToTree(struct BSTreeNode *node, int data)
 {

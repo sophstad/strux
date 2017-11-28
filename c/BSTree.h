@@ -14,5 +14,6 @@ struct BSTreeNode *addElementToTree(struct BSTreeNode *node, int data);
 struct BSTreeNode *removeFromTree(struct BSTreeNode *node, int data);
 int treeContains(struct BSTreeNode *node, int data);
 void printTree(struct BSTreeNode *node);
+void postorder(struct BSTreeNode *node, int indent);
 
 #endif
