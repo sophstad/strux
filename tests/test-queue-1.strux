@@ -1,4 +1,4 @@
-void main() {
-	Queue<string> q;
-	q = new Queue<string>();
+int main() {
+	Queue<string> q = new Queue<string>();
+	return 0;
 }

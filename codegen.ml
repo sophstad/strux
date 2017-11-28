@@ -9,14 +9,17 @@ module A = Ast
 module StringMap = Map.Make(String)
 
 let context = L.global_context ()
+let queuem = L.MemoryBuffer.of_file "queue.bc" 
+let qqm = Llvm_bitreader.parse_bitcode context queuem 
 let the_module = L.create_module context "Strux"
 and f_t    = L.double_type context  (* float *)
 and i8_t   = L.i8_type   context    (* print type *)
 and i1_t   = L.i1_type   context    (* bool type *)
 and void_t = L.void_type context    (* void type *)
 and str_t  = L.pointer_type (L.i8_type context) (* string *)
-and i32_t  = L.i32_type  context;;
-
+and i32_t  = L.i32_type  context
+and queue_t = L.pointer_type (match L.type_by_name qqm "struct.Queue" with
+    None -> raise (Invalid_argument "Option.get queue") | Some x -> x) ;;
 (*   let llctx = L.global_context () in *)
  (*  let qcontext = L.global_context () in
   let queueBC = L.MemoryBuffer.of_file "queue.bc" in
@@ -32,10 +35,9 @@ let rec ltype_of_typ = function (* LLVM type for AST type *)
   | A.Bool -> i1_t
   | A.Void -> void_t
   | A.Arraytype(t) -> L.pointer_type (ltype_of_typ t)
-  (*     | A.QueueType _ -> queue_t *)
+  | A.QueueType _ -> queue_t
   | _ -> raise(Failure("Invalid Data Type"))
   (* | A.Stack -> f_t
->>>>>>> master
     | A.Queue -> f_t
     | A.LinkedList -> f_t
     | A.ListNode -> f_t
@@ -59,6 +61,19 @@ and translate (globals, functions) =
   in *)
   let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
   let printf_func = L.declare_function "printf" printf_t the_module in
+
+  (* built-in queue functions *)
+  let initQueue_t = L.function_type queue_t [| |] in 
+  let initQueue_f = L.declare_function "initQueue" initQueue_t the_module in
+  let enqueue_t = L.function_type void_t [| queue_t; L.pointer_type i8_t|] in 
+  let enqueue_f = L.declare_function "enqueue" enqueue_t the_module in
+  let dequeue_t = L.function_type void_t [| queue_t |] in 
+  let dequeue_f = L.declare_function "dequeue" dequeue_t the_module in
+  let front_t = L.function_type (L.pointer_type i8_t) [| queue_t |] in
+  let front_f = L.declare_function "front" front_t the_module in
+  let sizeQ_t = L.function_type i32_t [| queue_t |] in 
+  let sizeQ_f = L.declare_function "q_size" sizeQ_t the_module in 
+
 
   let printbig_t = L.function_type i32_t [| i32_t |] in
   let printbig_func = L.declare_function "printbig" printbig_t the_module in
@@ -149,6 +164,10 @@ and translate (globals, functions) =
       | A.ArrayLit el -> A.Arraytype (gen_type (List.nth el 0))
     in
 
+    let getQueueType = function
+       A.QueueType(typ) -> typ
+      | _ -> A.Void 
+    in 
     (* Define each function (arguments and return type) so we can call it *)
     let rec expr_generator llbuilder = function
         A.NumLit(n) -> L.const_float f_t n
@@ -156,6 +175,20 @@ and translate (globals, functions) =
       | A.BoolLit(b) -> L.const_int i1_t (if b then 1 else 0)
       | A.StringLit(s) -> L.build_global_stringptr s "string" llbuilder
       | A.Id s -> L.build_load (lookup s) s llbuilder
+      | A.Queue (typ, act) ->
+        let d_ltyp = ltype_of_typ typ in
+        let queue_ptr = L.build_call initQueue_f [| |] "init" llbuilder in 
+        let add_element elem = 
+          let d_ptr = match typ with 
+          | A.QueueType _ -> expr_generator llbuilder elem 
+          | _ -> 
+            let element = expr_generator llbuilder elem in 
+            let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in 
+            ignore (L.build_store element d_ptr llbuilder); d_ptr in 
+          let void_d_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in
+          ignore (L.build_call enqueue_f [| queue_ptr; void_d_ptr |] "" llbuilder)
+        in ignore (List.map add_element act);
+        queue_ptr
       | A.Binop (e1, op, e2) ->
         let e1' = expr_generator llbuilder e1 in
         let e2' = expr_generator llbuilder e2
