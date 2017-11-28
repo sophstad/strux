@@ -66,10 +66,14 @@ let check (globals, functions) =
     { typ = QueueType(AnyType); fname = "dequeue"; formals = [(AnyType, "x")];
         body = [] }
 
+        (StringMap.add "peek"
+    { typ = AnyType; fname = "peek"; formals = [];
+        body = [] }
+
         (StringMap.singleton "printbig"
      { typ = Void; fname = "printbig"; formals = [(Int, "x")];
        body = [] }
-     ))))
+     )))))
    in
 
   let function_decls = List.fold_left (fun m fd -> StringMap.add fd.fname fd m)
@@ -227,7 +231,12 @@ let check (globals, functions) =
                    let actqtype = getQueueType acttype in 
                   ignore(check_assign actqtype et (Failure ("illegal actual dequeue argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
-                else if fname = "weight" then 
+                (* else if fname = "peek" then
+                   let acttype = expr oname in 
+                   let actqtype = getQueueType acttype in 
+                  ignore(check_assign actqtype et (Failure ("illegal actual peek for queue argument found " ^ string_of_typ et ^
+                  " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
+              *) else if fname = "weight" then 
                    let acttype = expr (List.hd actuals) in 
                     ignore(check_assign acttype et (Failure ("illegal actual node argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ acttype ^ " in " ^ string_of_expr e)))
