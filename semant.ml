@@ -52,11 +52,20 @@ let check (globals, functions) =
   (* Function declaration for a named function *)
   let built_in_decls =  StringMap.add "print"
      { typ = Void; fname = "print"; formals = [(Num, "x")];
-       body = [] } (StringMap.add "printb"
+       body = [] } 
+
+       (StringMap.add "printb"
      { typ = Void; fname = "printb"; formals = [(Bool, "x")];
-       body = [] } (StringMap.singleton "printbig"
+       body = [] } 
+
+       (StringMap.add "offer"
+    { typ = QueueType(AnyType); fname = "offer"; formals = [(AnyType, "x")];
+        body = [] }
+
+        (StringMap.singleton "printbig"
      { typ = Void; fname = "printbig"; formals = [(Int, "x")];
-       body = [] }))
+       body = [] }
+     )))
    in
 
   let function_decls = List.fold_left (fun m fd -> StringMap.add fd.fname fd m)
@@ -194,6 +203,36 @@ let check (globals, functions) =
           in
           let rt = expr e in
           check_assign lt rt (Failure ("illegal assignment " ^ string_of_typ lt ^ " = " ^ string_of_typ rt ^ " in " ^ string_of_expr ex));
+      | ObjectCall(oname, fname, actuals) as objectcall -> let fd = function_decl fname in
+          let returntype = ref (fd.typ) in 
+          if List.length actuals != List.length fd.formals then
+            raise (Failure ("expecting " ^ string_of_int
+               (List.length fd.formals) ^ " arguments in " ^ string_of_expr objectcall))
+
+          else
+             List.iter2 (fun (ft, _) e -> let et = expr e in
+             
+              (* if fname = "qfront" then let _ = print_endline (string_of_typ actqtype) in returntype := actqtype *)
+                if fname = "offer" then
+                   let acttype = expr oname in 
+                   let actqtype = getQueueType acttype in 
+                  ignore(check_assign actqtype et (Failure ("illegal actual queue argument found " ^ string_of_typ et ^
+                  " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
+
+                else if fname = "weight" then 
+                   let acttype = expr (List.hd actuals) in 
+                    ignore(check_assign acttype et (Failure ("illegal actual node argument found " ^ string_of_typ et ^
+                  " expected " ^ string_of_typ acttype ^ " in " ^ string_of_expr e)))
+                
+                else if fname = "p_push" then 
+                   let acttype = expr (List.hd actuals) in 
+                    ignore(check_assign acttype et (Failure ("illegal actual pqueue argument found " ^ string_of_typ et ^
+                  " expected " ^ string_of_typ acttype ^ " in " ^ string_of_expr e)))
+                
+                else ignore (check_assign ft et (Failure ("illegal actual argument found " ^ string_of_typ et ^
+                  " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e)))) fd.formals actuals;
+             !returntype
+
     in
 
     let check_bool_expr e = if expr e != Bool

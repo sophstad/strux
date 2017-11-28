@@ -68,7 +68,7 @@ and translate (globals, functions) =
   let front_t = L.function_type (L.pointer_type i8_t) [| queue_t |] in
   let front_f = L.declare_function "front" front_t the_module in
   let sizeQ_t = L.function_type i32_t [| queue_t |] in 
-  let sizeQ_f = L.declare_function "q_size" sizeQ_t the_module in 
+  let sizeQ_f = L.declare_function "queue_size" sizeQ_t the_module in 
 
 
   let printbig_t = L.function_type i32_t [| i32_t |] in
@@ -322,6 +322,14 @@ and translate (globals, functions) =
             | _ -> f ^ "_result")
           in
           L.build_call fdef (Array.of_list actuals) result llbuilder
+      | A.ObjectCall (q, "offer", [e]) -> 
+        let q_val = expr_generator llbuilder q in
+        let e_val = expr_generator llbuilder e in 
+        let d_ltyp = L.type_of e_val in 
+        let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in 
+        ignore(L.build_store e_val d_ptr llbuilder); 
+        let void_e_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in 
+        ignore (L.build_call enqueue_f [| q_val; void_e_ptr|] "" llbuilder); q_val
       in
 
       (* Invoke "f llbuilder" if the current block doesn't already

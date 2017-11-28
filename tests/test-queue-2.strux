@@ -1,0 +1,6 @@
+int main() {
+	Queue<num> q = new Queue<num>();
+	num x = 3.0;
+	q.offer(x);
+	return 0;
+}
