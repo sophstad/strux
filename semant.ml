@@ -70,10 +70,14 @@ let check (globals, functions) =
     { typ = AnyType; fname = "peek"; formals = [];
         body = [] }
 
+        (StringMap.add "size"
+     { typ = Int; fname = "size"; formals = [];
+        body = [] }
+
         (StringMap.singleton "printbig"
      { typ = Void; fname = "printbig"; formals = [(Int, "x")];
        body = [] }
-     )))))
+     ))))))
    in
 
   let function_decls = List.fold_left (fun m fd -> StringMap.add fd.fname fd m)
@@ -184,9 +188,10 @@ let check (globals, functions) =
                     if arg_type = string_of_typ (Num) ||
                        arg_type = string_of_typ (Int) ||
                        arg_type = string_of_typ (String) ||
-                       arg_type = string_of_typ (Bool)
+                       arg_type = string_of_typ (Bool) ||
+                       arg_type = string_of_typ (AnyType)
                     then Void
-                    else raise (Failure ("illegal actual argument found " ^ string_of_typ (expr (List.hd actuals)) ^
+                    else raise (Failure ("illegal actual argument found in print " ^ string_of_typ (expr (List.hd actuals)) ^
                                                       " in " ^ string_of_expr (List.hd actuals)))
                else raise (Failure ("expecting 1 argument in " ^ string_of_expr call)))
         else let fd = function_decl fname in

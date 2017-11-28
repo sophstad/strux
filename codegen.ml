@@ -144,6 +144,7 @@ and translate (globals, functions) =
       let lookup_types n = try StringMap.find n global_types
         with Not_found -> StringMap.find n global_types 
       in
+
       let name_to_type n : A.typ =
         try (fst (StringMap.find n !local_vars))
         with Not_found -> (fst (StringMap.find n !global_vars))
@@ -363,6 +364,10 @@ and translate (globals, functions) =
         let l_dtyp = ltype_of_typ q_type in
         let d_ptr = L.build_bitcast val_ptr (L.pointer_type l_dtyp) "d_ptr" llbuilder in
         (L.build_load d_ptr "d_ptr" llbuilder)
+      | A.ObjectCall (q, "size", []) -> 
+        let q_val = expr_generator llbuilder q in
+        let size_ptr = L.build_call sizeQ_f [| q_val|] "" llbuilder in size_ptr
+
       in
 
       (* Invoke "f llbuilder" if the current block doesn't already

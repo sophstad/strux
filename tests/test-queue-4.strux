@@ -2,6 +2,9 @@ int main() {
 	Queue<num> q = new Queue<num>();
 	q.enqueue(3.0);
 	q.dequeue(3.0);
-	print(q.peek());
+	int x = q.size();
+	print(x);
+
+	:( TODO: doing print(q.size()) does not work at the moment ):
 	return 0;
 }
