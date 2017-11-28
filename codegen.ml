@@ -144,12 +144,10 @@ and translate (globals, functions) =
       let lookup_types n = try StringMap.find n global_types
         with Not_found -> StringMap.find n global_types 
       in
-
       let name_to_type n : A.typ =
         try (fst (StringMap.find n !local_vars))
         with Not_found -> (fst (StringMap.find n !global_vars))
       in
-
     (* Array creation, initialization, access *)
     let create_array t len builder =
       let ltype = ltype_of_typ t in

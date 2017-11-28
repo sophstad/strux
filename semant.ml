@@ -67,7 +67,7 @@ let check (globals, functions) =
         body = [] }
 
         (StringMap.add "peek"
-    { typ = QueueType(AnyType); fname = "peek"; formals = [];
+    { typ = AnyType; fname = "peek"; formals = [];
         body = [] }
 
         (StringMap.singleton "printbig"
