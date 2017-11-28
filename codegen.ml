@@ -10,7 +10,9 @@ module StringMap = Map.Make(String)
 
 let context = L.global_context ()
 let queuem = L.MemoryBuffer.of_file "queue.bc" 
+let listm = L.MemoryBuffer.of_file "linkedlist.bc" 
 let qqm = Llvm_bitreader.parse_bitcode context queuem 
+let list_qm = Llvm_bitreader.parse_bitcode context listm 
 let the_module = L.create_module context "Strux"
 and f_t    = L.double_type context  (* float *)
 and i8_t   = L.i8_type   context    (* print type *)
@@ -19,14 +21,9 @@ and void_t = L.void_type context    (* void type *)
 and str_t  = L.pointer_type (L.i8_type context) (* string *)
 and i32_t  = L.i32_type  context
 and queue_t = L.pointer_type (match L.type_by_name qqm "struct.Queue" with
-    None -> raise (Invalid_argument "Option.get queue") | Some x -> x) ;;
-(*   let llctx = L.global_context () in *)
- (*  let qcontext = L.global_context () in
-  let queueBC = L.MemoryBuffer.of_file "queue.bc" in
-  let qqm = Llvm_bitreader.parse_bitcode qcontext queueBC in
-   *) (* 
-  and queue_t = L.pointer_type (match L.type_by_name qqm "struct.Queue" with
-    None -> raise (Invalid_argument "Option.get queue") | Some x -> x) *)
+    None -> raise (Invalid_argument "Option.get queue") | Some x -> x)
+and list_t = L.pointer_type (match L.type_by_name list_qm "struct.LinkedList" with
+    None -> raise (Invalid_argument "Option.get linkedlmist") | Some x -> x) ;;
 
 let rec ltype_of_typ = function (* LLVM type for AST type *)
     A.Num -> f_t
@@ -36,6 +33,7 @@ let rec ltype_of_typ = function (* LLVM type for AST type *)
   | A.Void -> void_t
   | A.Arraytype(t) -> L.pointer_type (ltype_of_typ t)
   | A.QueueType _ -> queue_t
+  | A.LinkedListType _ -> list_t
   | _ -> raise(Failure("Invalid Data Type"))
   (* | A.Stack -> f_t
     | A.Queue -> f_t
@@ -73,7 +71,19 @@ and translate (globals, functions) =
   let sizeQ_t = L.function_type i32_t [| queue_t |] in 
   let sizeQ_f = L.declare_function "queue_size" sizeQ_t the_module in 
 
+  (*built-in linkedlist functions*)
+  let initList_t = L.function_type list_t [| |] in 
+  let initList_f = L.declare_function "initList" initList_t the_module in
+  let add_t = L.function_type void_t [| list_t; L.pointer_type i8_t|] in 
+  let add_f = L.declare_function "add" add_t the_module in
+  let delete_t = L.function_type void_t [| list_t |] in 
+  let delete_f = L.declare_function "delete" delete_t the_module in
+  let get_t = L.function_type (L.pointer_type i8_t) [| list_t |] in
+  let get_f = L.declare_function "get" get_t the_module in
+  let sizeList_t = L.function_type i32_t [| list_t |] in 
+  let sizeList_f = L.declare_function "size" sizeList_t the_module in 
 
+  (*print big *)
   let printbig_t = L.function_type i32_t [| i32_t |] in
   let printbig_func = L.declare_function "printbig" printbig_t the_module in
 
@@ -105,7 +115,9 @@ and translate (globals, functions) =
       | A.Num    -> float_format_str b
       | A.String  -> string_format_str b
       | A.Bool     -> int_format_str b
+      (*TODO: fix this!!!!!!!!!*)
       | A.QueueType _ -> float_format_str b
+      | A.LinkedListType _ -> float_format_str b
       | _ -> raise (Failure ("Invalid printf type"))
   in
 
@@ -119,7 +131,7 @@ and translate (globals, functions) =
          value, if appropriate, and remember their values in the "locals" map *)
 
       (* function to add local variables to a map *)
-      let local_vars =
+    let local_vars =
         let add_formal m (t,n) p = L.set_value_name n p;
         let local = L.build_alloca (ltype_of_typ t) n llbuilder in
         ignore (L.build_store p local llbuilder);
@@ -211,6 +223,11 @@ and translate (globals, functions) =
       | _ -> A.Void 
     in 
 
+   let getListType = function
+       A.LinkedListType(typ) -> typ
+      | _ -> A.Void 
+    in 
+
     let idtostring = function 
         A.Id s -> s 
       | _ -> "" 
@@ -236,6 +253,20 @@ and translate (globals, functions) =
           ignore (L.build_call enqueue_f [| queue_ptr; void_d_ptr |] "" llbuilder)
         in ignore (List.map add_element act);
         queue_ptr
+      | A.LinkedListLit (typ, act) ->
+        let d_ltyp = ltype_of_typ typ in
+        let list_ptr = L.build_call initList_f [| |] "init" llbuilder in 
+        let add_element elem = 
+          let d_ptr = match typ with 
+          | A.LinkedListType _ -> expr_generator llbuilder elem 
+          | _ -> 
+            let element = expr_generator llbuilder elem in 
+            let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in 
+            ignore (L.build_store element d_ptr llbuilder); d_ptr in 
+          let void_d_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in
+          ignore (L.build_call add_f [| list_ptr; void_d_ptr |] "" llbuilder)
+        in ignore (List.map add_element act);
+        list_ptr
       | A.Binop (e1, op, e2) ->
         let e1' = expr_generator llbuilder e1 in
         let e2' = expr_generator llbuilder e2

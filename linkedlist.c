@@ -12,7 +12,7 @@ struct ListNode {
 	struct ListNode *next;
 };
 
-struct LinkedList* new() {
+struct LinkedList* initList() {
 	struct LinkedList* list = (struct LinkedList*) malloc(sizeof(struct LinkedList));
 	list->size = 0;
 	list->head = NULL;
@@ -44,7 +44,7 @@ int isEmpty(struct LinkedList *list) {
 	return (list->head == NULL);
 }
 
-void delete(struct LinkedList *list, int index) {
+void retrieve(struct LinkedList *list, int index) {
 	if (isEmpty(list)) {
 		return;
 	}
