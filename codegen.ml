@@ -87,6 +87,12 @@ and translate (globals, functions) =
       StringMap.add name (L.define_function name ftype the_module, func_decl) m in
     List.fold_left function_decl StringMap.empty functions in
 
+(*   let data_structures_str x_type b = 
+    let b = builder in 
+    let n = idtostring q in
+    let q_type = getQueueType (lookup_types n) 
+    format_str q_type builder 
+    in  *)
   (* Format str for printf *)
   let string_format_str b = L.build_global_stringptr "%s\n" "fmt" b
   and int_format_str    b = L.build_global_stringptr "%d\n" "fmt" b
@@ -99,6 +105,7 @@ and translate (globals, functions) =
       | A.Num    -> float_format_str b
       | A.String  -> string_format_str b
       | A.Bool     -> int_format_str b
+      | A.QueueType _ -> float_format_str b
       | _ -> raise (Failure ("Invalid printf type"))
   in
 
