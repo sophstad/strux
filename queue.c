@@ -64,7 +64,7 @@ void dequeue(struct Queue *q) {
 	free(node);
 }
 
-void *front(struct Queue *q) {
+void *peek(struct Queue *q) {
 	if(q->size == 0) {
 		return NULL;
 	}

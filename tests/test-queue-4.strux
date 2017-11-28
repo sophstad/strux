@@ -1,0 +1,7 @@
+int main() {
+	Queue<num> q = new Queue<num>();
+	q.enqueue(3.0);
+	q.dequeue(3.0);
+	print(q.peek());
+	return 0;
+}
