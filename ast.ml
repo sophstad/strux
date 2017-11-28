@@ -25,7 +25,7 @@ type expr =
   | Assign of typ * string * expr
   | Reassign of string * expr
   | FuncCall of string * expr list
-  | Queue of typ * expr list 
+  | QueueLit of typ * expr list 
   | ObjectCall of expr * string * expr list 
   (* | ArrayCreate of typ * expr list
   | ArrayAccess of expr * expr list
@@ -118,7 +118,7 @@ let rec string_of_expr = function
   | ArrayAccess(v, i) -> v ^ "[" ^ string_of_expr i ^ "]"
   | ArrayElementAssign(s, i, e) -> s ^ "[" ^ string_of_expr i ^ "]" ^ " = " ^ string_of_expr e
   | Noexpr -> ""
-  | Queue(typ, e1) -> "new " ^ "Queue" ^ "<" ^ string_of_typ typ ^ ">" ^ "(" ^ String.concat ", " (List.map string_of_expr e1) ^ ")"
+  | QueueLit(typ, e1) -> "new " ^ "Queue" ^ "<" ^ string_of_typ typ ^ ">" ^ "(" ^ String.concat ", " (List.map string_of_expr e1) ^ ")"
   (* | Array -> "array"
   | Stack -> "Stack"
   | Queue -> "Queue"

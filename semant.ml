@@ -134,7 +134,7 @@ let check (globals, functions) =
         NumLit _ -> Num
       | IntLit _ -> Int
       | StringLit _ -> String
-      | Queue (t, _) -> QueueType(t)
+      | QueueLit (t, _) -> QueueType(t)
       | BoolLit _ -> Bool
       | Id s -> type_of_identifier s
       | Binop(e1, op, e2) as e -> let t1 = expr e1 and t2 = expr e2 in

@@ -222,7 +222,7 @@ and translate (globals, functions) =
       | A.BoolLit(b) -> L.const_int i1_t (if b then 1 else 0)
       | A.StringLit(s) -> L.build_global_stringptr s "string" llbuilder
       | A.Id s -> L.build_load (lookup s) s llbuilder
-      | A.Queue (typ, act) ->
+      | A.QueueLit (typ, act) ->
         let d_ltyp = ltype_of_typ typ in
         let queue_ptr = L.build_call initQueue_f [| |] "init" llbuilder in 
         let add_element elem = 

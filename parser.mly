@@ -115,7 +115,7 @@ expr:
   | expr GEQ    expr { Binop($1, Geq,   $3) }
   | expr AND    expr { Binop($1, And,   $3) }
   | expr OR     expr { Binop($1, Or,    $3) }
-  | NEW QUEUE LT typ GT LPAREN actuals_opt RPAREN { Queue($4, $7) }
+  | NEW QUEUE LT typ GT LPAREN actuals_opt RPAREN { QueueLit($4, $7) }
   | MINUS expr %prec NEG  { Unop(Neg, $2) }
   | NOT expr              { Unop(Not, $2) }
   | expr INCR             { Postop($1, Incr) }
