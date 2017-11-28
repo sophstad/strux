@@ -5,7 +5,7 @@
 # Easiest way to build: using ocamlbuild, which in turn uses ocamlfind
 
 .PHONY : all
-all : strux.native printbig.o stack.o queue.o
+all : strux.native printbig.o stack.o linkedlist.o queue.o
 
 .PHONY : strux.native
 strux.native :
@@ -18,7 +18,7 @@ strux.native :
 clean :
 	ocamlbuild -clean
 	rm -rf testall.log *.diff strux scanner.ml parser.ml parser.mli
-	rm -rf printbig stack queue
+	rm -rf printbig stack queue linkedlist
 	rm -rf *.cmx *.cmi *.cmo *.cmx *.o *.s *.ll *.out *.exe
 
 OBJS = ast.cmx codegen.cmx parser.cmx scanner.cmx semant.cmx strux.cmx
@@ -49,6 +49,9 @@ printbig : printbig.c
 
 stack : stack.c
 	cc -o stack -DBUILD_TEST stack.c
+
+linkedlist : linkedlist.c
+	cc -o linkedlist -DBUILD_TEST linkedlist.c
 
 queue : queue.c
 	cc -o queue -DBUILD_TEST queue.c
@@ -82,7 +85,7 @@ TESTFILES = $(TESTS:%=test-%.strux) $(TESTS:%=test-%.out) \
 
 TARFILES = ast.ml codegen.ml Makefile _tags strux.ml parser.mly README \
         scanner.mll semant.ml testall.sh printbig.c arcade-font.pbm font2c \
-	$(TESTFILES:%=tests/%) 
+	$(TESTFILES:%=tests/%)
 
 strux-llvm.tar.gz : $(TARFILES)
 	cd .. && tar czf strux-llvm/strux-llvm.tar.gz \
