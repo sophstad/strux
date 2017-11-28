@@ -322,7 +322,7 @@ and translate (globals, functions) =
             | _ -> f ^ "_result")
           in
           L.build_call fdef (Array.of_list actuals) result llbuilder
-      | A.ObjectCall (q, "offer", [e]) -> 
+      | A.ObjectCall (q, "enqueue", [e]) -> 
         let q_val = expr_generator llbuilder q in
         let e_val = expr_generator llbuilder e in 
         let d_ltyp = L.type_of e_val in 
@@ -330,6 +330,9 @@ and translate (globals, functions) =
         ignore(L.build_store e_val d_ptr llbuilder); 
         let void_e_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in 
         ignore (L.build_call enqueue_f [| q_val; void_e_ptr|] "" llbuilder); q_val
+      | A.ObjectCall (q, "dequeue", [e]) -> 
+        let q_val = expr_generator llbuilder q in
+        ignore (L.build_call dequeue_f [| q_val|] "" llbuilder); q_val      
       in
 
       (* Invoke "f llbuilder" if the current block doesn't already
