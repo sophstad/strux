@@ -7,3 +7,4 @@ strux.native
 fail-*.diff
 /*.err
 /*.out
+*.o
