@@ -53,10 +53,6 @@ and translate (globals, functions) =
 
 
   (* print *)
-  (* let printf_func =
-    let printf_t = L.var_arg_function_type f_t [| L.pointer_type i8_t |] in
-    L.declare_function "print" printf_t the_module
-  in *)
   let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
   let printf_func = L.declare_function "printf" printf_t the_module in
 
@@ -73,16 +69,25 @@ and translate (globals, functions) =
       StringMap.add name (L.define_function name ftype the_module, func_decl) m in
     List.fold_left function_decl StringMap.empty functions in
 
+  (* Format str for printf *)
+  let string_format_str b = L.build_global_stringptr "%s\n" "fmt" b
+  and int_format_str    b = L.build_global_stringptr "%d\n" "fmt" b
+  and float_format_str  b = L.build_global_stringptr "%f\n" "fmt" b in
+
+  let format_str x_type builder =
+    let b = builder in
+      match x_type with
+        A.Int      -> int_format_str b
+      | A.Num    -> float_format_str b
+      | A.String  -> string_format_str b
+      | A.Bool     -> int_format_str b
+      | _ -> raise (Failure ("Invalid printf type"))
+  in
+
     (* Fill in the body of the given function *)
     let build_function_body func_decl =
       let (the_function, _) = StringMap.find func_decl.A.fname function_decls in
       let llbuilder = L.builder_at_end context (L.entry_block the_function) in
-
-      let str_format_str = L.build_global_stringptr "%s\n" "fmt" llbuilder in
-      let int_format_str = L.build_global_stringptr "%d\n" "fmt" llbuilder in
-      let flt_format_str = L.build_global_stringptr "%f\n" "fmt" llbuilder in
-      let int_format_str = L.build_global_stringptr "%d\n" "fmt" llbuilder in
-      let bool_format_str = L.build_global_stringptr "%d\n" "fmt" llbuilder in
 
       (* Construct the function's "locals": formal arguments and locally
          declared variables.  Allocate each on the stack, initialize their
@@ -104,6 +109,11 @@ and translate (globals, functions) =
       let lookup n : L.llvalue =
         try (snd (StringMap.find n !local_vars))
         with Not_found -> (snd (StringMap.find n !global_vars))
+      in
+
+      let name_to_type n : A.typ =
+        try (fst (StringMap.find n !local_vars))
+        with Not_found -> (fst (StringMap.find n !global_vars))
       in
 
     (* Array creation, initialization, access *)
@@ -147,6 +157,20 @@ and translate (globals, functions) =
       | A.StringLit _ -> A.String
       | A.BoolLit _ -> A.Bool
       | A.ArrayLit el -> A.Arraytype (gen_type (List.nth el 0))
+      | A.ArrayElementAssign (_, _, el) -> gen_type el
+      | A.Id name -> (match (name_to_type name) with
+                      A.Arraytype(t) -> t
+                    | _ as ty -> ty)
+      | A.Unop(_,e) -> gen_type e
+      | A.Binop(e1,_,_) -> gen_type e1
+      | A.Postop(e, _) -> gen_type e
+      | A.Assign(_,var,_) -> gen_type (A.Id(var))
+      | A.Reassign(var,_) -> gen_type (A.Id(var))
+      | A.FuncCall(var,_) -> let fdecl =
+                            List.find (fun x -> x.A.fname = var) functions in
+                            fdecl.A.typ
+      | A.ArrayAccess(id,_) -> gen_type (A.Id(id))
+      | A.Noexpr -> A.Void
     in
 
     (* Define each function (arguments and return type) so we can call it *)
@@ -232,19 +256,7 @@ and translate (globals, functions) =
           then num_postops e' op
           else int_postops e' op
       | A.Assign (t, s, e) ->
-          let _ = (match func_decl.A.fname with
-            "main" ->
-              let init = (match t with
-                A.Int   -> expr_generator llbuilder (A.IntLit(0))
-              | A.Num -> expr_generator llbuilder (A.NumLit(0.0))
-              | A.String -> expr_generator llbuilder (A.StringLit(""))
-              | A.Bool   -> expr_generator llbuilder (A.BoolLit(false))
-              | t -> L.const_null (ltype_of_typ t)
-            )
-          in
-                (global_vars := StringMap.add s (t, (L.define_global s init the_module)) !global_vars)
-            | _ -> (local_vars := StringMap.add s (t, (L.build_alloca (ltype_of_typ t)) s llbuilder) !local_vars)
-            ) in
+          let _ = (local_vars := StringMap.add s (t, (L.build_alloca (ltype_of_typ t)) s llbuilder) !local_vars) in
           let e' = expr_generator llbuilder e and llval = lookup s in
           ignore (L.build_store e' llval llbuilder); e'
       | A.Reassign (s, e) ->
@@ -264,19 +276,10 @@ and translate (globals, functions) =
           ignore (L.build_store e' var llbuilder); e'
       | A.FuncCall("print", [e]) ->
           let e' = expr_generator llbuilder e in
-          if L.type_of e' == ltype_of_typ A.Num
-          then L.build_call printf_func [| flt_format_str ; e' |] "print" llbuilder
-          else if L.type_of e' == ltype_of_typ A.String
-          then L.build_call printf_func [| str_format_str ; e' |] "print" llbuilder
-          else if L.type_of e' == ltype_of_typ A.Int
-          then L.build_call printf_func [| int_format_str ; e' |] "print" llbuilder
-          else if L.type_of e' == ltype_of_typ A.Bool
-          then L.build_call printf_func [| bool_format_str ; e' |] "print" llbuilder
-          else if L.type_of e' == ltype_of_typ A.Int
-          then L.build_call printf_func [| int_format_str ; e' |] "print" llbuilder
-        else L.build_call printf_func [| str_format_str ; e' |] "print" llbuilder
-      | A.FuncCall ("printbig", [e]) ->
-    L.build_call printbig_func [| (expr_generator llbuilder e) |] "printbig" llbuilder
+          let e_type = gen_type e in
+          L.build_call printf_func [| (format_str e_type llbuilder) ; e' |] "printf" llbuilder
+     | A.FuncCall ("printbig", [e]) ->
+          L.build_call printbig_func [| (expr_generator llbuilder e) |] "printbig" llbuilder
       | A.FuncCall (f, act) ->
           let (fdef, func_decl) = StringMap.find f function_decls in
           let actuals = List.rev (List.map (expr_generator llbuilder) (List.rev act)) in
