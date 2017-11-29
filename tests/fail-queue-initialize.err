@@ -1,0 +1,1 @@
+Fatal error: exception Failure("illegal assignment Queue string = Queue num in Queue string q = new Queue::num()")
