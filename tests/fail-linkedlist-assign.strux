@@ -1,0 +1,5 @@
+int main() {
+	LinkedList::string:: list = new LinkedList::string::();
+	list.add(3);
+	return 0;
+}

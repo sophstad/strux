@@ -31,6 +31,7 @@ rule token = parse
   | '*'       { TIMES }
   | '/'       { DIVIDE }
   | '%'       { MOD }
+  | '.'       { DOT }
   | "++"      { INCR }
   | "--"      { DECR }
   | '='       { ASSIGN }
@@ -63,7 +64,8 @@ rule token = parse
   | "false"       { FALSE }
   | "new"         { NEW }
   | "null"        { NULL }
-  (*| "Queue"       { QUEUE }*)
+  | "Queue"       { QUEUE }
+  | "LinkedList"  { LINKEDLIST }
     (* 
   | "Stack"       { STACK }
   | "Queue"       { QUEUE }

@@ -1,4 +1,4 @@
 #!/bin/bash
-cc	-c -o queue.o c/queue.c
-cc  -c -o queue.o c/stack.c
+clang -emit-llvm -o queue.bc -c c/queue.c
+clang -emit-llvm -o stack.bc -c c/stack.c
 
