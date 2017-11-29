@@ -22,7 +22,7 @@ and str_t  = L.pointer_type (L.i8_type context) (* string *)
 and i32_t  = L.i32_type  context
 and queue_t = L.pointer_type (match L.type_by_name qqm "struct.Queue" with
     None -> raise (Invalid_argument "Option.get queue") | Some x -> x)
-and list_t = L.pointer_type (match L.type_by_name list_qm "struct.LinkedList" with
+and linkedlist_t = L.pointer_type (match L.type_by_name list_qm "struct.LinkedList" with
     None -> raise (Invalid_argument "Option.get linkedlmist") | Some x -> x) ;;
 
 let rec ltype_of_typ = function (* LLVM type for AST type *)
@@ -33,7 +33,7 @@ let rec ltype_of_typ = function (* LLVM type for AST type *)
   | A.Void -> void_t
   | A.Arraytype(t) -> L.pointer_type (ltype_of_typ t)
   | A.QueueType _ -> queue_t
-  | A.LinkedListType _ -> list_t
+  | A.LinkedListType _ -> linkedlist_t
   | _ -> raise(Failure("Invalid Data Type"))
   (* | A.Stack -> f_t
     | A.Queue -> f_t
@@ -72,15 +72,15 @@ and translate (globals, functions) =
   let sizeQ_f = L.declare_function "queue_size" sizeQ_t the_module in 
 
   (*built-in linkedlist functions*)
-  let initList_t = L.function_type list_t [| |] in 
+  let initList_t = L.function_type linkedlist_t [| |] in 
   let initList_f = L.declare_function "initList" initList_t the_module in
-  let add_t = L.function_type void_t [| list_t; L.pointer_type i8_t|] in 
+  let add_t = L.function_type void_t [| linkedlist_t; L.pointer_type i8_t|] in 
   let add_f = L.declare_function "add" add_t the_module in
-  let delete_t = L.function_type void_t [| list_t |] in 
+  let delete_t = L.function_type void_t [| linkedlist_t |] in 
   let delete_f = L.declare_function "delete" delete_t the_module in
-  let get_t = L.function_type (L.pointer_type i8_t) [| list_t |] in
+  let get_t = L.function_type (L.pointer_type i8_t) [| linkedlist_t |] in
   let get_f = L.declare_function "get" get_t the_module in
-  let sizeList_t = L.function_type i32_t [| list_t |] in 
+  let sizeList_t = L.function_type i32_t [| linkedlist_t |] in 
   let sizeList_f = L.declare_function "size" sizeList_t the_module in 
 
   (*print big *)
@@ -223,7 +223,7 @@ and translate (globals, functions) =
       | _ -> A.Void 
     in 
 
-   let getListType = function
+   let getLinkedListType = function
        A.LinkedListType(typ) -> typ
       | _ -> A.Void 
     in 
@@ -398,7 +398,14 @@ and translate (globals, functions) =
       | A.ObjectCall (q, "size", []) -> 
         let q_val = expr_generator llbuilder q in
         let size_ptr = L.build_call sizeQ_f [| q_val|] "" llbuilder in size_ptr
-
+      | A.ObjectCall (l, "add", [e]) ->
+        let l_val = expr_generator llbuilder l in
+        let e_val = expr_generator llbuilder e in 
+        let d_ltyp = L.type_of e_val in 
+        let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in 
+        ignore(L.build_store e_val d_ptr llbuilder); 
+        let void_e_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in 
+        ignore (L.build_call add_f [| l_val; void_e_ptr|] "" llbuilder); l_val
       in
 
       (* Invoke "f llbuilder" if the current block doesn't already

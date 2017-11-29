@@ -62,6 +62,10 @@ let check (globals, functions) =
     { typ = QueueType(AnyType); fname = "enqueue"; formals = [(AnyType, "x")];
         body = [] }
 
+        (StringMap.add "add"
+    { typ = Void; fname = "add"; formals = [(AnyType, "x")];
+        body = [] }
+
         (StringMap.add "dequeue"
     { typ = QueueType(AnyType); fname = "dequeue"; formals = [(AnyType, "x")];
         body = [] }
@@ -77,7 +81,7 @@ let check (globals, functions) =
         (StringMap.singleton "printbig"
      { typ = Void; fname = "printbig"; formals = [(Int, "x")];
        body = [] }
-     ))))))
+     )))))))
    in
 
   let function_decls = List.fold_left (fun m fd -> StringMap.add fd.fname fd m)
@@ -129,6 +133,10 @@ let check (globals, functions) =
       | _ -> Void  
     in 
 
+    let getLinkedListType = function
+       LinkedListType(typ) -> typ
+      | _ -> Void  
+    in 
     (* Return the type of an expression or throw an exception *)
     let rec expr = function
         NumLit _ -> Num
@@ -235,6 +243,11 @@ let check (globals, functions) =
                 else if fname = "dequeue" then
                    let acttype = expr oname in 
                    let actqtype = getQueueType acttype in 
+                  ignore(check_assign actqtype et (Failure ("illegal actual dequeue argument found " ^ string_of_typ et ^
+                  " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
+                else if fname = "add" then
+                   let acttype = expr oname in 
+                   let actqtype = getLinkedListType acttype in 
                   ignore(check_assign actqtype et (Failure ("illegal actual dequeue argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
                 (* else if fname = "peek" then
