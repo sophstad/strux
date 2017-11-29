@@ -5,9 +5,9 @@
 int main()
 {
     struct BSTreeNode *root = createNode(5);
-    addElementToTree(root, 3);
+    addElementToTree(root, 6);
     addElementToTree(root, 4);
-    printTree(root);
+    postorder(root, 0);
     free(root->right);
     free(root->left);
     free(root);
