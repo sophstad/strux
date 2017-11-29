@@ -44,15 +44,15 @@ int isEmpty(struct LinkedList *list) {
 	return (list->head == NULL);
 }
 
-void retrieve(struct LinkedList *list, int index) {
+void delete(struct LinkedList* list, int index) {
 	if (isEmpty(list)) {
 		return;
 	}
 	if (index == 0) {
 		struct ListNode* temp = list->head;
 		list->head = list->head->next;
-		free(temp);
 		list->size--;
+		free(temp);
 		return;
 	}
 
@@ -68,7 +68,7 @@ void retrieve(struct LinkedList *list, int index) {
 	list->size--;
 }
 
-void* get(struct LinkedList *list, int index) {
+void* get(struct LinkedList* list, int index) {
 	struct ListNode* node = list->head;
 	while (index > 0) {
 		node = node->next;
@@ -77,7 +77,7 @@ void* get(struct LinkedList *list, int index) {
 	return node->data;
 }
 
-struct ListNode* access(struct LinkedList *list, int index) {
+struct ListNode* access(struct LinkedList* list, int index) {
 	struct ListNode* temp = list->head;
 	while (index > 0) {
 		temp = temp->next;
@@ -90,7 +90,7 @@ int size(struct LinkedList *list) {
 	return (list->size);
 }
 
-void show(struct LinkedList *list, void (*fptr)(void *))
+void show(struct LinkedList* list, void (*fptr)(void *))
 {
 	for (int i = 0; i < list->size; i++) {
 		printf("%s", "| " );

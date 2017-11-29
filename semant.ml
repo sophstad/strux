@@ -46,6 +46,9 @@ let check (globals, functions) =
   if List.mem "print" (List.map (fun fd -> fd.fname) functions)
   then raise (Failure ("function print may not be defined")) else ();
 
+  if List.mem "delete" (List.map (fun fd -> fd.fname) functions)
+  then raise (Failure ("function delete may not be defined")) else ();
+
   report_duplicate (fun n -> "duplicate function " ^ n)
     (List.map (fun fd -> fd.fname) functions);
 
@@ -59,15 +62,15 @@ let check (globals, functions) =
        body = [] } 
 
        (StringMap.add "enqueue"
-    { typ = QueueType(AnyType); fname = "enqueue"; formals = [(AnyType, "x")];
+    { typ = Void; fname = "enqueue"; formals = [(AnyType, "x")];
         body = [] }
 
         (StringMap.add "add"
-    { typ = Void; fname = "add"; formals = [(AnyType, "x")];
+    { typ = LinkedListType(AnyType); fname = "add"; formals = [(AnyType, "x")];
         body = [] }
 
         (StringMap.add "dequeue"
-    { typ = QueueType(AnyType); fname = "dequeue"; formals = [(AnyType, "x")];
+    { typ = Void; fname = "dequeue"; formals = [(AnyType, "x")];
         body = [] }
 
         (StringMap.add "peek"
@@ -78,10 +81,14 @@ let check (globals, functions) =
      { typ = Int; fname = "size"; formals = [];
         body = [] }
 
+        (StringMap.add "delete"
+     { typ = Void; fname = "delete"; formals = [(Int, "x")];
+        body = [] }
+
         (StringMap.singleton "printbig"
      { typ = Void; fname = "printbig"; formals = [(Int, "x")];
        body = [] }
-     )))))))
+     ))))))))
    in
 
   let function_decls = List.fold_left (fun m fd -> StringMap.add fd.fname fd m)
@@ -248,9 +255,14 @@ let check (globals, functions) =
                 else if fname = "add" then
                    let acttype = expr oname in 
                    let actqtype = getLinkedListType acttype in 
-                  ignore(check_assign actqtype et (Failure ("illegal actual dequeue argument found " ^ string_of_typ et ^
+                  ignore(check_assign actqtype et (Failure ("illegal actual add argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
-                (* else if fname = "peek" then
+                (* else if fname = "delete" then
+                   let acttype = expr oname in 
+                   let actqtype = getLinkedListType acttype in 
+                  ignore(check_assign actqtype et (Failure ("illegal actual delete argument found " ^ string_of_typ et ^
+                  " expected num type " ^ " in " ^ string_of_expr e))) 
+             *)    (* else if fname = "peek" then
                    let acttype = expr oname in 
                    let actqtype = getQueueType acttype in 
                   ignore(check_assign actqtype et (Failure ("illegal actual peek for queue argument found " ^ string_of_typ et ^

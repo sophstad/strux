@@ -76,9 +76,9 @@ and translate (globals, functions) =
   let initList_f = L.declare_function "initList" initList_t the_module in
   let add_t = L.function_type void_t [| linkedlist_t; L.pointer_type i8_t|] in 
   let add_f = L.declare_function "add" add_t the_module in
-  let delete_t = L.function_type void_t [| linkedlist_t |] in 
+  let delete_t = L.function_type void_t [| linkedlist_t; i32_t |] in 
   let delete_f = L.declare_function "delete" delete_t the_module in
-  let get_t = L.function_type (L.pointer_type i8_t) [| linkedlist_t |] in
+  let get_t = L.function_type (L.pointer_type i8_t) [| linkedlist_t; i32_t |] in
   let get_f = L.declare_function "get" get_t the_module in
   let sizeList_t = L.function_type i32_t [| linkedlist_t |] in 
   let sizeList_f = L.declare_function "size" sizeList_t the_module in 
@@ -406,6 +406,11 @@ and translate (globals, functions) =
         ignore(L.build_store e_val d_ptr llbuilder); 
         let void_e_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in 
         ignore (L.build_call add_f [| l_val; void_e_ptr|] "" llbuilder); l_val
+      | A.ObjectCall (l, "delete", [e]) -> 
+        let l_val = expr_generator llbuilder l in 
+        let e_val = expr_generator llbuilder e in
+        ignore (L.build_call delete_f [| l_val; e_val |] "" llbuilder);
+        l_val
       in
 
       (* Invoke "f llbuilder" if the current block doesn't already
