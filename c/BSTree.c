@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "BSTree.h"
 
 /* Allocates memory for a new BSTreeNode and returns its pointer */
@@ -25,16 +26,21 @@ void printTree(struct BSTreeNode *node)
 }
 
 
-void postorder(struct BSTreeNode *node, int indent)
+void postOrder(struct BSTreeNode *node, int indent)
 {
+    char out[7] = "%4s  ";
+
+    char number[3];
+    sprintf(number, "%d", indent);
+
     if(node != NULL) {
 
         if(node->right) {
-            postorder(node->right, indent+4);
+            postOrder(node->right, indent+4);
         }
 
         if (indent) {
-            printf("%4s  ", "");
+            printf(out, "");
         }
 
         if (node->right) {
@@ -45,8 +51,32 @@ void postorder(struct BSTreeNode *node, int indent)
 
         if(node->left) {
             printf("%4s\n  \\\n", "");
-            postorder(node->left, indent+4);
+            postOrder(node->left, indent+4);
         }
+    }
+}
+
+void postorder(struct BSTreeNode *node, int indent)
+{
+    if(node != NULL) {
+
+        char number[4];
+        sprintf(number, "%d", indent);
+        char out[20] = "%";
+        strcat(out, number);
+        strcat(out, "s");
+
+        if(node->left)
+            postorder(node->left, indent+4);
+        if(node->right)
+            postorder(node->right, indent+4);
+        
+        if (indent) {
+            //std::cout << std::setw(indent) << ' ';
+            printf(out, " ");
+        }
+        //cout<< p->data << "\n ";
+        printf("%d\n ", node->data);
     }
 }
 
