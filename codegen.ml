@@ -218,15 +218,11 @@ and translate (globals, functions) =
       | A.Noexpr -> A.Void
     in
 
-    let getQueueType = function
-       A.QueueType(typ) -> typ
-      | _ -> A.Void 
-    in 
-
-   let getLinkedListType = function
-       A.LinkedListType(typ) -> typ
-      | _ -> A.Void 
-    in 
+    let get_ds_type = function
+        A.QueueType(typ) -> typ
+      | A.LinkedListType(typ) -> typ
+      | _ -> A.Void
+    in
 
     let idtostring = function 
         A.Id s -> s 
@@ -390,7 +386,7 @@ and translate (globals, functions) =
       | A.ObjectCall (q, "peek", []) -> 
         let q_val = expr_generator llbuilder q in
         let n = idtostring q in
-        let q_type = getQueueType (lookup_types n) in 
+        let q_type = get_ds_type (lookup_types n) in 
         let val_ptr = L.build_call peek_f [| q_val |] "val_ptr" llbuilder in
         let l_dtyp = ltype_of_typ q_type in
         let d_ptr = L.build_bitcast val_ptr (L.pointer_type l_dtyp) "d_ptr" llbuilder in
