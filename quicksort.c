@@ -6,44 +6,44 @@
 // for swapping values in array
 void swap(int *x, int *y)
 {
-  // intermediate place holder variable
-  int z;
+    // intermediate place holder variable
+    int z;
 
-  // allocate value of x to z, set x to y and y to z
-  z = *x;
-  *x = *y;
-  *y = z;
-  return ;
+    // allocate value of x to z, set x to y and y to z
+    z = *x;
+    *x = *y;
+    *y = z;
+    return ;
 }
 
 // for swapping values in array
 void fswap(float *x, float *y)
 {
-  // intermediate place holder variable
-  float z;
+    // intermediate place holder variable
+    float z;
 
-  // allocate value of x to z, set x to y and y to z
-  z = *x;
-  *x = *y;
-  *y = z;
-  return ;
+    // allocate value of x to z, set x to y and y to z
+    z = *x;
+    *x = *y;
+    *y = z;
+    return ;
 }
 
 // prints out int list
 void display(int a[]) {
-  int i;
-  int n=0;
-  int p = -1;
-  while (p!= '\0')
-  {
-    n++;
-    p = a[n];
-  }
+    int i;
+    int n=0;
+    int p = -1;
+    while (p!= '\0')
+    {
+        n++;
+        p = a[n];
+    }
 
-  printf("[");
+    printf("[");
 
-  for(i = 0;i<n;i++) {
-    printf("%d ",a[i]);
+    for(i = 0;i<n;i++) {
+      printf("%d ",a[i]);
   }
 
   printf("]\n");
@@ -51,19 +51,19 @@ void display(int a[]) {
 
 // prints out float list
 void fdisplay(float a[]) {
-  int i;
-  int n=0;
-  int p = -1;
-  while (p!= '\0')
-  {
-    n++;
-    p = a[n];
-  }
+    int i;
+    int n=0;
+    int p = -1;
+    while (p!= '\0')
+    {
+        n++;
+        p = a[n];
+    }
 
-  printf("[");
+    printf("[");
 
-  for(i = 0;i<n;i++) {
-    printf("%f ",a[i]);
+    for(i = 0;i<n;i++) {
+      printf("%f ",a[i]);
   }
 
   printf("]\n");
@@ -72,109 +72,121 @@ void fdisplay(float a[]) {
 // Function that uses median of three partitioning
 int median_of_3(int a[], int left, int right)
 {
-  // get middle of array
-  int middle = (left + right)/2;
+    // get middle of array
+    int middle = (left + right)/2;
 
-  // rearrange arrange now with pivot known
-  if (a[middle] < a[left]) {
-    swap(&a[left],&a[middle]);
-  }
-  if (a[right] < a[left]) {
-    swap(&a[left],&a[right]);
-  }
-  if (a[right]< a[middle]) {
-    swap(&a[middle],&a[right]);
-  }
+    // rearrange arrange now with pivot known
+    if (a[middle] < a[left]) {
+        swap(&a[left],&a[middle]);
+    }
+    if (a[right] < a[left]) {
+        swap(&a[left],&a[right]);
+    }
+    if (a[right]< a[middle]) {
+        swap(&a[middle],&a[right]);
+    }
 
-  swap(&a[middle], &a[right - 1]);
-  return a[right - 1];
+    swap(&a[middle], &a[right - 1]);
+    return a[right - 1];
 }
 
 float fmedian_of_3(float a[], int left, int right)
 {
-  // get middle of array
-  int middle = (left + right)/2;
+// get middle of array
+    int middle = (left + right)/2;
 
-  // rearrange arrange now with pivot known
-  if (a[middle] < a[left]) {
-    fswap(&a[left],&a[middle]);
-  }
-  if (a[right] < a[left]) {
-    fswap(&a[left],&a[right]);
-  }
-  if (a[right] < a[middle]) {
-    fswap(&a[middle],&a[right]);
-  }
+// rearrange arrange now with pivot known
+    if (a[middle] < a[left]) {
+        fswap(&a[left],&a[middle]);
+    }
+    if (a[right] < a[left]) {
+        fswap(&a[left],&a[right]);
+    }
+    if (a[right] < a[middle]) {
+        fswap(&a[middle],&a[right]);
+    }
 
-  fswap(&a[middle], &a[right - 1]);
-  return a[right - 1];
+    fswap(&a[middle], &a[right - 1]);
+    return a[right - 1];
 }
 
 // Function that uses median of three partitioning
 int show_median_of_3(int a[], int left, int right)
 {
-  // get middle of array
-  int middle = (left + right)/2;
-  printf("============================================================\n");
-  printf("At this step:\n");
-  printf("current array:");
-  display(a);
-  printf("left value: %d\n", a[left]);
-  printf("right value: %d\n", a[right]);
-  printf("middle value: %d\n", a[middle]);
+    // get middle of array
+    int middle = (left + right)/2;
+    printf("============================================================\n");
+    printf("At this step:\n");
+    printf("current array:");
+    display(a);
 
-  // rearrange arrange now with pivot known
-  if (a[middle] < a[left]) {
-    swap(&a[left],&a[middle]);
-    printf("pivot swapped: %d,%d\n", a[middle],a[left]);
-    display(a);
-  }
-  if (a[right] < a[left]) {
-    swap(&a[left],&a[right]);
-    printf("pivot swapped: %d,%d\n", a[right],a[left]);
-    display(a);
-  }
-  if (a[right]< a[middle]) {
-    swap(&a[middle],&a[right]);
-    printf("pivot swapped: %d,%d\n", a[right],a[middle]);
-    display(a);
-  }
+    // rearrange arrange now with pivot known
+    if (a[middle] < a[left]) {
+        printf("left value: %d\n", a[left]);
+        printf("middle value: %d\n", a[middle]);
+        printf("right value: %d\n", a[right]);
+        swap(&a[left],&a[middle]);
+        printf("pivot swapped: %d,%d\n", a[middle],a[left]);
+        display(a);
+    }
+    if (a[right] < a[left]) {
+        printf("left value: %d\n", a[left]);
+        printf("middle value: %d\n", a[middle]);
+        printf("right value: %d\n", a[right]);
+        swap(&a[left],&a[right]);
+        printf("pivot swapped: %d,%d\n", a[right],a[left]);
+        display(a);
+    }
+    if (a[right]< a[middle]) {
+        printf("left value: %d\n", a[left]);
+        printf("middle value: %d\n", a[middle]);
+        printf("right value: %d\n", a[right]);
+        swap(&a[middle],&a[right]);
+        printf("pivot swapped: %d,%d\n", a[right],a[middle]);
+        display(a);
+    }
 
-  swap(&a[middle], &a[right - 1]);
-  return a[right - 1];
+    swap(&a[middle], &a[right - 1]);
+    return a[right - 1];
 }
 
 float show_fmedian_of_3(float a[], int left, int right)
 {
-  // get middle of array
-  int middle = (left + right)/2;
-  printf("============================================================\n");
-  printf("At this step:\n");
-  printf("current array:");
-  fdisplay(a);
-  printf("left value: %f\n", a[left]);
-  printf("right value: %f\n", a[right]);
-  printf("middle value: %f\n", a[middle]);
+// get middle of array
+    int middle = (left + right)/2;
+    printf("============================================================\n");
+    printf("At this step:\n");
+    printf("current array:");
+    fdisplay(a);
 
-  // rearrange arrange now with pivot known
-  if (a[middle] < a[left]) {
-    fswap(&a[left],&a[middle]);
-    printf("pivot swapped:%f,%f\n", a[middle],a[left]);
-    fdisplay(a);
-  }
-  if (a[right] < a[left]) {
-    fswap(&a[left],&a[right]);
-    printf("pivot swapped:%f,%f\n", a[right],a[left]);
-    fdisplay(a);
-  }
-  if (a[right] < a[middle]) {
-    fswap(&a[middle],&a[right]);
-    printf("pivot swapped:%f,%f\n", a[right],a[middle]);
-    fdisplay(a);
-  }
+// rearrange arrange now with pivot known
+    if (a[middle] < a[left]) {
+        printf("left value: %f\n", a[left]);
+        printf("middle value: %f\n", a[middle]);
+        printf("right value: %f\n", a[right]);
+        fswap(&a[left],&a[middle]);
+        printf("pivot swapped: %f,%f\n", a[middle],a[left]);
+        fdisplay(a);
+    }
+    if (a[right] < a[left]) {
+        printf("left value: %f\n", a[left]);
+        printf("middle value: %f\n", a[middle]);
+        printf("right value: %f\n", a[right]);
+        fswap(&a[left],&a[right]);
+        printf("pivot swapped: %f,%f\n", a[right],a[left]);
+        fdisplay(a);
+    }
+    if (a[right] < a[middle]) {
+        printf("left value: %f\n", a[left]);
+        printf("middle value: %f\n", a[middle]);
+        printf("right value: %f\n", a[right]);
+        fswap(&a[middle],&a[right]);
+        printf("pivot swapped: %f,%f\n", a[right],a[middle]);
+        fdisplay(a);
+    }
 
-  fswap(&a[middle], &a[right - 1]);
-  return a[right - 1];
+    fswap(&a[middle], &a[right - 1]);
+    return a[right - 1];
 }
 
 void showQuickSort(int a[], int left, int right)
@@ -185,24 +197,24 @@ void showQuickSort(int a[], int left, int right)
     int i = left;
     int j = right - 1;
     for ( ; ;) {
-      while(a[++i]<pivot) {}
-      while(pivot<a[--j]) {}
-      if ( i < j) {
-        swap(&a[i],&a[j]);
-        printf("pivot is %d, i is at index %d and j is at index %d\n", pivot, i, j);
-        printf("numbers swapped :%d,%d\n", a[i],a[j]);
-        display(a);
-      } else {
-        break ;
-      }
-    }
-    swap(&a[i],& a[right -1]);
-    showQuickSort(a,left,i-1);
-    showQuickSort(a,i+1,right);
-  }
+        while(a[++i]<pivot) {}
+            while(pivot<a[--j]) {}
+                if ( i < j) {
+                    printf("pivot value is %d, i is at index %d and j is at index %d\n", pivot, i, j);
+                    printf("numbers swapped: %d,%d\n", a[i],a[j]);
+                    swap(&a[i],&a[j]);
+                    display(a);
+                } else {
+                    break ;
+                }
+            }
+            swap(&a[i],& a[right -1]);
+            showQuickSort(a,left,i-1);
+            showQuickSort(a,i+1,right);
+        }
 
-  return ;
-}
+        return ;
+    }
 
 void quickSort(int a[], int left, int right)
 {
@@ -212,21 +224,21 @@ void quickSort(int a[], int left, int right)
     int i = left;
     int j = right - 1;
     for ( ; ;) {
-      while(a[++i]<pivot) {}
-      while(pivot<a[--j]) {}
-      if ( i < j) {
-        swap(&a[i],&a[j]);
-      } else {
-        break ;
-      }
-    }
-    swap(&a[i],& a[right -1]);
-    quickSort(a,left,i-1);
-    quickSort(a,i+1,right);
-  }
+        while(a[++i]<pivot) {}
+            while(pivot<a[--j]) {}
+                if ( i < j) {
+                    swap(&a[i],&a[j]);
+                } else {
+                    break ;
+                }
+            }
+            swap(&a[i],& a[right -1]);
+            quickSort(a,left,i-1);
+            quickSort(a,i+1,right);
+        }
 
-  return ;
-}
+        return ;
+    }
 
 void fquickSort(float a[], int left, int right)
 {
@@ -237,22 +249,22 @@ void fquickSort(float a[], int left, int right)
     int i = left;
     int j = right - 1;
     for ( ; ;) {
-      while(a[++i]<pivot) {}
-      while(pivot<a[--j]) {}
-      if ( i < j) {
-        fswap(&a[i],&a[j]);
-      }
-      else {
-        break ;
-      }
-    }
-    fswap(&a[i],& a[right -1]);
-    fquickSort(a,left,i-1);
-    fquickSort(a,i+1,right);
-  }
+        while(a[++i]<pivot) {}
+            while(pivot<a[--j]) {}
+                if ( i < j) {
+                    fswap(&a[i],&a[j]);
+                }
+                else {
+                    break ;
+                }
+            }
+            fswap(&a[i],& a[right -1]);
+            fquickSort(a,left,i-1);
+            fquickSort(a,i+1,right);
+        }
 
-  return ;
-}
+        return ;
+    }
 
 
 void showfQuickSort(float a[], int left, int right)
@@ -264,39 +276,41 @@ void showfQuickSort(float a[], int left, int right)
     int i = left;
     int j = right - 1;
     for ( ; ;) {
-      while(a[++i]<pivot) {}
-      while(pivot<a[--j]) {}
-      if ( i < j) {
-        fswap(&a[i],&a[j]);
-        printf("pivot is %d, i is at index %d and j is at index %d\n", pivot, i, j);
-        printf("numbers swapped :%f,%f\n", a[i],a[j]);
-        fdisplay(a);
-      }
-      else {
-        break ;
-      }
-    }
-    fswap(&a[i],& a[right -1]);
-    showfQuickSort(a,left,i-1);
-    showfQuickSort(a,i+1,right);
-  }
+        while(a[++i]<pivot) {}
+            while(pivot<a[--j]) {}
+                if ( i < j) {
+                    printf("pivot value is %d, i is at index %d and j is at index %d\n", pivot, i, j);
+                    printf("numbers swapped: %f,%f\n", a[i],a[j]);
+                    fswap(&a[i],&a[j]);
+                    fdisplay(a);
+                }
+                else {
+                    break ;
+                }
+            }
+            fswap(&a[i],& a[right -1]);
+            showfQuickSort(a,left,i-1);
+            showfQuickSort(a,i+1,right);
+        }
 
-  return ;
+        return ;
 }
 
 // int main()
 // {
-//   int a[] = {10, 100, 30, 90, 40, 50, 7};
-//   quickSort(a, 0, 6);
-//   showQuickSort(a, 0, 6);
+//     int a[] = {10, 35, 25, 56, 2002, 100, 90, 86, 40, 50, 7};
+//     showQuickSort(a, 0, 10);
+//     quickSort(a, 0, 10);
 //
+//     int b[] = {85,331,234,46,4,3,22,89,7,12, 33, 44,55,66,77};
+//     showQuickSort(b, 0, 14);
+//     quickSort(b,0,14);
 //
-//   int b[] = {85,331,234,46,4,3,22,89,7,12, 33, 44,55,66,77};
-//   showQuickSort(b, 0, 14);
-//   quickSort(b,0,14);
+//     float c[] = { 3.4, 56.2, 5.3, 6.0, 2.6, 566.7, 778.3};
+//     showfQuickSort(c, 0, 6);
+//     fquickSort(c, 0, 6);
 //
-//
-//   float c[] = { 3.4, 56.2, 5.3, 6.0, 2.6, 566.7, 778.3};
-//   showfQuickSort(c, 0, 6);
-//   fquickSort(c, 0, 6);
+//     int d[] = {10, 100, 30, 90, 40, 50, 70};
+//     showQuickSort(d, 0, 6);
+//     quickSort(d, 0, 6);
 // }
