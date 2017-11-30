@@ -7,4 +7,7 @@ strux.native
 fail-*.diff
 /*.err
 /*.out
+*.bc
 *.o
+*.s
+*.exe
