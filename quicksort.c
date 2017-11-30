@@ -284,19 +284,19 @@ void showfQuickSort(float a[], int left, int right)
   return ;
 }
 
-int main()
-{
-  int a[] = {10, 100, 30, 90, 40, 50, 7};
-  quickSort(a, 0, 6);
-  showQuickSort(a, 0, 6);
-
-
-  int b[] = {85,331,234,46,4,3,22,89,7,12, 33, 44,55,66,77};
-  showQuickSort(b, 0, 14);
-  quickSort(b,0,14);
-
-
-  float c[] = { 3.4, 56.2, 5.3, 6.0, 2.6, 566.7, 778.3};
-  showfQuickSort(c, 0, 6);
-  fquickSort(c, 0, 6);
-}
+// int main()
+// {
+//   int a[] = {10, 100, 30, 90, 40, 50, 7};
+//   quickSort(a, 0, 6);
+//   showQuickSort(a, 0, 6);
+//
+//
+//   int b[] = {85,331,234,46,4,3,22,89,7,12, 33, 44,55,66,77};
+//   showQuickSort(b, 0, 14);
+//   quickSort(b,0,14);
+//
+//
+//   float c[] = { 3.4, 56.2, 5.3, 6.0, 2.6, 566.7, 778.3};
+//   showfQuickSort(c, 0, 6);
+//   fquickSort(c, 0, 6);
+// }
