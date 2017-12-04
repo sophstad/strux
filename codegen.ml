@@ -512,7 +512,7 @@ and translate (globals, functions) =
 (*  
         let q_type = get_type q in 
         (match q_type with 
-        A.Int -> ignore (L.build_call show_int [| q_val|] "" llbuilder); q_val 
+         A.Int -> ignore (L.build_call show_int [| q_val|] "" llbuilder); q_val 
        | A.Num -> ignore (L.build_call show_float [| q_val|] "" llbuilder); q_val 
        | A.String -> ignore (L.build_call show_string [| q_val|] "" llbuilder); q_val) *)
       | A.ObjectCall (obj, "size", []) ->
