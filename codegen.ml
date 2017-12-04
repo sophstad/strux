@@ -384,7 +384,7 @@ and translate (globals, functions) =
         ignore(L.build_store e_val d_ptr llbuilder); 
         let void_e_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in 
         ignore (L.build_call enqueue_f [| q_val; void_e_ptr|] "" llbuilder); q_val
-      | A.ObjectCall (q, "dequeue", [e]) -> 
+      | A.ObjectCall (q, "dequeue", []) ->
         let q_val = expr_generator llbuilder q in
         ignore (L.build_call dequeue_f [| q_val|] "" llbuilder); q_val 
       | A.ObjectCall (q, "peek", []) -> 
