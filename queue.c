@@ -43,6 +43,7 @@ void enqueue(struct Queue *q, void *data) {
 		q->size++;
 		return;
 	}
+        q->rear->next = node;
 	q->rear = node;
 	q->size++;
 }
