@@ -1,5 +1,7 @@
 int main() {
-	num i = 0.0;
-	print(i++);
-	return 0;
+  num i = 0.0;
+  int j = 1;
+  print(i++);
+  print(j++);
+  return 0;
 }
