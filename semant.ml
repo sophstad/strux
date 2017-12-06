@@ -65,6 +65,10 @@ let check (globals, functions) =
     { typ = Void; fname = "enqueue"; formals = [(AnyType, "x")];
         body = [] }
 
+        (StringMap.add "show"
+    { typ = Void; fname = "show"; formals = [];
+        body = [] }
+
         (StringMap.add "add"
     { typ = LinkedListType(AnyType); fname = "add"; formals = [(AnyType, "x")];
         body = [] }
@@ -92,7 +96,7 @@ let check (globals, functions) =
         (StringMap.singleton "printbig"
      { typ = Void; fname = "printbig"; formals = [(Int, "x")];
        body = [] }
-     )))))))))
+     ))))))))))
    in
 
   let function_decls = List.fold_left (fun m fd -> StringMap.add fd.fname fd m)

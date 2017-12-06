@@ -1,0 +1,9 @@
+int main() {
+	LinkedList::string:: l = new LinkedList::string::();
+	l.add("S");
+	l.add("H");
+	l.add("O");
+	l.add("W");
+	l.show();
+	return 0;
+}

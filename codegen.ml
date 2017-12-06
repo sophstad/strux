@@ -83,6 +83,10 @@ and translate (globals, functions) =
   let get_f = L.declare_function "get" get_t the_module in
   let sizeList_t = L.function_type i32_t [| linkedlist_t |] in 
   let sizeList_f = L.declare_function "size" sizeList_t the_module in 
+  let show_t = L.function_type void_t [| linkedlist_t |] in 
+  let show_int = L.declare_function "show_int" show_t the_module in 
+  let show_float = L.declare_function "show_float" show_t the_module in 
+  let show_string = L.declare_function "show_string" show_t the_module in 
 
   (*print big *)
   let printbig_t = L.function_type i32_t [| i32_t |] in
@@ -121,15 +125,6 @@ and translate (globals, functions) =
       | A.LinkedListType _ -> float_format_str b
       | _ -> raise (Failure ("Invalid printf type"))
   in
-
-
-  let call_size_ptr llbuilder x_type val =
-    let b = llbuilder in
-      match x_type with
-        A.QueueType      -> L.build_call sizeQ_f [|val|] "" llbuilder 
-        | A.LinkedListType _ -> L.build_call sizeList_f [|val|] "" llbuilder 
-        | _ -> raise (Failure ("Invalid data structure type - size function"))
-    in
 
     (* Fill in the body of the given function *)
     let build_function_body func_decl =
@@ -402,11 +397,17 @@ and translate (globals, functions) =
         let l_dtyp = ltype_of_typ q_type in
         let d_ptr = L.build_bitcast val_ptr (L.pointer_type l_dtyp) "d_ptr" llbuilder in
         (L.build_load d_ptr "d_ptr" llbuilder)
-      | A.ObjectCall (obj, "size", []) -> 
-        let val = expr_generator llbuilder obj in
-        let ds_type = get_ds_type obj in 
-        let size_ptr = call_size_ptr llbuilder ds_type val in size_ptr
-      (*   let size_ptr = L.build_call sizeQ_f [| q_val|] "" llbuilder in size_ptr *)
+      | A.ObjectCall (q, "size", []) -> 
+        let q_val = expr_generator llbuilder q in
+        let q_type = get_type q in 
+        let size_ptr = L.build_call sizeQ_f [| q_val|] "" llbuilder in size_ptr
+      | A.ObjectCall (q, "show", []) -> 
+        let q_val = expr_generator llbuilder q in
+        let q_type = get_type q in 
+        (match q_type with 
+        A.Int -> ignore (L.build_call show_int [| q_val|] "" llbuilder); q_val 
+       | A.Num -> ignore (L.build_call show_float [| q_val|] "" llbuilder); q_val 
+       | A.String -> ignore (L.build_call show_string [| q_val|] "" llbuilder); q_val)
       | A.ObjectCall (l, "add", [e]) ->
         let l_val = expr_generator llbuilder l in
         let e_val = expr_generator llbuilder e in 

@@ -72,17 +72,31 @@ void *peek(struct Queue *q) {
 	return q->front->data;
 }
 
+
+// void show(struct LinkedList* list)
+// {
+// 	for (int i = 0; i < list->size; i++) {
+// 		printf("%s", "| " );
+// 		void* current = get(list, i);
+// 		printf("%p", current);
+// 		printf("%s", " |" );
+
+// 		if (access(list, i) -> next != NULL) {
+// 			printf("%s", " -> ");
+// 		}
+// 	}
+// 	printf("\n");
+// }
+
+
 // int main()
 // {
 //     struct Queue* queue = initQueue(10);
-//  	int ten = 10;
-//  	int twenty = 20;
-//  	int thirty = 30;
-//     enqueue(queue, &ten);
-//     enqueue(queue, &twenty);
-//     enqueue(queue, &thirty);
+//     enqueue(queue, 10);
+//     enqueue(queue, 20);
+//     enqueue(queue, 30);
  
-//     printf("Front item is %p\n", front(queue));
+//     printf("Front item is %d\n", peek(queue));
  
 //     return 0;
 // }

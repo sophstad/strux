@@ -90,11 +90,48 @@ int size(struct LinkedList *list) {
 	return (list->size);
 }
 
-void show(struct LinkedList* list, void (*fptr)(void *))
-{
+void show_int(struct LinkedList* list)
+{	
+	void* head = get(list, 0);
 	for (int i = 0; i < list->size; i++) {
 		printf("%s", "| " );
-		(*fptr)(get(list, i));
+		printf("%s", "[ ");
+		printf("%d", *(int*)get(list, i));
+		printf("%s", " ]");
+		printf("%s", " |" );
+
+		if (access(list, i) -> next != NULL) {
+			printf("%s", " -> ");
+		}
+	}
+	printf("\n");
+}
+
+void show_string(struct LinkedList* list)
+{	
+	void* head = get(list, 0);
+	for (int i = 0; i < list->size; i++) {
+		printf("%s", "| " );
+		printf("%s", "[ ");
+		printf("%c", *(char*)get(list, i));
+		printf("%s", " ]");
+		printf("%s", " |" );
+
+		if (access(list, i) -> next != NULL) {
+			printf("%s", " -> ");
+		}
+	}
+	printf("\n");
+}
+
+void show_float(struct LinkedList* list)
+{	
+	void* head = get(list, 0);
+	for (int i = 0; i < list->size; i++) {
+		printf("%s", "| " );
+		printf("%s", "[ ");
+		printf("%f", *(float*)get(list, i));
+		printf("%s", " ]");
 		printf("%s", " |" );
 
 		if (access(list, i) -> next != NULL) {
@@ -121,3 +158,16 @@ void printString(void *s)
 {
    printf("%s", (char *)s);
 }
+
+// int main()
+// {
+//     struct LinkedList* list = initList();
+ 
+//     add(list, 10);
+//     add(list, 20);
+//     add(list, 30);
+ 
+//     printf("Front item is %d\n", get(list, 0));
+//	   show(list);
+//     return 0;
+// }
