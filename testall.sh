@@ -6,11 +6,11 @@
 #  Compile and check the error of each expected-to-fail test
 
 # Path to the LLVM interpreter
-LLI="lli"
-#LLI="/usr/local/opt/llvm/bin/lli"
+#LLI="lli"
+LLI="/usr/local/opt/llvm/bin/lli"
 # Path to the LLVM compiler
-LLC="llc"
-#LLC="/usr/local/opt/llvm@3.7/bin/llc-3.7"
+#LLC="llc"
+LLC="/usr/local/opt/llvm@3.7/bin/llc-3.7"
 
 # Path to the C compiler
 CC="clang"
@@ -166,23 +166,23 @@ LLIFail() {
 
 which "$LLI" >> $globallog || LLIFail
 
-# if [ ! -f stack.o ]
+# if [ ! -f stack.bc ]
 #     then
-#         echo "Could not find stack.o"
+#         echo "Could not find stack.bc"
 #         echo "Try \"./generateModules.sh\""
 #         exit 1
 # fi
 
-if [ ! -f linkedlist.o ]
+if [ ! -f linkedlist.bc ]
     then
-        echo "Could not find linkedlist.o"
+        echo "Could not find linkedlist.bc"
         echo "Try \"./generateModules.sh\""
         exit 1
 fi
 
-if [ ! -f queue.o ]
+if [ ! -f queue.bc ]
     then
-        echo "Could not find queue.o"
+        echo "Could not find queue.bc"
         echo "Try \"./generateModules.sh\""
         exit 1
 fi
