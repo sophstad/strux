@@ -113,7 +113,7 @@ void show_string(struct LinkedList* list)
 	for (int i = 0; i < list->size; i++) {
 		printf("%s", "| " );
 		printf("%s", "[ ");
-		printf("%c", *(char*)get(list, i));
+		printf("%s", (char *)get(list, i));
 		printf("%s", " ]");
 		printf("%s", " |" );
 
