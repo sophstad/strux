@@ -10,9 +10,11 @@ module StringMap = Map.Make(String)
 
 let context = L.global_context ()
 let queuem = L.MemoryBuffer.of_file "queue.bc" 
-let listm = L.MemoryBuffer.of_file "linkedlist.bc" 
+let listm = L.MemoryBuffer.of_file "linkedlist.bc"
+let bstreem = L.MemoryBuffer.of_file "BSTree.bc" 
 let qqm = Llvm_bitreader.parse_bitcode context queuem 
 let list_qm = Llvm_bitreader.parse_bitcode context listm 
+let bstree_qm = Llvm_bitreader.parse_bitcode context bstreem
 let the_module = L.create_module context "Strux"
 and f_t    = L.double_type context  (* float *)
 and i8_t   = L.i8_type   context    (* print type *)
@@ -23,7 +25,9 @@ and i32_t  = L.i32_type  context
 and queue_t = L.pointer_type (match L.type_by_name qqm "struct.Queue" with
     None -> raise (Invalid_argument "Option.get queue") | Some x -> x)
 and linkedlist_t = L.pointer_type (match L.type_by_name list_qm "struct.LinkedList" with
-    None -> raise (Invalid_argument "Option.get linkedlmist") | Some x -> x) ;;
+    None -> raise (Invalid_argument "Option.get linkedlmist") | Some x -> x) 
+and bstree_t = L.pointer_type (match L.type_by_name bstree_qm "struct.BSTree" with
+    None -> raise (Invalid_argument "Option.get bstree") | Some x -> x);;
 
 let rec ltype_of_typ = function (* LLVM type for AST type *)
     A.Num -> f_t
@@ -34,6 +38,7 @@ let rec ltype_of_typ = function (* LLVM type for AST type *)
   | A.Arraytype(t) -> L.pointer_type (ltype_of_typ t)
   | A.QueueType _ -> queue_t
   | A.LinkedListType _ -> linkedlist_t
+  | A.BSTreeType _ -> bstree_t
   | _ -> raise(Failure("Invalid Data Type"))
   (* | A.Stack -> f_t
     | A.Queue -> f_t
@@ -83,6 +88,10 @@ and translate (globals, functions) =
   let sizeList_t = L.function_type i32_t [| linkedlist_t |] in 
   let sizeList_f = L.declare_function "size" sizeList_t the_module in 
 
+  (*built-in bstree functions*)
+  let initBSTree_t = L.function_type bstree_t [| |] in 
+  let initBSTree_f = L.declare_function "initBSTree" initBSTree_t the_module in
+
   (*print big *)
   let printbig_t = L.function_type i32_t [| i32_t |] in
   let printbig_func = L.declare_function "printbig" printbig_t the_module in
@@ -118,6 +127,7 @@ and translate (globals, functions) =
       (*TODO: fix this!!!!!!!!!*)
       | A.QueueType _ -> float_format_str b
       | A.LinkedListType _ -> float_format_str b
+      | A.BSTreeType _ -> float_format_str b
       | _ -> raise (Failure ("Invalid printf type"))
   in
 
@@ -221,6 +231,7 @@ and translate (globals, functions) =
     let get_ds_type = function
         A.QueueType(typ) -> typ
       | A.LinkedListType(typ) -> typ
+      | A.BSTreeType(typ) -> typ
       | _ -> A.Void
     in
 

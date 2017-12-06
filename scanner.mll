@@ -66,6 +66,7 @@ rule token = parse
   | "null"        { NULL }
   | "Queue"       { QUEUE }
   | "LinkedList"  { LINKEDLIST }
+  | "BSTree"      { BSTREE }
     (* 
   | "Stack"       { STACK }
   | "Queue"       { QUEUE }
