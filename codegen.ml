@@ -122,6 +122,15 @@ and translate (globals, functions) =
       | _ -> raise (Failure ("Invalid printf type"))
   in
 
+
+  let call_size_ptr llbuilder x_type val =
+    let b = llbuilder in
+      match x_type with
+        A.QueueType      -> L.build_call sizeQ_f [|val|] "" llbuilder 
+        | A.LinkedListType _ -> L.build_call sizeList_f [|val|] "" llbuilder 
+        | _ -> raise (Failure ("Invalid data structure type - size function"))
+    in
+
     (* Fill in the body of the given function *)
     let build_function_body func_decl =
       let (the_function, _) = StringMap.find func_decl.A.fname function_decls in
@@ -226,18 +235,8 @@ and translate (globals, functions) =
       | _ as ty -> ty)
     in 
 
-    let get_ds_type ds = (match ds with 
-      | A.QueueType -> A.QueueType
-      | A.LinkedListType -> A.LinkedListType
-      | _ -> raise (Failure("Invalid type")))
-    in
-(* 
-    let call_size_ptr llbuilder val = function 
-      A.QueueType val -> L.build_call sizeQ_f [| val|] "" llbuilder 
-    | A.LinkedListType val -> L.build_call sizeList_f [| val|] "" llbuilder 
-    | _ -> raise (Failure ("invalid data structure type"))
-    in  *)
-    (* Define each function (arguments and return type) so we can call it *)
+
+
     let rec expr_generator llbuilder = function
         A.NumLit(n) -> L.const_float f_t n
       | A.IntLit(i) -> L.const_int i32_t i
@@ -406,7 +405,7 @@ and translate (globals, functions) =
       | A.ObjectCall (obj, "size", []) -> 
         let val = expr_generator llbuilder obj in
         let ds_type = get_ds_type obj in 
-        let size_ptr = call_size_ptr llbuilder val in size_ptr
+        let size_ptr = call_size_ptr llbuilder ds_type val in size_ptr
       (*   let size_ptr = L.build_call sizeQ_f [| q_val|] "" llbuilder in size_ptr *)
       | A.ObjectCall (l, "add", [e]) ->
         let l_val = expr_generator llbuilder l in
