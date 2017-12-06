@@ -93,9 +93,9 @@ Check() {
 
     # generatedfiles="$generatedfiles ${basename}.ll ${basename}.out" &&
     generatedfiles="$generatedfiles ${basename}.ll ${basename}.s ${basename}.exe ${basename}.out" &&
-    Run "$STRUX" "<" "$1" ">" "${basename}.ll" &&
+    Run "$STRUX" "<" $1 ">" "${basename}.ll" &&
     Run "$LLC" "${basename}.ll" ">" "${basename}.s" &&
-    Run "$CC" "-o" "${basename}.exe" "${basename}.s" "queue.bc" "linkedlist.bc" "printbig.o" &&
+    Run "$CC" "-o" "${basename}.exe" "${basename}.s" "queue.bc" "linkedlist.bc" &&
     Run "./${basename}.exe" > "${basename}.out" &&
     Compare ${basename}.out ${reffile}.out ${basename}.diff
 
@@ -166,31 +166,24 @@ LLIFail() {
 
 which "$LLI" >> $globallog || LLIFail
 
-if [ ! -f printbig.o ]
-    then
-        echo "Could not find printbig.o"
-        echo "Try \"make printbig.o\""
-        exit 1
-fi
-
-if [ ! -f stack.o ]
-    then
-        echo "Could not find stack.o"
-        echo "Try \"make stack.o\""
-        exit 1
-fi
+# if [ ! -f stack.o ]
+#     then
+#         echo "Could not find stack.o"
+#         echo "Try \"./generateModules.sh\""
+#         exit 1
+# fi
 
 if [ ! -f linkedlist.o ]
     then
         echo "Could not find linkedlist.o"
-        echo "Try \"make linkedlist.o\""
+        echo "Try \"./generateModules.sh\""
         exit 1
 fi
 
 if [ ! -f queue.o ]
     then
         echo "Could not find queue.o"
-        echo "Try \"make queue.o\""
+        echo "Try \"./generateModules.sh\""
         exit 1
 fi
 
