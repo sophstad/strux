@@ -2,6 +2,7 @@ string getString() {
 	return "hello";
 }
 
-void main() {
+int main() {
 	print(getString());
+	return 0;
 }

@@ -1,0 +1,17 @@
+int main() {
+  bool isTrue = true and not false;
+  bool isAlsoTrue = not (true and false);
+  bool isFalse = false or not true;
+  bool isAlsoFalse = not true and false;
+  print(isTrue);
+  print(isAlsoTrue);
+  print(isFalse);
+  print(isAlsoFalse);
+  print(not true);
+
+  if (not (6 < 7)) {
+    print("uh oh!");
+  }
+
+  return 0;
+}

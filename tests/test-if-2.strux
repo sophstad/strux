@@ -1,7 +1,8 @@
-void main() {
-	if (true) {
+int main() {
+	if (true or false) {
 		print("it's true!");
 	} else {
 		print("it's not true here!");
 	}
+	return 0;
 }

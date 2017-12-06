@@ -1,8 +1,9 @@
 num returnNum() {
 	return 0.000000;
 }
-void main() {
+int main() {
 	num n = returnNum();
 	print(n);
+	return 0;
 }
 

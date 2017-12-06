@@ -1,0 +1,7 @@
+int main() {
+	Queue::string:: q = new Queue::string::();
+	Queue::num:: q2 = new Queue::num::();
+	Queue::int:: q3 = new Queue::int::();
+	Queue::bool:: q4 = new Queue::bool::();
+	return 0;
+}

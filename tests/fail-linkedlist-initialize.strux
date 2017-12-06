@@ -1,0 +1,4 @@
+int main() {
+	LinkedList::string:: q = new LinkedList::num::();
+	return 0;
+}

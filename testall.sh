@@ -8,10 +8,9 @@
 # Path to the LLVM interpreter
 LLI="lli"
 #LLI="/usr/local/opt/llvm/bin/lli"
-
 # Path to the LLVM compiler
- #LLC="llc"
-LLC="/usr/local/opt/llvm@3.7/bin/llc-3.7"
+LLC="llc"
+#LLC="/usr/local/opt/llvm@3.7/bin/llc-3.7"
 
 # Path to the C compiler
 CC="clang"
@@ -92,13 +91,12 @@ Check() {
 
     generatedfiles=""
 
-    generatedfiles="$generatedfiles ${basename}.ll ${basename}.out" &&
+    # generatedfiles="$generatedfiles ${basename}.ll ${basename}.out" &&
+    generatedfiles="$generatedfiles ${basename}.ll ${basename}.s ${basename}.exe ${basename}.out" &&
     Run "$STRUX" "<" $1 ">" "${basename}.ll" &&
-    Run "$LLI" "${basename}.ll" ">" "${basename}.out" &&
-    # Run "$LLC" "${basename}.ll" ">" "${basename}.s" &&
-    # Run "$CC" "-o" "${basename}.exe" "${basename}.s" "queue.bc" "pqueue.bc" "linkedlist.bc" "graph.bc" "node.bc" "map.bc"  &&
-    # Run "./${basename}.exe" > "${basename}.out" &&
-   
+    Run "$LLC" "${basename}.ll" ">" "${basename}.s" &&
+    Run "$CC" "-o" "${basename}.exe" "${basename}.s" "queue.bc" "linkedlist.bc" &&
+    Run "./${basename}.exe" > "${basename}.out" &&
     Compare ${basename}.out ${reffile}.out ${basename}.diff
 
     # Report the status and clean up the generated files
@@ -167,6 +165,27 @@ LLIFail() {
 }
 
 which "$LLI" >> $globallog || LLIFail
+
+# if [ ! -f stack.bc ]
+#     then
+#         echo "Could not find stack.bc"
+#         echo "Try \"./generateModules.sh\""
+#         exit 1
+# fi
+
+if [ ! -f linkedlist.bc ]
+    then
+        echo "Could not find linkedlist.bc"
+        echo "Try \"./generateModules.sh\""
+        exit 1
+fi
+
+if [ ! -f queue.bc ]
+    then
+        echo "Could not find queue.bc"
+        echo "Try \"./generateModules.sh\""
+        exit 1
+fi
 
 
 if [ $# -ge 1 ]

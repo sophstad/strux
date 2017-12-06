@@ -1,5 +1,5 @@
-void main() {
-	int i = 3;
+int main() {
+  int i = 3;
   if (i > 5) {
     print(i);
   }
@@ -9,4 +9,5 @@ void main() {
   else {
     print("didn't work");
   }
+  return 0;
 }

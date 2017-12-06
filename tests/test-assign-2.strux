@@ -1,5 +1,6 @@
-void main() {
+int main() {
 	num k = 6.6;
-  k = 2.5;
+  	k = 2.5;
 	print(k);
+	return 0;
 }

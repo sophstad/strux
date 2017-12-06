@@ -5,8 +5,8 @@ type op = Add | Sub | Mult | Div | Mod | Equal | Neq | Less | Leq | Greater | Ge
 
 type uop = Neg | Not
 
-type typ = Num | Int | String | Bool | Void
-(* | Array of typ * num | Stack | Queue | LinkedList | ListNode | BSTree | TreeNode *)
+type typ = Num | Int | String | Bool | Void | AnyType | Arraytype of typ | QueueType of typ | LinkedListType of typ
+(* | Stack | Queue | LinkedList | ListNode | BSTree | TreeNode *)
 
 type bind = typ * string
 
@@ -25,6 +25,9 @@ type expr =
   | Assign of typ * string * expr
   | Reassign of string * expr
   | FuncCall of string * expr list
+  | QueueLit of typ * expr list 
+  | LinkedListLit of typ * expr list 
+  | ObjectCall of expr * string * expr list 
   (* | ArrayCreate of typ * expr list
   | ArrayAccess of expr * expr list
   | StackCreate of typ * expr list
@@ -33,7 +36,9 @@ type expr =
   | BSTreeCreate of typ * expr list
   | Null *)
   | Noexpr
-
+  | ArrayLit of expr list
+  | ArrayAccess of string * expr
+  | ArrayElementAssign of string * expr * expr
 
 type stmt =
     Block of stmt list
@@ -77,19 +82,23 @@ let string_of_uop = function
     Neg -> "-"
   | Not -> "not"
 
-let string_of_typ = function
+let rec string_of_typ = function
     Num -> "num"
   | Int -> "int"
   | String -> "string"
   | Bool -> "bool"
   | Void -> "void"
-  (* | Array -> "array"
-  | Stack -> "Stack"
+  | Arraytype(typ) -> string_of_typ typ ^ "[]"
+  | QueueType(typ) -> "Queue " ^ string_of_typ typ 
+  | LinkedListType(typ) -> "LinkedList " ^ string_of_typ typ 
+  | AnyType -> "AnyType"
+  (* | Stack -> "Stack"
   | Queue -> "Queue"
   | LinkedList -> "LinkedList"
   | ListNode -> "ListNode"
   | BSTree -> "BSTree"
   | TreeNode -> "TreeNode" *)
+
 
 let rec string_of_expr = function
     StringLit(s) -> s
@@ -106,7 +115,20 @@ let rec string_of_expr = function
   | Reassign(v, e) -> v ^ "=" ^ string_of_expr e
   | FuncCall(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
+  | ObjectCall(o, f, e1) -> string_of_expr o ^ "." ^ f ^ "(" ^ String.concat ", " (List.map string_of_expr e1) ^ ")"
+  | ArrayLit a -> "[" ^ String.concat " " (List.map string_of_expr a) ^ "]"
+  | ArrayAccess(v, i) -> v ^ "[" ^ string_of_expr i ^ "]"
+  | ArrayElementAssign(s, i, e) -> s ^ "[" ^ string_of_expr i ^ "]" ^ " = " ^ string_of_expr e
   | Noexpr -> ""
+  | QueueLit(typ, e1) -> "new " ^ "Queue" ^ "::" ^ string_of_typ typ ^ "(" ^ String.concat ", " (List.map string_of_expr e1) ^ ")"
+  | LinkedListLit(typ, e1) -> "new " ^ "LinkedList" ^ "::" ^ string_of_typ typ ^ "(" ^ String.concat ", " (List.map string_of_expr e1) ^ ")"
+  (* | Array -> "array"
+  | Stack -> "Stack"
+  | Queue -> "Queue"
+  | LinkedList -> "LinkedList"
+  | ListNode -> "ListNode"
+  | BSTree -> "BSTree"
+  | TreeNode -> "TreeNode" *)
 
 let rec string_of_stmt = function
     Block(stmts) ->

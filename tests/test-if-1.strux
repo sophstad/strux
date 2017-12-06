@@ -1,5 +1,6 @@
-void main() {
+int main() {
 	if (true) {
 		print("it's true!");
 	}
+	return 0;
 }

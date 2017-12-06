@@ -1,19 +1,10 @@
-/* Ocamlyacc parser for Strux */
-
-/*
- * TODO
- *
- * Implement NEW keyword
- */
-
-%{
-open Ast
-%}
+%{ open Ast %}
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK COMMA DOUBLECOL
 %token PLUS MINUS TIMES DIVIDE INCR DECR MOD ASSIGN NOT
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
-%token RETURN NULL IF ELSE ELIF BREAK CONTINUE NEW FOR FOREACH IN WHILE NUM INT BOOL STRING VOID
+%token RETURN NULL IF ELSE ELIF BREAK CONTINUE NEW FOR FOREACH IN WHILE NUM INT BOOL STRING VOID DOT
+%token QUEUE LINKEDLIST
 /*%token STACK QUEUE LINKEDLIST LISTNODE BSTREE TREENODE*/
 %token <float> NUM_LITERAL
 %token <int> INT_LITERAL
@@ -27,13 +18,13 @@ open Ast
 %left INCR DECR
 %right ASSIGN
 %left OR
-%left AND
+%left AND DOT
 %left EQ NEQ
 %left LT GT LEQ GEQ
 %left PLUS MINUS
 %left TIMES DIVIDE
 %right MOD
-%right NOT NEG
+%right NOT NEG 
 
 %start program
 %type <Ast.program> program
@@ -48,11 +39,11 @@ decls:
  | decls fdecl { fst $1, ($2 :: snd $1) }
 
 fdecl:
-   typ ID LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
+  typ ID LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
      { { typ = $1;
-	 fname = $2;
-	 formals = $4;
-	 body = List.rev $7 } }
+      fname = $2;
+      formals = $4;
+      body = List.rev $7 } }
 
 formals_opt:
     /* nothing */ { [] }
@@ -62,12 +53,14 @@ formal_list:
     typ ID                   { [($1,$2)] }
   | formal_list COMMA typ ID { ($3,$4) :: $1 }
 
-typ:
+primitive:
     NUM          { Num }
   | INT          { Int }
   | STRING       { String }
   | BOOL         { Bool }
   | VOID         { Void }
+  | QUEUE DOUBLECOL typ DOUBLECOL { QueueType($3)}
+  | LINKEDLIST DOUBLECOL typ DOUBLECOL { LinkedListType($3)}
   /*| STACK        { Stack }
   | QUEUE        { Queue }
   | LINKEDLIST   { LinkedList }
@@ -75,7 +68,12 @@ typ:
   | BSTREE       { BSTree }
   | TREENODE     { TreeNode }*/
 
+array_type:
+    primitive LBRACK RBRACK { Arraytype($1) }
 
+typ:
+    primitive   { $1 }
+  | array_type  { $1 }
 
 stmt_list:
     /* nothing */  { [] }
@@ -104,13 +102,7 @@ expr_opt:
   | expr          { $1 }
 
 expr:
-    STRING_LITERAL   { StringLit($1) }
-  | ID               { Id($1) }
-  | INT_LITERAL      { IntLit($1) }
-  | NUM_LITERAL      { NumLit($1) }
-  | TRUE             { BoolLit(true) }
-  | FALSE            { BoolLit(false) }
-  | NULL             { Null }
+    literal          { $1 }
   | expr PLUS   expr { Binop($1, Add,   $3) }
   | expr MINUS  expr { Binop($1, Sub,   $3) }
   | expr TIMES  expr { Binop($1, Mult,  $3) }
@@ -124,15 +116,30 @@ expr:
   | expr GEQ    expr { Binop($1, Geq,   $3) }
   | expr AND    expr { Binop($1, And,   $3) }
   | expr OR     expr { Binop($1, Or,    $3) }
+  | NEW QUEUE DOUBLECOL typ DOUBLECOL LPAREN actuals_opt RPAREN { QueueLit($4, $7) }
+  | NEW LINKEDLIST DOUBLECOL typ DOUBLECOL LPAREN actuals_opt RPAREN { LinkedListLit($4, $7) }
   | MINUS expr %prec NEG  { Unop(Neg, $2) }
   | NOT expr              { Unop(Not, $2) }
   | expr INCR             { Postop($1, Incr) }
   | expr DECR             { Postop($1, Decr) }
   | typ ID                { Assign($1, $2, Noexpr) }
   | typ ID ASSIGN expr    { Assign($1, $2, $4) }
+  | expr DOT ID LPAREN actuals_opt RPAREN { ObjectCall($1, $3, $5) }  
   | ID ASSIGN expr        { Reassign($1, $3) }
   | ID LPAREN actuals_opt RPAREN { FuncCall($1, $3) }
-  | LPAREN expr RPAREN { $2 }
+  | LBRACK actuals_opt RBRACK                { ArrayLit($2) }
+  | ID LBRACK expr RBRACK                    { ArrayAccess($1, $3) }
+  | ID LBRACK expr RBRACK ASSIGN expr        { ArrayElementAssign($1, $3, $6) }
+  | LPAREN expr RPAREN                       { $2 }
+
+literal:
+    STRING_LITERAL   { StringLit($1) }
+  | ID               { Id($1) }
+  | INT_LITERAL      { IntLit($1) }
+  | NUM_LITERAL      { NumLit($1) }
+  | TRUE             { BoolLit(true) }
+  | FALSE            { BoolLit(false) }
+  | NULL             { Null }
 
 actuals_opt:
     /* nothing */ { [] }

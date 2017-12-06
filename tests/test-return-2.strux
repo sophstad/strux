@@ -2,8 +2,9 @@ bool returnBoolean() {
 	return true;
 }
 
-void main() {
+int main() {
 	bool b = returnBoolean();
 	print(b);
+	return 0;
 }
 

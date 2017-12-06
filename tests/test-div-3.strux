@@ -1,5 +1,6 @@
-void main() {
- num i = 9.0;
- num j = 3.0;
- print(j/i);
+int main() {
+	num i = 9.0;
+ 	num j = 3.0;
+ 	print(j/i);
+ 	return 0;
 }
