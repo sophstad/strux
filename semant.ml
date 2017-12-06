@@ -76,6 +76,10 @@ let check (globals, functions) =
         (StringMap.add "peek"
     { typ = AnyType; fname = "peek"; formals = [];
         body = [] }
+        
+        (StringMap.add "get"
+    { typ = AnyType; fname = "get"; formals = [(Int, "x")];
+        body = [] }
 
         (StringMap.add "size"
      { typ = Int; fname = "size"; formals = [];
@@ -88,7 +92,7 @@ let check (globals, functions) =
         (StringMap.singleton "printbig"
      { typ = Void; fname = "printbig"; formals = [(Int, "x")];
        body = [] }
-     ))))))))
+     )))))))))
    in
 
   let function_decls = List.fold_left (fun m fd -> StringMap.add fd.fname fd m)
@@ -185,7 +189,8 @@ let check (globals, functions) =
       | Noexpr -> Void
       | Assign(typ, var, e) as ex ->
           let rt = expr e in
-          if rt == Void then raise (Failure("Must initialize variable with a value.")) else
+          if rt == Void then raise (Failure("Must initialize variable with a value.")) 
+        else
           ignore (check_assign typ rt (Failure ("illegal assignment " ^ string_of_typ typ ^ " = " ^ string_of_typ rt ^ " in " ^ string_of_expr ex)));
           check_var_decl var (Failure ("duplicate declaration of variable " ^ var));
           let _ =
@@ -194,6 +199,7 @@ let check (globals, functions) =
               | _ -> variables := StringMap.add var typ (!variables)
             )
           in rt
+
       | Reassign(var, e) as ex ->
           let rt = expr e and lt = type_of_identifier var in
           check_assign lt rt (Failure ("illegal assignment " ^ string_of_typ lt ^ " = " ^ string_of_typ rt ^ " in " ^ string_of_expr ex))

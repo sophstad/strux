@@ -34,6 +34,7 @@ let rec ltype_of_typ = function (* LLVM type for AST type *)
   | A.Arraytype(t) -> L.pointer_type (ltype_of_typ t)
   | A.QueueType _ -> queue_t
   | A.LinkedListType _ -> linkedlist_t
+  | A.AnyType -> str_t 
   | _ -> raise(Failure("Invalid Data Type"))
   (* | A.Stack -> f_t
     | A.Queue -> f_t
@@ -218,15 +219,11 @@ and translate (globals, functions) =
       | A.Noexpr -> A.Void
     in
 
-    let get_ds_type = function
-        A.QueueType(typ) -> typ
+    let get_ds_type = function 
+      A.Id name -> (match (name_to_type name) with
+      A.QueueType(t) -> t 
       | A.LinkedListType(typ) -> typ
-      | _ -> A.Void
-    in
-
-    let idtostring = function 
-        A.Id s -> s 
-      | _ -> "" 
+      | _ as ty -> ty)
     in 
     (* Define each function (arguments and return type) so we can call it *)
     let rec expr_generator llbuilder = function
@@ -389,8 +386,7 @@ and translate (globals, functions) =
         ignore (L.build_call dequeue_f [| q_val|] "" llbuilder); q_val 
       | A.ObjectCall (q, "peek", []) -> 
         let q_val = expr_generator llbuilder q in
-        let n = idtostring q in
-        let q_type = get_ds_type (lookup_types n) in 
+        let q_type = get_ds_type q in 
         let val_ptr = L.build_call peek_f [| q_val |] "val_ptr" llbuilder in
         let l_dtyp = ltype_of_typ q_type in
         let d_ptr = L.build_bitcast val_ptr (L.pointer_type l_dtyp) "d_ptr" llbuilder in
@@ -411,6 +407,14 @@ and translate (globals, functions) =
         let e_val = expr_generator llbuilder e in
         ignore (L.build_call delete_f [| l_val; e_val |] "" llbuilder);
         l_val
+      | A.ObjectCall (l, "get", [e]) ->
+        let l_ptr = expr_generator llbuilder l in
+        let e_val = expr_generator llbuilder e in
+        let l_type = get_ds_type l in 
+        let val_ptr = L.build_call get_f [| l_ptr; e_val |] "val_ptr" llbuilder in
+        let l_dtyp = ltype_of_typ l_type in
+        let d_ptr = L.build_bitcast val_ptr (L.pointer_type l_dtyp) "d_ptr" llbuilder in
+        (L.build_load d_ptr "d_ptr" llbuilder)
       in
 
       (* Invoke "f llbuilder" if the current block doesn't already
