@@ -122,14 +122,14 @@ and translate (globals, functions) =
       | _ -> raise (Failure ("Invalid printf type"))
   in
 
-
+(* 
   let call_size_ptr llbuilder x_type val =
     let b = llbuilder in
       match x_type with
         A.QueueType      -> L.build_call sizeQ_f [|val|] "" llbuilder 
         | A.LinkedListType _ -> L.build_call sizeList_f [|val|] "" llbuilder 
         | _ -> raise (Failure ("Invalid data structure type - size function"))
-    in
+    in *)
 
     (* Fill in the body of the given function *)
     let build_function_body func_decl =
@@ -402,11 +402,11 @@ and translate (globals, functions) =
         let l_dtyp = ltype_of_typ q_type in
         let d_ptr = L.build_bitcast val_ptr (L.pointer_type l_dtyp) "d_ptr" llbuilder in
         (L.build_load d_ptr "d_ptr" llbuilder)
-      | A.ObjectCall (obj, "size", []) -> 
-        let val = expr_generator llbuilder obj in
-        let ds_type = get_ds_type obj in 
-        let size_ptr = call_size_ptr llbuilder ds_type val in size_ptr
-      (*   let size_ptr = L.build_call sizeQ_f [| q_val|] "" llbuilder in size_ptr *)
+      | A.ObjectCall (q, "size", []) -> 
+        let q_val = expr_generator llbuilder q in
+   (*      let ds_type = get_ds_type obj in 
+        let size_ptr = call_size_ptr llbuilder ds_type val in size_ptr *)
+        let size_ptr = L.build_call sizeQ_f [| q_val|] "" llbuilder in size_ptr
       | A.ObjectCall (l, "add", [e]) ->
         let l_val = expr_generator llbuilder l in
         let e_val = expr_generator llbuilder e in 
