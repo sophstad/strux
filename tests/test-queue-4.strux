@@ -1,6 +1,8 @@
 int main() {
 	Queue::num:: q = new Queue::num::();
 	q.enqueue(3.0);
+	q.enqueue(6.7);
+	q.enqueue(8.9);
 	q.dequeue();
 	q.enqueue(5.0);
 	int x = q.size();

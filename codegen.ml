@@ -11,8 +11,10 @@ module StringMap = Map.Make(String)
 let context = L.global_context ()
 let queuem = L.MemoryBuffer.of_file "queue.bc" 
 let listm = L.MemoryBuffer.of_file "linkedlist.bc" 
+let stackm = L.MemoryBuffer.of_file "stack.bc" 
 let qqm = Llvm_bitreader.parse_bitcode context queuem 
 let list_qm = Llvm_bitreader.parse_bitcode context listm 
+let stack_qm = Llvm_bitreader.parse_bitcode context stackm 
 let the_module = L.create_module context "Strux"
 and f_t    = L.double_type context  (* float *)
 and i8_t   = L.i8_type   context    (* print type *)
@@ -22,6 +24,8 @@ and str_t  = L.pointer_type (L.i8_type context) (* string *)
 and i32_t  = L.i32_type  context
 and queue_t = L.pointer_type (match L.type_by_name qqm "struct.Queue" with
     None -> raise (Invalid_argument "Option.get queue") | Some x -> x)
+and stack_t = L.pointer_type (match L.type_by_name stack_qm "struct.Stack" with
+    None -> raise (Invalid_argument "Option.get stack") | Some x -> x) 
 and linkedlist_t = L.pointer_type (match L.type_by_name list_qm "struct.LinkedList" with
     None -> raise (Invalid_argument "Option.get linkedlmist") | Some x -> x) ;;
 
@@ -34,6 +38,7 @@ let rec ltype_of_typ = function (* LLVM type for AST type *)
   | A.Arraytype(t) -> L.pointer_type (ltype_of_typ t)
   | A.QueueType _ -> queue_t
   | A.LinkedListType _ -> linkedlist_t
+  | A.StackType _ -> stack_t
   | A.AnyType -> str_t 
   | _ -> raise(Failure("Invalid Data Type"))
   (* | A.Stack -> f_t
@@ -84,6 +89,18 @@ and translate (globals, functions) =
   let sizeList_t = L.function_type i32_t [| linkedlist_t |] in 
   let sizeList_f = L.declare_function "size" sizeList_t the_module in 
 
+  (*built-in stack functions*)
+  let initStack_t = L.function_type stack_t [| |] in 
+  let initStack_f = L.declare_function "initStack" initStack_t the_module in
+  let push_t = L.function_type void_t [| stack_t; L.pointer_type i8_t|] in
+  let push_f = L.declare_function "push" push_t the_module in
+  let pop_t = L.function_type void_t [| stack_t |] in
+  let pop_f = L.declare_function "pop" pop_t the_module in
+  let top_t = L.function_type (L.pointer_type i8_t) [| stack_t |] in
+  let top_f = L.declare_function "top" top_t the_module in
+  let sizeS_t = L.function_type i32_t [| stack_t |] in
+  let sizeS_f = L.declare_function "stack_size" sizeS_t the_module in
+
   (*print big *)
   let printbig_t = L.function_type i32_t [| i32_t |] in
   let printbig_func = L.declare_function "printbig" printbig_t the_module in
@@ -117,19 +134,11 @@ and translate (globals, functions) =
       | A.String  -> string_format_str b
       | A.Bool     -> int_format_str b
       (*TODO: fix this!!!!!!!!!*)
-      | A.QueueType _ -> float_format_str b
+(*       | A.QueueType _ -> float_format_str b
       | A.LinkedListType _ -> float_format_str b
+      | A.StackType _ -> float_format_str b *)
       | _ -> raise (Failure ("Invalid printf type"))
   in
-
-(* 
-  let call_size_ptr llbuilder x_type val =
-    let b = llbuilder in
-      match x_type with
-        A.QueueType      -> L.build_call sizeQ_f [|val|] "" llbuilder 
-        | A.LinkedListType _ -> L.build_call sizeList_f [|val|] "" llbuilder 
-        | _ -> raise (Failure ("Invalid data structure type - size function"))
-    in *)
 
     (* Fill in the body of the given function *)
     let build_function_body func_decl =
@@ -230,17 +239,20 @@ and translate (globals, functions) =
 
     let get_type = function 
       A.Id name -> (match (name_to_type name) with
-      A.QueueType(t) -> t 
+        A.QueueType(typ) -> typ
       | A.LinkedListType(typ) -> typ
-      | _ as ty -> ty)
+      | A.StackType(typ) -> typ
+      | _ as typ -> typ)
     in 
-(* 
-    let get_ds_type obj = (match obj with
-      A.QueueType -> A.QueueType
-      | A.LinkedListType(t) -> A.LinkedListType
-      | _ as ty -> ty)
-    in 
- *)
+
+    let call_size_ptr = function
+      A.Id name -> (match (name_to_type name) with
+        A.QueueType _ -> sizeQ_f
+      | A.LinkedListType _ -> sizeList_f
+      | A.StackType _ -> sizeS_f
+      | _ -> raise (Failure ("Invalid data structure type - size function")))
+    in
+
     let rec expr_generator llbuilder = function
         A.NumLit(n) -> L.const_float f_t n
       | A.IntLit(i) -> L.const_int i32_t i
@@ -275,6 +287,20 @@ and translate (globals, functions) =
           ignore (L.build_call add_f [| list_ptr; void_d_ptr |] "" llbuilder)
         in ignore (List.map add_element act);
         list_ptr
+      | A.StackLit (typ, act) ->
+        let d_ltyp = ltype_of_typ typ in
+        let stack_ptr = L.build_call initStack_f [| |] "init" llbuilder in 
+        let add_element elem = 
+          let d_ptr = match typ with 
+          | A.StackType _ -> expr_generator llbuilder elem 
+          | _ -> 
+            let element = expr_generator llbuilder elem in 
+            let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in 
+            ignore (L.build_store element d_ptr llbuilder); d_ptr in 
+          let void_d_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in
+          ignore (L.build_call push_f [| stack_ptr; void_d_ptr |] "" llbuilder)
+        in ignore (List.map add_element act);
+        stack_ptr
       | A.Binop (e1, op, e2) ->
         let e1' = expr_generator llbuilder e1 in
         let e2' = expr_generator llbuilder e2
@@ -399,6 +425,9 @@ and translate (globals, functions) =
       | A.ObjectCall (q, "dequeue", []) ->
         let q_val = expr_generator llbuilder q in
         ignore (L.build_call dequeue_f [| q_val|] "" llbuilder); q_val 
+      | A.ObjectCall (s, "pop", []) ->
+        let s_val = expr_generator llbuilder s in
+        ignore (L.build_call pop_f [| s_val|] "" llbuilder); s_val 
       | A.ObjectCall (q, "peek", []) -> 
         let q_val = expr_generator llbuilder q in
         let q_type = get_type q in 
@@ -406,11 +435,18 @@ and translate (globals, functions) =
         let l_dtyp = ltype_of_typ q_type in
         let d_ptr = L.build_bitcast val_ptr (L.pointer_type l_dtyp) "d_ptr" llbuilder in
         (L.build_load d_ptr "d_ptr" llbuilder)
-      | A.ObjectCall (q, "size", []) -> 
-        let q_val = expr_generator llbuilder q in
-   (*      let ds_type = get_ds_type obj in 
-        let size_ptr = call_size_ptr llbuilder ds_type val in size_ptr *)
-        let size_ptr = L.build_call sizeQ_f [| q_val|] "" llbuilder in size_ptr
+      | A.ObjectCall (s, "top", []) -> 
+        let s_val = expr_generator llbuilder s in
+        let s_type = get_type s in 
+        let val_ptr = L.build_call top_f [| s_val |] "val_ptr" llbuilder in
+        let l_dtyp = ltype_of_typ s_type in
+        let d_ptr = L.build_bitcast val_ptr (L.pointer_type l_dtyp) "d_ptr" llbuilder in
+        (L.build_load d_ptr "d_ptr" llbuilder)
+      | A.ObjectCall (obj, "size", []) ->
+        let e = expr_generator llbuilder obj in
+        let obj_size = call_size_ptr obj in
+        let size_ptr = L.build_call obj_size [| e |] "isEmpty" llbuilder in
+        size_ptr
       | A.ObjectCall (l, "add", [e]) ->
         let l_val = expr_generator llbuilder l in
         let e_val = expr_generator llbuilder e in 
@@ -419,6 +455,14 @@ and translate (globals, functions) =
         ignore(L.build_store e_val d_ptr llbuilder); 
         let void_e_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in 
         ignore (L.build_call add_f [| l_val; void_e_ptr|] "" llbuilder); l_val
+      | A.ObjectCall (s, "push", [e]) ->
+        let s_val = expr_generator llbuilder s in
+        let e_val = expr_generator llbuilder e in 
+        let d_ltyp = L.type_of e_val in 
+        let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in 
+        ignore(L.build_store e_val d_ptr llbuilder); 
+        let void_e_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in 
+        ignore (L.build_call push_f [| s_val; void_e_ptr|] "" llbuilder); s_val
       | A.ObjectCall (l, "delete", [e]) -> 
         let l_val = expr_generator llbuilder l in 
         let e_val = expr_generator llbuilder e in
