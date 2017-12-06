@@ -125,7 +125,7 @@ void show_float(struct LinkedList* list)
 	void* head = get(list, 0);
 	for (int i = 0; i < list->size; i++) {
 		printf("%s", "[ ");
-		printf("%f", *(float*)get(list, i));
+		printf("%f", *(double*)get(list, i));
 		printf("%s", " ]");
 
 		if (access(list, i) -> next != NULL) {
