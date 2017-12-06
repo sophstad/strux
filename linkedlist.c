@@ -94,11 +94,9 @@ void show_int(struct LinkedList* list)
 {	
 	void* head = get(list, 0);
 	for (int i = 0; i < list->size; i++) {
-		printf("%s", "| " );
 		printf("%s", "[ ");
 		printf("%d", *(int*)get(list, i));
 		printf("%s", " ]");
-		printf("%s", " |" );
 
 		if (access(list, i) -> next != NULL) {
 			printf("%s", " -> ");
@@ -111,11 +109,9 @@ void show_string(struct LinkedList* list)
 {	
 	void* head = get(list, 0);
 	for (int i = 0; i < list->size; i++) {
-		printf("%s", "| " );
 		printf("%s", "[ ");
 		printf("%s", (char *)get(list, i));
 		printf("%s", " ]");
-		printf("%s", " |" );
 
 		if (access(list, i) -> next != NULL) {
 			printf("%s", " -> ");
@@ -128,11 +124,9 @@ void show_float(struct LinkedList* list)
 {	
 	void* head = get(list, 0);
 	for (int i = 0; i < list->size; i++) {
-		printf("%s", "| " );
 		printf("%s", "[ ");
 		printf("%f", *(float*)get(list, i));
 		printf("%s", " ]");
-		printf("%s", " |" );
 
 		if (access(list, i) -> next != NULL) {
 			printf("%s", " -> ");
