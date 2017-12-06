@@ -70,7 +70,7 @@ let check (globals, functions) =
         body = [] }
 
         (StringMap.add "dequeue"
-    { typ = Void; fname = "dequeue"; formals = [(AnyType, "x")];
+    { typ = Void; fname = "dequeue"; formals = [];
         body = [] }
 
         (StringMap.add "peek"
