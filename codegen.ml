@@ -234,9 +234,13 @@ and translate (globals, functions) =
       | A.LinkedListType(typ) -> typ
       | _ as ty -> ty)
     in 
-
-
-
+(* 
+    let get_ds_type obj = (match obj with
+      A.QueueType -> A.QueueType
+      | A.LinkedListType(t) -> A.LinkedListType
+      | _ as ty -> ty)
+    in 
+ *)
     let rec expr_generator llbuilder = function
         A.NumLit(n) -> L.const_float f_t n
       | A.IntLit(i) -> L.const_int i32_t i

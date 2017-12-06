@@ -34,6 +34,10 @@ let check (globals, functions) =
     else if lvaluet = Arraytype(Int) && rvaluet = Int then rvaluet
     else if lvaluet = Arraytype(String) && rvaluet = String then rvaluet
     else if lvaluet = Arraytype(Bool) && rvaluet = Bool then rvaluet
+    else if lvaluet = Num && rvaluet = AnyType then lvaluet
+    else if lvaluet = Int && rvaluet = AnyType then lvaluet
+    else if lvaluet = String && rvaluet = AnyType then lvaluet
+    else if lvaluet = Bool && rvaluet = AnyType then lvaluet
     else raise err
   in
 

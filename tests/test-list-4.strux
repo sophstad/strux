@@ -1,6 +1,7 @@
 int main() {
 	LinkedList::string:: l = new LinkedList::string::();
-	l.add("S");
+	l.add("HAPPY");
 	string s = l.get(0);
+	print(s);
 	return 0;
 }
