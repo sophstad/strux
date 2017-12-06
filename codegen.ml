@@ -219,12 +219,24 @@ and translate (globals, functions) =
       | A.Noexpr -> A.Void
     in
 
-    let get_ds_type = function 
+    let get_type = function 
       A.Id name -> (match (name_to_type name) with
       A.QueueType(t) -> t 
       | A.LinkedListType(typ) -> typ
       | _ as ty -> ty)
     in 
+
+    let get_ds_type ds = (match ds with 
+      | A.QueueType -> A.QueueType
+      | A.LinkedListType -> A.LinkedListType
+      | _ -> raise (Failure("Invalid type")))
+    in
+(* 
+    let call_size_ptr llbuilder val = function 
+      A.QueueType val -> L.build_call sizeQ_f [| val|] "" llbuilder 
+    | A.LinkedListType val -> L.build_call sizeList_f [| val|] "" llbuilder 
+    | _ -> raise (Failure ("invalid data structure type"))
+    in  *)
     (* Define each function (arguments and return type) so we can call it *)
     let rec expr_generator llbuilder = function
         A.NumLit(n) -> L.const_float f_t n
@@ -386,14 +398,16 @@ and translate (globals, functions) =
         ignore (L.build_call dequeue_f [| q_val|] "" llbuilder); q_val 
       | A.ObjectCall (q, "peek", []) -> 
         let q_val = expr_generator llbuilder q in
-        let q_type = get_ds_type q in 
+        let q_type = get_type q in 
         let val_ptr = L.build_call peek_f [| q_val |] "val_ptr" llbuilder in
         let l_dtyp = ltype_of_typ q_type in
         let d_ptr = L.build_bitcast val_ptr (L.pointer_type l_dtyp) "d_ptr" llbuilder in
         (L.build_load d_ptr "d_ptr" llbuilder)
-      | A.ObjectCall (q, "size", []) -> 
-        let q_val = expr_generator llbuilder q in
-        let size_ptr = L.build_call sizeQ_f [| q_val|] "" llbuilder in size_ptr
+      | A.ObjectCall (obj, "size", []) -> 
+        let val = expr_generator llbuilder obj in
+        let ds_type = get_ds_type obj in 
+        let size_ptr = call_size_ptr llbuilder val in size_ptr
+      (*   let size_ptr = L.build_call sizeQ_f [| q_val|] "" llbuilder in size_ptr *)
       | A.ObjectCall (l, "add", [e]) ->
         let l_val = expr_generator llbuilder l in
         let e_val = expr_generator llbuilder e in 
@@ -410,7 +424,7 @@ and translate (globals, functions) =
       | A.ObjectCall (l, "get", [e]) ->
         let l_ptr = expr_generator llbuilder l in
         let e_val = expr_generator llbuilder e in
-        let l_type = get_ds_type l in 
+        let l_type = get_type l in 
         let val_ptr = L.build_call get_f [| l_ptr; e_val |] "val_ptr" llbuilder in
         let l_dtyp = ltype_of_typ l_type in
         let d_ptr = L.build_bitcast val_ptr (L.pointer_type l_dtyp) "d_ptr" llbuilder in
