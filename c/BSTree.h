@@ -9,6 +9,13 @@ struct BSTreeNode
     struct BSTreeNode *parent;
 };
 
+struct BSTree
+{
+    struct BSTreeNode *root;
+};
+
+struct BSTree *initBSTree();
+void showTree(struct BSTreeNode *tree);
 struct BSTreeNode *createNode(int data);
 struct BSTreeNode *addElementToTree(struct BSTreeNode *node, int data);
 struct BSTreeNode *removeFromTree(struct BSTreeNode *node, int data);

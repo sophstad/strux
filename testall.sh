@@ -9,8 +9,8 @@
 LLI="lli"
 #LLI="/usr/local/opt/llvm/bin/lli"
 # Path to the LLVM compiler
-LLC="llc"
-#LLC="/usr/local/opt/llvm@3.7/bin/llc-3.7"
+#LLC="llc"
+LLC="/usr/local/opt/llvm@3.7/bin/llc-3.7"
 
 # Path to the C compiler
 CC="clang"
@@ -183,6 +183,13 @@ fi
 if [ ! -f queue.bc ]
     then
         echo "Could not find queue.bc"
+        echo "Try \"./generateModules.sh\""
+        exit 1
+fi
+
+if [ ! -f BSTree.bc ]
+    then
+        echo "Could not find BSTree.bc"
         echo "Try \"./generateModules.sh\""
         exit 1
 fi

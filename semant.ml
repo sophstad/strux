@@ -144,7 +144,8 @@ let check (globals, functions) =
        LinkedListType(typ) -> typ
       | _ -> Void  
     in 
-    (* Return the type of an expression or throw an exception *)
+    (* Return the type of an expression or throw an exception *) 
+    (*TODO(josh): IMPLEMENT BSTREE CHECKING STUFF HERE *)
     let rec expr = function
         NumLit _ -> Num
       | IntLit _ -> Int
