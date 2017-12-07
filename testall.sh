@@ -95,7 +95,7 @@ Check() {
     generatedfiles="$generatedfiles ${basename}.ll ${basename}.s ${basename}.exe ${basename}.out" &&
     Run "$STRUX" "<" $1 ">" "${basename}.ll" &&
     Run "$LLC" "${basename}.ll" ">" "${basename}.s" &&
-    Run "$CC" "-o" "${basename}.exe" "${basename}.s" "queue.bc" "linkedlist.bc" &&
+    Run "$CC" "-o" "${basename}.exe" "${basename}.s" "queue.bc" "linkedlist.bc" "BSTree.bc"&&
     Run "./${basename}.exe" > "${basename}.out" &&
     Compare ${basename}.out ${reffile}.out ${basename}.diff
 
