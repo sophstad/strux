@@ -35,7 +35,7 @@ void display(int a[], int length) {
     int i;
     printf("[");
 
-    for(i = 0;i<length;i++) {
+    for(i = 0;i<=length;i++) {
       printf("%d ",a[i]);
   }
 
@@ -45,17 +45,9 @@ void display(int a[], int length) {
 // prints out float list
 void fdisplay(float a[], int length) {
     int i;
-    int n=0;
-    int p = -1;
-    while (p!= '\0')
-    {
-        n++;
-        p = a[n];
-    }
-
     printf("[");
 
-    for(i = 0;i<n;i++) {
+    for(i = 0;i<=length;i++) {
       printf("%f ",a[i]);
   }
 
@@ -347,7 +339,7 @@ int main()
     // cQuickfSort(d, 7);
 
     // int f[] = {10, 100, 30, 90, 40, 50, 70};
-    // // cShowQuickSort(f, 7);
+    // cShowQuickSort(f, 7);
     // cQuickSort(f, 7);
 
 }
