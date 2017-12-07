@@ -82,7 +82,7 @@ void postorder(struct BSTreeNode *node, int indent)
 
         char number[4];
         sprintf(number, "%d", indent);
-        char out[20] = "%";
+        char out[20] = "%c";
         strcat(out, number);
         strcat(out, "s");
 

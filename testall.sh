@@ -6,14 +6,14 @@
 #  Compile and check the error of each expected-to-fail test
 
 # Path to the LLVM interpreter
-LLI="lli"
-#LLI="/usr/local/opt/llvm/bin/lli"
+#LLI="lli"
+LLI="/usr/local/opt/llvm/bin/lli"
 # Path to the LLVM compiler
 #LLC="llc"
 LLC="/usr/local/opt/llvm@3.7/bin/llc-3.7"
 
 # Path to the C compiler
-CC="clang"
+CC="gcc"
 
 # Path to the strux compiler.  Usually "./strux.native"
 # Try "_build/strux.native" if ocamlbuild was unable to create a symbolic link.
@@ -93,9 +93,9 @@ Check() {
 
     # generatedfiles="$generatedfiles ${basename}.ll ${basename}.out" &&
     generatedfiles="$generatedfiles ${basename}.ll ${basename}.s ${basename}.exe ${basename}.out" &&
-    Run "$STRUX" "<" $1 ">" "${basename}.ll" &&
+    Run "$STRUX" "<" "$1" ">" "${basename}.ll" &&
     Run "$LLC" "${basename}.ll" ">" "${basename}.s" &&
-    Run "$CC" "-o" "${basename}.exe" "${basename}.s" "queue.bc" "linkedlist.bc" "BSTree.bc"&&
+    Run "$CC" "-o" "${basename}.exe" "${basename}.s" "queue.bc" "linkedlist.bc" "bstree.bc"&&
     Run "./${basename}.exe" > "${basename}.out" &&
     Compare ${basename}.out ${reffile}.out ${basename}.diff
 
