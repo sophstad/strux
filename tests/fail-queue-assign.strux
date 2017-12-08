@@ -1,5 +1,5 @@
 int main() {
 	Queue::string:: q = new Queue::string::();
-	q.enqueue(3);
+	q.add(3);
 	return 0;
 }

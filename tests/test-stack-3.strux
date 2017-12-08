@@ -1,10 +1,12 @@
 int main() {
 	Stack::string:: s = new Stack::string::();
-	s.push("S");
-	s.push("OOOO");
-	s.push("WWWW");
+	s.add("S");
+	s.add("OOOO");
+	s.add("WWWW");
 	s.pop();
-	string topelement = s.top();
+	string topelement = s.peek();
+	int x = s.size();
+	print(x);
 	print(topelement);
 	return 0;
 }

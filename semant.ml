@@ -65,20 +65,20 @@ let check (globals, functions) =
      { typ = Void; fname = "printb"; formals = [(Bool, "x")];
        body = [] } 
 
-       (StringMap.add "enqueue"
+       (* (StringMap.add "enqueue"
     { typ = Void; fname = "enqueue"; formals = [(AnyType, "x")];
+        body = [] }
+
+         (StringMap.add "push"
+    { typ = Void; fname = "push"; formals = [(AnyType, "x")];
+        body = [] } *)
+
+        (StringMap.add "add"
+    { typ = Void; fname = "add"; formals = [(AnyType, "x")];
         body = [] }
 
         (StringMap.add "show"
     { typ = Void; fname = "show"; formals = [];
-        body = [] }
-
-        (StringMap.add "add"
-    { typ = LinkedListType(AnyType); fname = "add"; formals = [(AnyType, "x")];
-        body = [] }
-
-        (StringMap.add "dequeue"
-    { typ = Void; fname = "dequeue"; formals = [];
         body = [] }
 
         (StringMap.add "peek"
@@ -97,22 +97,22 @@ let check (globals, functions) =
      { typ = Void; fname = "delete"; formals = [(Int, "x")];
         body = [] }
 
-         (StringMap.add "push"
-    { typ = Void; fname = "push"; formals = [(AnyType, "x")];
-        body = [] }
-
          (StringMap.add "pop"
     { typ = Void; fname = "pop"; formals = [];
         body = [] }
+(* 
+        (StringMap.add "dequeue"
+    { typ = Void; fname = "dequeue"; formals = [];
+        body = [] } *)
 
-         (StringMap.add "top"
+   (*       (StringMap.add "top"
     { typ = AnyType; fname = "top"; formals = [];
-        body = [] }
+        body = [] } *)
 
         (StringMap.singleton "printbig"
      { typ = Void; fname = "printbig"; formals = [(Int, "x")];
        body = [] }
-     )))))))))))))
+     )))))))))
    in
 
   let function_decls = List.fold_left (fun m fd -> StringMap.add fd.fname fd m)
@@ -159,7 +159,22 @@ let check (globals, functions) =
       | _ -> raise(Failure("Expecting an array and was not an array"))
     in
 
-    let getQueueType = function
+(*     let get_type = function 
+      A.Id name -> (match (name_to_type name) with
+        A.QueueType(typ) -> typ
+      | A.LinkedListType(typ) -> typ
+      | A.StackType(typ) -> typ
+      | _ as typ -> typ)
+    in  *)
+
+    let get_type = function
+      QueueType(typ) -> typ
+      | LinkedListType(typ) -> typ
+      | StackType(typ) -> typ
+      | _ -> Void  
+    in
+
+    (* let getQueueType = function
        QueueType(typ) -> typ
       | _ -> Void  
     in 
@@ -172,7 +187,7 @@ let check (globals, functions) =
     let getStackType = function
        StackType(typ) -> typ
       | _ -> Void  
-    in 
+    in  *)
     (* Return the type of an expression or throw an exception *)
     let rec expr = function
         NumLit _ -> Num
@@ -274,17 +289,17 @@ let check (globals, functions) =
              List.iter2 (fun (ft, _) e -> let et = expr e in
              
               (* if fname = "qfront" then let _ = print_endline (string_of_typ actqtype) in returntype := actqtype *)
-                if fname = "enqueue" then
+                if fname = "add" then
                    let acttype = expr oname in 
-                   let actqtype = getQueueType acttype in 
-                  ignore(check_assign actqtype et (Failure ("illegal actual enqueue argument found " ^ string_of_typ et ^
+                   let actqtype = get_type acttype in 
+                  ignore(check_assign actqtype et (Failure ("illegal actual add argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
                 else if fname = "dequeue" then
                    let acttype = expr oname in 
-                   let actqtype = getQueueType acttype in 
+                   let actqtype = get_type acttype in 
                   ignore(check_assign actqtype et (Failure ("illegal actual dequeue argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
-                else if fname = "add" then
+               (*  else if fname = "add" then
                    let acttype = expr oname in 
                    let actqtype = getLinkedListType acttype in 
                   ignore(check_assign actqtype et (Failure ("illegal actual add argument found " ^ string_of_typ et ^
@@ -293,7 +308,7 @@ let check (globals, functions) =
                    let acttype = expr oname in 
                    let actqtype = getStackType acttype in 
                   ignore(check_assign actqtype et (Failure ("illegal actual add argument found " ^ string_of_typ et ^
-                  " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
+                  " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e)))  *)
                 (* else if fname = "delete" then
                    let acttype = expr oname in 
                    let actqtype = getLinkedListType acttype in 

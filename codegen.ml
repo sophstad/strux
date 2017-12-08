@@ -257,6 +257,28 @@ and translate (globals, functions) =
       | _ -> raise (Failure ("Invalid data structure type - size function")))
     in
 
+    let call_add_ptr = function
+      A.Id name -> (match (name_to_type name) with
+        A.QueueType _ -> enqueue_f
+      | A.LinkedListType _ -> add_f
+      | A.StackType _ -> push_f
+      | _ -> raise (Failure ("Invalid data structure type - add function")))
+    in
+
+    let call_pop_ptr = function
+      A.Id name -> (match (name_to_type name) with
+        A.QueueType _ -> dequeue_f
+      | A.StackType _ -> pop_f
+      | _ -> raise (Failure ("Invalid data structure type - delete function")))
+    in
+
+    let call_peek_ptr = function
+      A.Id name -> (match (name_to_type name) with
+        A.QueueType _ -> peek_f
+      | A.StackType _ -> top_f
+      | _ -> raise (Failure ("Invalid data structure type - peek function")))
+    in
+
     let rec expr_generator llbuilder = function
         A.NumLit(n) -> L.const_float f_t n
       | A.IntLit(i) -> L.const_int i32_t i
@@ -418,27 +440,29 @@ and translate (globals, functions) =
             | _ -> f ^ "_result")
           in
           L.build_call fdef (Array.of_list actuals) result llbuilder
-      | A.ObjectCall (q, "enqueue", [e]) -> 
+(*       | A.ObjectCall (q, "enqueue", [e]) -> 
         let q_val = expr_generator llbuilder q in
         let e_val = expr_generator llbuilder e in 
         let d_ltyp = L.type_of e_val in 
         let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in 
         ignore(L.build_store e_val d_ptr llbuilder); 
         let void_e_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in 
-        ignore (L.build_call enqueue_f [| q_val; void_e_ptr|] "" llbuilder); q_val
+        ignore (L.build_call enqueue_f [| q_val; void_e_ptr|] "" llbuilder); q_val *)(* 
       | A.ObjectCall (q, "dequeue", []) ->
         let q_val = expr_generator llbuilder q in
-        ignore (L.build_call dequeue_f [| q_val|] "" llbuilder); q_val 
-      | A.ObjectCall (s, "pop", []) ->
-        let s_val = expr_generator llbuilder s in
-        ignore (L.build_call pop_f [| s_val|] "" llbuilder); s_val 
-      | A.ObjectCall (q, "peek", []) -> 
-        let q_val = expr_generator llbuilder q in
-        let q_type = get_type q in 
-        let val_ptr = L.build_call peek_f [| q_val |] "val_ptr" llbuilder in
-        let l_dtyp = ltype_of_typ q_type in
-        let d_ptr = L.build_bitcast val_ptr (L.pointer_type l_dtyp) "d_ptr" llbuilder in
-        (L.build_load d_ptr "d_ptr" llbuilder)
+        ignore (L.build_call dequeue_f [| q_val|] "" llbuilder); q_val   *)
+      | A.ObjectCall (obj, "pop", []) ->
+        let obj_val = expr_generator llbuilder obj in
+        let obj_method = call_pop_ptr obj in
+        ignore (L.build_call obj_method [| obj_val|] "" llbuilder); obj_val  
+      | A.ObjectCall (obj, "peek", []) -> 
+        let obj_val = expr_generator llbuilder obj in
+        let obj_type = get_type obj in 
+        let obj_method = call_peek_ptr obj in
+        let val_ptr = L.build_call obj_method [| obj_val |] "val_ptr" llbuilder in
+        let dtyp = ltype_of_typ obj_type in
+        let ptr = L.build_bitcast val_ptr (L.pointer_type dtyp) "d_ptr" llbuilder in
+        (L.build_load ptr "d_ptr" llbuilder)
       | A.ObjectCall (q, "show", []) -> 
         let q_val = expr_generator llbuilder q in
         let q_type = get_type q in 
@@ -446,39 +470,53 @@ and translate (globals, functions) =
         A.Int -> ignore (L.build_call show_int [| q_val|] "" llbuilder); q_val 
        | A.Num -> ignore (L.build_call show_float [| q_val|] "" llbuilder); q_val 
        | A.String -> ignore (L.build_call show_string [| q_val|] "" llbuilder); q_val)
-      | A.ObjectCall (s, "top", []) -> 
+(*       | A.ObjectCall (s, "top", []) -> 
         let s_val = expr_generator llbuilder s in
         let s_type = get_type s in 
         let val_ptr = L.build_call top_f [| s_val |] "val_ptr" llbuilder in
         let l_dtyp = ltype_of_typ s_type in
         let d_ptr = L.build_bitcast val_ptr (L.pointer_type l_dtyp) "d_ptr" llbuilder in
-        (L.build_load d_ptr "d_ptr" llbuilder)
+        (L.build_load d_ptr "d_ptr" llbuilder) *)
       | A.ObjectCall (obj, "size", []) ->
         let e = expr_generator llbuilder obj in
         let obj_size = call_size_ptr obj in
         let size_ptr = L.build_call obj_size [| e |] "isEmpty" llbuilder in
         size_ptr
-      | A.ObjectCall (l, "add", [e]) ->
+(*       | A.ObjectCall (l, "add", [e]) ->
         let l_val = expr_generator llbuilder l in
         let e_val = expr_generator llbuilder e in 
         let d_ltyp = L.type_of e_val in 
         let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in 
         ignore(L.build_store e_val d_ptr llbuilder); 
         let void_e_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in 
-        ignore (L.build_call add_f [| l_val; void_e_ptr|] "" llbuilder); l_val
-      | A.ObjectCall (s, "push", [e]) ->
+        ignore (L.build_call add_f [| l_val; void_e_ptr|] "" llbuilder); l_val *)
+(*       | A.ObjectCall (s, "push", [e]) ->
         let s_val = expr_generator llbuilder s in
         let e_val = expr_generator llbuilder e in 
         let d_ltyp = L.type_of e_val in 
         let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in 
         ignore(L.build_store e_val d_ptr llbuilder); 
         let void_e_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in 
-        ignore (L.build_call push_f [| s_val; void_e_ptr|] "" llbuilder); s_val
-      | A.ObjectCall (l, "delete", [e]) -> 
+        ignore (L.build_call push_f [| s_val; void_e_ptr|] "" llbuilder); s_val *)
+(*       | A.ObjectCall (l, "delete", [e]) -> 
         let l_val = expr_generator llbuilder l in 
         let e_val = expr_generator llbuilder e in
         ignore (L.build_call delete_f [| l_val; e_val |] "" llbuilder);
-        l_val
+        l_val *)
+      | A.ObjectCall (obj, "add", [e]) ->
+        let obj_val = expr_generator llbuilder obj in
+        let e_val = expr_generator llbuilder e in 
+        let d_ltyp = L.type_of e_val in 
+        let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in 
+        ignore(L.build_store e_val d_ptr llbuilder); 
+        let obj_method = call_add_ptr obj in
+        let void_e_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in 
+        ignore (L.build_call obj_method [| obj_val; void_e_ptr|] "" llbuilder); obj_val
+      | A.ObjectCall (obj, "delete", [e]) -> 
+        let obj_val = expr_generator llbuilder obj in 
+        let e_val = expr_generator llbuilder e in
+        ignore (L.build_call delete_f [| obj_val; e_val |] "" llbuilder);
+        obj_val
       | A.ObjectCall (l, "get", [e]) ->
         let l_ptr = expr_generator llbuilder l in
         let e_val = expr_generator llbuilder e in
