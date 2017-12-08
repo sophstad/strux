@@ -202,7 +202,7 @@ int show_median_of_3(int a[], int left, int right, int length)
 {
     // get middle of array
     int middle = (left + right)/2;
-    printf("============================================================\n");
+    printf("=====================================================================================\n");
     printf("At this step:\n");
     printf("current array:");
     display(a, length);
@@ -233,6 +233,7 @@ int show_median_of_3(int a[], int left, int right, int length)
       printf("array after swap: ");
       display(a, length);
     }
+    printf("pivot is %d\n", a[right-1]);
     return a[right - 1];
 }
 
@@ -240,7 +241,7 @@ float show_fmedian_of_3(float a[], int left, int right, int length)
 {
 // get middle of array
     int middle = (left + right)/2;
-    printf("============================================================\n");
+    printf("=====================================================================================\n");
     printf("At this step:\n");
     printf("current array:");
     fdisplay(a, length);
@@ -271,6 +272,7 @@ float show_fmedian_of_3(float a[], int left, int right, int length)
       printf("array after swap: ");
       fdisplay(a, length);
     }
+    printf("pivot is %f\n", a[right-1]);
     return a[right - 1];
 }
 
@@ -341,5 +343,9 @@ int main()
     // int f[] = {10, 100, 30, 90, 40, 50, 70};
     // cShowQuickSort(f, 7);
     // cQuickSort(f, 7);
+
+    // int g[] = {4,6,3,2,1,9,7};
+    // cShowQuickSort(g, 7);
+    // cQuickSort(g, 7);
 
 }
