@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdlib.h>
+#include <string.h>
 
 struct LinkedList {
 	struct ListNode *head;
@@ -92,7 +93,6 @@ int size(struct LinkedList *list) {
 
 void show_int(struct LinkedList* list)
 {	
-	void* head = get(list, 0);
 	for (int i = 0; i < list->size; i++) {
 		printf("%s", "[ ");
 		printf("%d", *(int*)get(list, i));
@@ -107,10 +107,11 @@ void show_int(struct LinkedList* list)
 
 void show_string(struct LinkedList* list)
 {	
-	void* head = get(list, 0);
+	
 	for (int i = 0; i < list->size; i++) {
+
 		printf("%s", "[ ");
-		printf("%s", (char *)get(list, i));
+		printf("%s", *(char **) get(list, i));
 		printf("%s", " ]");
 
 		if (access(list, i) -> next != NULL) {
@@ -122,7 +123,6 @@ void show_string(struct LinkedList* list)
 
 void show_float(struct LinkedList* list)
 {	
-	void* head = get(list, 0);
 	for (int i = 0; i < list->size; i++) {
 		printf("%s", "[ ");
 		printf("%f", *(double*)get(list, i));
