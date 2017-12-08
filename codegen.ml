@@ -88,6 +88,10 @@ and translate (globals, functions) =
   let get_f = L.declare_function "get" get_t the_module in
   let sizeList_t = L.function_type i32_t [| linkedlist_t |] in 
   let sizeList_f = L.declare_function "size" sizeList_t the_module in 
+  let show_t = L.function_type void_t [| linkedlist_t |] in 
+  let show_int = L.declare_function "show_int" show_t the_module in 
+  let show_float = L.declare_function "show_float" show_t the_module in 
+  let show_string = L.declare_function "show_string" show_t the_module in 
 
   (*built-in stack functions*)
   let initStack_t = L.function_type stack_t [| |] in 
@@ -435,6 +439,13 @@ and translate (globals, functions) =
         let l_dtyp = ltype_of_typ q_type in
         let d_ptr = L.build_bitcast val_ptr (L.pointer_type l_dtyp) "d_ptr" llbuilder in
         (L.build_load d_ptr "d_ptr" llbuilder)
+      | A.ObjectCall (q, "show", []) -> 
+        let q_val = expr_generator llbuilder q in
+        let q_type = get_type q in 
+        (match q_type with 
+        A.Int -> ignore (L.build_call show_int [| q_val|] "" llbuilder); q_val 
+       | A.Num -> ignore (L.build_call show_float [| q_val|] "" llbuilder); q_val 
+       | A.String -> ignore (L.build_call show_string [| q_val|] "" llbuilder); q_val)
       | A.ObjectCall (s, "top", []) -> 
         let s_val = expr_generator llbuilder s in
         let s_type = get_type s in 

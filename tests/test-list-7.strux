@@ -1,0 +1,9 @@
+int main() {
+	LinkedList::string:: l = new LinkedList::string::();
+	l.add("HELLO WORLD");
+	l.add("HAII");
+	l.add("OIO");
+	l.add("WWW");
+	l.show();
+	return 0;
+}

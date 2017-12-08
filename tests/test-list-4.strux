@@ -10,6 +10,7 @@ int main() {
     l.add("R");
     l.add("U");
     l.add("X");
+    l.show();
 
     int i = l.size();
     print(i);
