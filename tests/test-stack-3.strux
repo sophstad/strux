@@ -1,0 +1,10 @@
+int main() {
+	Stack::string:: s = new Stack::string::();
+	s.push("S");
+	s.push("OOOO");
+	s.push("WWWW");
+	s.pop();
+	string topelement = s.top();
+	print(topelement);
+	return 0;
+}

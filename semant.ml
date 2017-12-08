@@ -34,6 +34,10 @@ let check (globals, functions) =
     else if lvaluet = Arraytype(Int) && rvaluet = Int then rvaluet
     else if lvaluet = Arraytype(String) && rvaluet = String then rvaluet
     else if lvaluet = Arraytype(Bool) && rvaluet = Bool then rvaluet
+    else if lvaluet = Num && rvaluet = AnyType then lvaluet
+    else if lvaluet = Int && rvaluet = AnyType then lvaluet
+    else if lvaluet = String && rvaluet = AnyType then lvaluet
+    else if lvaluet = Bool && rvaluet = AnyType then lvaluet
     else raise err
   in
 
@@ -93,10 +97,22 @@ let check (globals, functions) =
      { typ = Void; fname = "delete"; formals = [(Int, "x")];
         body = [] }
 
+         (StringMap.add "push"
+    { typ = Void; fname = "push"; formals = [(AnyType, "x")];
+        body = [] }
+
+         (StringMap.add "pop"
+    { typ = Void; fname = "pop"; formals = [];
+        body = [] }
+
+         (StringMap.add "top"
+    { typ = AnyType; fname = "top"; formals = [];
+        body = [] }
+
         (StringMap.singleton "printbig"
      { typ = Void; fname = "printbig"; formals = [(Int, "x")];
        body = [] }
-     ))))))))))
+     )))))))))))))
    in
 
   let function_decls = List.fold_left (fun m fd -> StringMap.add fd.fname fd m)
@@ -152,6 +168,11 @@ let check (globals, functions) =
        LinkedListType(typ) -> typ
       | _ -> Void  
     in 
+
+    let getStackType = function
+       StackType(typ) -> typ
+      | _ -> Void  
+    in 
     (* Return the type of an expression or throw an exception *)
     let rec expr = function
         NumLit _ -> Num
@@ -159,6 +180,7 @@ let check (globals, functions) =
       | StringLit _ -> String
       | QueueLit (t, _) -> QueueType(t)
       | LinkedListLit (t, _) -> LinkedListType(t)
+      | StackLit (t, _) -> StackType(t)
       | BoolLit _ -> Bool
       | Id s -> type_of_identifier s
       | Binop(e1, op, e2) as e -> let t1 = expr e1 and t2 = expr e2 in
@@ -265,6 +287,11 @@ let check (globals, functions) =
                 else if fname = "add" then
                    let acttype = expr oname in 
                    let actqtype = getLinkedListType acttype in 
+                  ignore(check_assign actqtype et (Failure ("illegal actual add argument found " ^ string_of_typ et ^
+                  " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
+                else if fname = "push" then
+                   let acttype = expr oname in 
+                   let actqtype = getStackType acttype in 
                   ignore(check_assign actqtype et (Failure ("illegal actual add argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
                 (* else if fname = "delete" then

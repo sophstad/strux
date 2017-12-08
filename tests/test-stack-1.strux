@@ -1,0 +1,26 @@
+int main() {
+	Stack::string:: s = new Stack::string::();
+	Stack::num:: s2 = new Stack::num::();
+	Stack::int:: s3 = new Stack::int::();
+	Stack::bool:: s4 = new Stack::bool::();
+	s.push("S");
+	s.pop();
+	s.top();
+
+        s2.push(2.63);
+        s2.push(5.2);
+        num top = s2.top();
+        int numSize = s2.size();
+        print(numSize);
+        print(top);
+
+        s3.push(35);
+        int popInt = s3.top();
+        print(popInt);
+
+        s4.push(true);
+        bool topBool = s4.top();
+        print(topBool);
+
+	return 0;
+}
