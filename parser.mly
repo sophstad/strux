@@ -4,7 +4,7 @@
 %token PLUS MINUS TIMES DIVIDE INCR DECR MOD ASSIGN NOT
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
 %token RETURN NULL IF ELSE ELIF BREAK CONTINUE NEW FOR FOREACH IN WHILE NUM INT BOOL STRING VOID DOT
-%token QUEUE LINKEDLIST
+%token QUEUE LINKEDLIST STACK
 /*%token STACK QUEUE LINKEDLIST LISTNODE BSTREE TREENODE*/
 %token <float> NUM_LITERAL
 %token <int> INT_LITERAL
@@ -61,6 +61,7 @@ primitive:
   | VOID         { Void }
   | QUEUE DOUBLECOL typ DOUBLECOL { QueueType($3)}
   | LINKEDLIST DOUBLECOL typ DOUBLECOL { LinkedListType($3)}
+  | STACK DOUBLECOL typ DOUBLECOL { StackType($3)}
   /*| STACK        { Stack }
   | QUEUE        { Queue }
   | LINKEDLIST   { LinkedList }
@@ -118,6 +119,7 @@ expr:
   | expr OR     expr { Binop($1, Or,    $3) }
   | NEW QUEUE DOUBLECOL typ DOUBLECOL LPAREN actuals_opt RPAREN { QueueLit($4, $7) }
   | NEW LINKEDLIST DOUBLECOL typ DOUBLECOL LPAREN actuals_opt RPAREN { LinkedListLit($4, $7) }
+  | NEW STACK DOUBLECOL typ DOUBLECOL LPAREN actuals_opt RPAREN { StackLit($4, $7) }
   | MINUS expr %prec NEG  { Unop(Neg, $2) }
   | NOT expr              { Unop(Not, $2) }
   | expr INCR             { Postop($1, Incr) }

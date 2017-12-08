@@ -1,5 +1,5 @@
 int main() {
 	LinkedList::string:: list = new LinkedList::string::();
-	list.dequeue("s");
+	list.dequeue("3.0");
 	return 0;
 }

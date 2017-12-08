@@ -2,10 +2,8 @@
 #include <stdlib.h>
 
 struct Stack {
-	unsigned capacity;
 	int size;
-	struct Node *front;
-	struct Node *rear;
+	struct Node *top;
 };
 
 struct Node {
@@ -13,17 +11,10 @@ struct Node {
 	void *data;
 };
 
-
-int stack_isFull(struct Stack *stack) {
-	return (stack->size >= stack->capacity);
-}
-
 struct Stack* initStack(unsigned capacity) {
 	struct Stack* stack = (struct Stack*) malloc(sizeof(struct Stack));
-	stack->capacity = capacity;
 	stack->size = 0;
-	stack->front = 0;
-	stack->rear = 0;
+	stack->top = NULL;
 	return stack;
 }
 
@@ -32,18 +23,10 @@ int stack_size(struct Stack* stack) {
 }
 
 void push(struct Stack *stack, void *data) {
-	if (stack_isFull(stack)) {
-		return;
-	}
 	struct Node* node = (struct Node*)malloc(sizeof(struct Node));
 	node->data = data;
-	node->next = stack->front;
-	if (stack->size == 0) {
-		stack->front = stack->rear = node;
-		stack->size++;
-		return;
-	}
-	stack->front = node;
+	node->next = stack->top;
+	stack->top = node;
 	stack->size++;
 }
 
@@ -51,24 +34,23 @@ void pop(struct Stack *stack) {
 	if (stack->size == 0) {
 		return;
 	}
-	struct Node* node = stack->front;
+
+	struct Node* node = stack->top;
 	if (stack->size == 1) {
-		stack->front = NULL;
-		stack->rear = NULL;
+		stack->top = NULL;
 		stack->size--;
-	} 
-	else {
-		stack->front = stack->front->next;
+	} else {
+		stack->top = stack->top->next;
 		stack->size--;
 	}
 	free(node);
 }
 
-void *peek(struct Stack *stack) {
-	if(stack->size == 0) {
+void *top(struct Stack *stack) {
+	if (stack->size == 0) {
 		return NULL;
 	}
-	return stack->front->data;
+	return stack->top->data;
 }
 
 

@@ -1,1 +1,1 @@
-Fatal error: exception Failure("illegal actual dequeue argument found string expected void in s")
+Fatal error: exception Failure("expecting 0 arguments in list.dequeue(3.0)")

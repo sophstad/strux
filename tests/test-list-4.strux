@@ -1,0 +1,17 @@
+int main() {
+    LinkedList::string:: l = new LinkedList::string::();
+    l.add("HAPPY");
+    string s = l.get(0);
+    print(s);
+    l.delete(0);
+
+    l.add("S");
+    l.add("T");
+    l.add("R");
+    l.add("U");
+    l.add("X");
+
+    int i = l.size();
+    print(i);
+    return 0;
+}
