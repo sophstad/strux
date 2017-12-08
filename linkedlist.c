@@ -135,23 +135,6 @@ void show_float(struct LinkedList* list)
 	printf("\n");
 }
 
-// Function to print an integer
-void printInt(void *n)
-{
-   printf("%d", *(int *)n);
-}
-
-// Function to print a float
-void printFloat(void *f)
-{
-   printf("%f", *(float *)f);
-}
-
-// Function to print a string
-void printString(void *s)
-{
-   printf("%s", (char *)s);
-}
 
 // int main()
 // {
