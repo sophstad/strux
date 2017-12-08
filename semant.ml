@@ -65,14 +65,6 @@ let check (globals, functions) =
      { typ = Void; fname = "printb"; formals = [(Bool, "x")];
        body = [] } 
 
-       (* (StringMap.add "enqueue"
-    { typ = Void; fname = "enqueue"; formals = [(AnyType, "x")];
-        body = [] }
-
-         (StringMap.add "push"
-    { typ = Void; fname = "push"; formals = [(AnyType, "x")];
-        body = [] } *)
-
         (StringMap.add "add"
     { typ = Void; fname = "add"; formals = [(AnyType, "x")];
         body = [] }
@@ -97,21 +89,14 @@ let check (globals, functions) =
      { typ = Void; fname = "delete"; formals = [(Int, "x")];
         body = [] }
 
-         (StringMap.add "pop"
+        (StringMap.add "pop"
     { typ = Void; fname = "pop"; formals = [];
         body = [] }
-(* 
-        (StringMap.add "dequeue"
-    { typ = Void; fname = "dequeue"; formals = [];
-        body = [] } *)
-
-   (*       (StringMap.add "top"
-    { typ = AnyType; fname = "top"; formals = [];
-        body = [] } *)
 
         (StringMap.singleton "printbig"
-     { typ = Void; fname = "printbig"; formals = [(Int, "x")];
-       body = [] }
+    { typ = Void; fname = "printbig"; formals = [(Int, "x")];
+      body = [] }
+
      )))))))))
    in
 
@@ -159,14 +144,6 @@ let check (globals, functions) =
       | _ -> raise(Failure("Expecting an array and was not an array"))
     in
 
-(*     let get_type = function 
-      A.Id name -> (match (name_to_type name) with
-        A.QueueType(typ) -> typ
-      | A.LinkedListType(typ) -> typ
-      | A.StackType(typ) -> typ
-      | _ as typ -> typ)
-    in  *)
-
     let get_type = function
       QueueType(typ) -> typ
       | LinkedListType(typ) -> typ
@@ -174,20 +151,6 @@ let check (globals, functions) =
       | _ -> Void  
     in
 
-    (* let getQueueType = function
-       QueueType(typ) -> typ
-      | _ -> Void  
-    in 
-
-    let getLinkedListType = function
-       LinkedListType(typ) -> typ
-      | _ -> Void  
-    in 
-
-    let getStackType = function
-       StackType(typ) -> typ
-      | _ -> Void  
-    in  *)
     (* Return the type of an expression or throw an exception *)
     let rec expr = function
         NumLit _ -> Num
@@ -294,21 +257,11 @@ let check (globals, functions) =
                    let actqtype = get_type acttype in 
                   ignore(check_assign actqtype et (Failure ("illegal actual add argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
-                else if fname = "dequeue" then
+                else if fname = "pop" then
                    let acttype = expr oname in 
                    let actqtype = get_type acttype in 
-                  ignore(check_assign actqtype et (Failure ("illegal actual dequeue argument found " ^ string_of_typ et ^
+                  ignore(check_assign actqtype et (Failure ("illegal actual pop argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
-               (*  else if fname = "add" then
-                   let acttype = expr oname in 
-                   let actqtype = getLinkedListType acttype in 
-                  ignore(check_assign actqtype et (Failure ("illegal actual add argument found " ^ string_of_typ et ^
-                  " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
-                else if fname = "push" then
-                   let acttype = expr oname in 
-                   let actqtype = getStackType acttype in 
-                  ignore(check_assign actqtype et (Failure ("illegal actual add argument found " ^ string_of_typ et ^
-                  " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e)))  *)
                 (* else if fname = "delete" then
                    let acttype = expr oname in 
                    let actqtype = getLinkedListType acttype in 
@@ -319,16 +272,7 @@ let check (globals, functions) =
                    let actqtype = getQueueType acttype in 
                   ignore(check_assign actqtype et (Failure ("illegal actual peek for queue argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
-              *) else if fname = "weight" then 
-                   let acttype = expr (List.hd actuals) in 
-                    ignore(check_assign acttype et (Failure ("illegal actual node argument found " ^ string_of_typ et ^
-                  " expected " ^ string_of_typ acttype ^ " in " ^ string_of_expr e)))
-                
-                else if fname = "p_push" then 
-                   let acttype = expr (List.hd actuals) in 
-                    ignore(check_assign acttype et (Failure ("illegal actual pqueue argument found " ^ string_of_typ et ^
-                  " expected " ^ string_of_typ acttype ^ " in " ^ string_of_expr e)))
-                
+              *) 
                 else ignore (check_assign ft et (Failure ("illegal actual argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e)))) fd.formals actuals;
              !returntype
