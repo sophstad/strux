@@ -19,7 +19,7 @@ clean :
 	ocamlbuild -clean
 	rm -rf testall.log *.diff strux scanner.ml parser.ml parser.mli
 	rm -rf printbig stack queue linkedlist
-	rm -rf *.cmx *.cmi *.cmo *.cmx *.o *.s *.ll *.out *.exe *.bc *.err
+	rm -rf *.cmx *.cmi *.cmo *.cmx *.o *.s *.ll *.out *.exe *.bc ./*.err
 
 OBJS = ast.cmx codegen.cmx parser.cmx scanner.cmx semant.cmx strux.cmx
 
