@@ -91,7 +91,7 @@ int size(struct LinkedList *list) {
 	return (list->size);
 }
 
-void show_int(struct LinkedList* list)
+void ll_show_int(struct LinkedList* list)
 {	
 	for (int i = 0; i < list->size; i++) {
 		printf("%s", "[ ");
@@ -105,7 +105,7 @@ void show_int(struct LinkedList* list)
 	printf("\n");
 }
 
-void show_string(struct LinkedList* list)
+void ll_show_string(struct LinkedList* list)
 {	
 	
 	for (int i = 0; i < list->size; i++) {
@@ -121,7 +121,7 @@ void show_string(struct LinkedList* list)
 	printf("\n");
 }
 
-void show_float(struct LinkedList* list)
+void ll_show_float(struct LinkedList* list)
 {	
 	for (int i = 0; i < list->size; i++) {
 		printf("%s", "[ ");

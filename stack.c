@@ -53,17 +53,17 @@ void *top(struct Stack *stack) {
 	return stack->top->data;
 }
 
-void show_int(struct Stack* stack)
+void stack_show_int(struct Stack* stack)
 {	
 	printf("show int \n");
 }
 
-void show_string(struct Stack* stack)
+void stack_show_string(struct Stack* stack)
 {	
 	printf("show string \n");
 }
 
-void show_float(struct Stack* stack)
+void stack_show_float(struct Stack* stack)
 {	
 	printf("show float \n");
 }
