@@ -76,6 +76,10 @@ and translate (globals, functions) =
   let peek_f = L.declare_function "peek" peek_t the_module in
   let sizeQ_t = L.function_type i32_t [| queue_t |] in 
   let sizeQ_f = L.declare_function "queue_size" sizeQ_t the_module in 
+  let q_show_t = L.function_type void_t [| queue_t |] in 
+  let q_show_int = L.declare_function "queue_show_int" q_show_t the_module in
+  let q_show_float = L.declare_function "queue_show_float" q_show_t the_module in
+  let q_show_string = L.declare_function "queue_show_string" q_show_t the_module in
 
   (*built-in linkedlist functions*)
   let initList_t = L.function_type linkedlist_t [| |] in 
@@ -88,10 +92,10 @@ and translate (globals, functions) =
   let get_f = L.declare_function "get" get_t the_module in
   let sizeList_t = L.function_type i32_t [| linkedlist_t |] in 
   let sizeList_f = L.declare_function "size" sizeList_t the_module in 
-  let show_t = L.function_type void_t [| linkedlist_t |] in 
-  let show_int = L.declare_function "show_int" show_t the_module in 
-  let show_float = L.declare_function "show_float" show_t the_module in 
-  let show_string = L.declare_function "show_string" show_t the_module in 
+  let l_show_t = L.function_type void_t [| linkedlist_t |] in 
+  let l_show_int = L.declare_function "ll_show_int" l_show_t the_module in
+  let l_show_float = L.declare_function "ll_show_float" l_show_t the_module in
+  let l_show_string = L.declare_function "ll_show_string" l_show_t the_module in
 
   (*built-in stack functions*)
   let initStack_t = L.function_type stack_t [| |] in 
@@ -104,6 +108,10 @@ and translate (globals, functions) =
   let top_f = L.declare_function "top" top_t the_module in
   let sizeS_t = L.function_type i32_t [| stack_t |] in
   let sizeS_f = L.declare_function "stack_size" sizeS_t the_module in
+  let s_show_t = L.function_type void_t [| stack_t |] in 
+  let s_show_int = L.declare_function "stack_show_int" s_show_t the_module in
+  let s_show_float = L.declare_function "stack_show_float" s_show_t the_module in
+  let s_show_string = L.declare_function "stack_show_string" s_show_t the_module in
 
   (*print big *)
   let printbig_t = L.function_type i32_t [| i32_t |] in
@@ -255,6 +263,72 @@ and translate (globals, functions) =
       | A.LinkedListType _ -> sizeList_f
       | A.StackType _ -> sizeS_f
       | _ -> raise (Failure ("Invalid data structure type - size function")))
+    in
+
+    let call_add_ptr = function
+      A.Id name -> (match (name_to_type name) with
+        A.QueueType _ -> enqueue_f
+      | A.LinkedListType _ -> add_f
+      | A.StackType _ -> push_f
+      | _ -> raise (Failure ("Invalid data structure type - add function")))
+    in
+
+    let call_pop_ptr = function
+      A.Id name -> (match (name_to_type name) with
+        A.QueueType _ -> dequeue_f
+      | A.StackType _ -> pop_f
+      | _ -> raise (Failure ("Invalid data structure type - delete function")))
+    in
+
+  (*   let q_type_show ds_type = function  
+       A.Int  -> q_show_int
+      | A.Num  -> q_show_float 
+      | A.String  -> q_show_string
+    in 
+
+    let s_type_show ds_type = function 
+      A.Int -> s_show_int
+      | A.Num -> s_show_float 
+      | A.String -> s_show_string
+    in 
+
+    let l_type_show ds_type = function 
+      A.Int -> l_show_int
+      | A.Num -> l_show_float 
+      | A.String  -> l_show_string
+    in 
+
+    let call_show_ptr obj_val ds_type = function
+      A.Id name -> (match (name_to_type name) with
+        A.QueueType _ -> q_type_show ds_type
+      | A.StackType _ -> s_type_show ds_type
+      | A.LinkedListType _ -> l_type_show ds_type
+      | _ -> raise (Failure ("Invalid data structure type - show function")))
+    in *)
+
+    let call_show_ptr ds_type = function
+      A.Id name -> (match (name_to_type name) with
+        A.QueueType _ -> (match ds_type with
+           A.Int -> q_show_int
+         | A.Num -> q_show_float 
+         | A.String -> q_show_string)
+      | A.StackType _ -> (match ds_type with
+           A.Int -> s_show_int
+         | A.Num -> s_show_float 
+         | A.String -> s_show_string)
+      | A.LinkedListType _ -> (match ds_type with
+           A.Int -> l_show_int
+         | A.Num -> l_show_float 
+         | A.String -> l_show_string)
+      | _ -> raise (Failure ("Invalid data structure type - show function")))
+    in 
+
+
+    let call_peek_ptr = function
+      A.Id name -> (match (name_to_type name) with
+        A.QueueType _ -> peek_f
+      | A.StackType _ -> top_f
+      | _ -> raise (Failure ("Invalid data structure type - peek function")))
     in
 
     let rec expr_generator llbuilder = function
@@ -418,67 +492,48 @@ and translate (globals, functions) =
             | _ -> f ^ "_result")
           in
           L.build_call fdef (Array.of_list actuals) result llbuilder
-      | A.ObjectCall (q, "enqueue", [e]) -> 
-        let q_val = expr_generator llbuilder q in
-        let e_val = expr_generator llbuilder e in 
-        let d_ltyp = L.type_of e_val in 
-        let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in 
-        ignore(L.build_store e_val d_ptr llbuilder); 
-        let void_e_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in 
-        ignore (L.build_call enqueue_f [| q_val; void_e_ptr|] "" llbuilder); q_val
-      | A.ObjectCall (q, "dequeue", []) ->
-        let q_val = expr_generator llbuilder q in
-        ignore (L.build_call dequeue_f [| q_val|] "" llbuilder); q_val 
-      | A.ObjectCall (s, "pop", []) ->
-        let s_val = expr_generator llbuilder s in
-        ignore (L.build_call pop_f [| s_val|] "" llbuilder); s_val 
-      | A.ObjectCall (q, "peek", []) -> 
-        let q_val = expr_generator llbuilder q in
-        let q_type = get_type q in 
-        let val_ptr = L.build_call peek_f [| q_val |] "val_ptr" llbuilder in
-        let l_dtyp = ltype_of_typ q_type in
-        let d_ptr = L.build_bitcast val_ptr (L.pointer_type l_dtyp) "d_ptr" llbuilder in
-        (L.build_load d_ptr "d_ptr" llbuilder)
-      | A.ObjectCall (q, "show", []) -> 
-        let q_val = expr_generator llbuilder q in
+      | A.ObjectCall (obj, "pop", []) ->
+        let obj_val = expr_generator llbuilder obj in
+        let obj_method = call_pop_ptr obj in
+        ignore (L.build_call obj_method [| obj_val|] "" llbuilder); obj_val  
+      | A.ObjectCall (obj, "peek", []) -> 
+        let obj_val = expr_generator llbuilder obj in
+        let obj_type = get_type obj in 
+        let obj_method = call_peek_ptr obj in
+        let val_ptr = L.build_call obj_method [| obj_val |] "val_ptr" llbuilder in
+        let dtyp = ltype_of_typ obj_type in
+        let ptr = L.build_bitcast val_ptr (L.pointer_type dtyp) "d_ptr" llbuilder in
+        (L.build_load ptr "d_ptr" llbuilder)
+      | A.ObjectCall (obj, "show", []) -> 
+        let obj_val = expr_generator llbuilder obj in
+        let obj_type = get_type obj in 
+        let obj_method = call_show_ptr obj_type obj in
+        ignore (L.build_call obj_method [| obj_val |] "" llbuilder); obj_val
+(*  
         let q_type = get_type q in 
         (match q_type with 
         A.Int -> ignore (L.build_call show_int [| q_val|] "" llbuilder); q_val 
        | A.Num -> ignore (L.build_call show_float [| q_val|] "" llbuilder); q_val 
-       | A.String -> ignore (L.build_call show_string [| q_val|] "" llbuilder); q_val)
-      | A.ObjectCall (s, "top", []) -> 
-        let s_val = expr_generator llbuilder s in
-        let s_type = get_type s in 
-        let val_ptr = L.build_call top_f [| s_val |] "val_ptr" llbuilder in
-        let l_dtyp = ltype_of_typ s_type in
-        let d_ptr = L.build_bitcast val_ptr (L.pointer_type l_dtyp) "d_ptr" llbuilder in
-        (L.build_load d_ptr "d_ptr" llbuilder)
+       | A.String -> ignore (L.build_call show_string [| q_val|] "" llbuilder); q_val) *)
       | A.ObjectCall (obj, "size", []) ->
         let e = expr_generator llbuilder obj in
         let obj_size = call_size_ptr obj in
         let size_ptr = L.build_call obj_size [| e |] "isEmpty" llbuilder in
         size_ptr
-      | A.ObjectCall (l, "add", [e]) ->
-        let l_val = expr_generator llbuilder l in
+      | A.ObjectCall (obj, "add", [e]) ->
+        let obj_val = expr_generator llbuilder obj in
         let e_val = expr_generator llbuilder e in 
         let d_ltyp = L.type_of e_val in 
         let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in 
         ignore(L.build_store e_val d_ptr llbuilder); 
+        let obj_method = call_add_ptr obj in
         let void_e_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in 
-        ignore (L.build_call add_f [| l_val; void_e_ptr|] "" llbuilder); l_val
-      | A.ObjectCall (s, "push", [e]) ->
-        let s_val = expr_generator llbuilder s in
-        let e_val = expr_generator llbuilder e in 
-        let d_ltyp = L.type_of e_val in 
-        let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in 
-        ignore(L.build_store e_val d_ptr llbuilder); 
-        let void_e_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in 
-        ignore (L.build_call push_f [| s_val; void_e_ptr|] "" llbuilder); s_val
-      | A.ObjectCall (l, "delete", [e]) -> 
-        let l_val = expr_generator llbuilder l in 
+        ignore (L.build_call obj_method [| obj_val; void_e_ptr|] "" llbuilder); obj_val
+      | A.ObjectCall (obj, "delete", [e]) -> 
+        let obj_val = expr_generator llbuilder obj in 
         let e_val = expr_generator llbuilder e in
-        ignore (L.build_call delete_f [| l_val; e_val |] "" llbuilder);
-        l_val
+        ignore (L.build_call delete_f [| obj_val; e_val |] "" llbuilder);
+        obj_val
       | A.ObjectCall (l, "get", [e]) ->
         let l_ptr = expr_generator llbuilder l in
         let e_val = expr_generator llbuilder e in

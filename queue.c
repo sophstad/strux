@@ -72,6 +72,20 @@ void *peek(struct Queue *q) {
 	return q->front->data;
 }
 
+void show_int(struct Queue* q)
+{	
+	printf("show int \n");
+}
+
+void show_string(struct Queue* q)
+{	
+	printf("show string \n");
+}
+
+void show_float(struct Queue* q)
+{	
+	printf("show float \n");
+}
 
 // void show(struct LinkedList* list)
 // {

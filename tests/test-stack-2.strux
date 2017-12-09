@@ -1,8 +1,8 @@
 int main() {
 	Stack::string:: s = new Stack::string::();
-	s.push("S");
-	s.push("H");
-	s.push("O");
-	s.push("W");
+	s.add("S");
+	s.add("H");
+	s.add("O");
+	s.add("W");
 	return 0;
 }
