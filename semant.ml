@@ -59,11 +59,11 @@ let check (globals, functions) =
   (* Function declaration for a named function *)
   let built_in_decls =  StringMap.add "print"
      { typ = Void; fname = "print"; formals = [(Num, "x")];
-       body = [] } 
+       body = [] }
 
        (StringMap.add "printb"
      { typ = Void; fname = "printb"; formals = [(Bool, "x")];
-       body = [] } 
+       body = [] }
 
         (StringMap.add "add"
     { typ = Void; fname = "add"; formals = [(AnyType, "x")];
@@ -93,11 +93,12 @@ let check (globals, functions) =
     { typ = Void; fname = "pop"; formals = [];
         body = [] }
 
-        (StringMap.singleton "printbig"
-    { typ = Void; fname = "printbig"; formals = [(Int, "x")];
-      body = [] }
+       (StringMap.singleton "quickSort"
+     { typ = Void; fname = "quickSort"; formals = [(Int, "x")];
+       body = [] }
 
      )))))))))
+        
    in
 
   let function_decls = List.fold_left (fun m fd -> StringMap.add fd.fname fd m)
@@ -243,15 +244,16 @@ let check (globals, functions) =
           let rt = expr e in
           check_assign lt rt (Failure ("illegal assignment " ^ string_of_typ lt ^ " = " ^ string_of_typ rt ^ " in " ^ string_of_expr ex));
       | ObjectCall(oname, fname, actuals) as objectcall -> let fd = function_decl fname in
-          let returntype = ref (fd.typ) in 
+          let returntype = ref (fd.typ) in
           if List.length actuals != List.length fd.formals then
             raise (Failure ("expecting " ^ string_of_int
                (List.length fd.formals) ^ " arguments in " ^ string_of_expr objectcall))
 
           else
              List.iter2 (fun (ft, _) e -> let et = expr e in
-             
+
               (* if fname = "qfront" then let _ = print_endline (string_of_typ actqtype) in returntype := actqtype *)
+
                 if fname = "add" then
                    let acttype = expr oname in 
                    let actqtype = get_type acttype in 
@@ -262,15 +264,21 @@ let check (globals, functions) =
                    let actqtype = get_type acttype in 
                   ignore(check_assign actqtype et (Failure ("illegal actual pop argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
+                else if fname = "quickSort" then
+                  let acttype = expr oname in
+                  let actatype = array_typ acttype in
+                  ignore(check_assign actatype et (Failure ("illegal actual dequeue argument found " ^ string_of_typ et ^
+                  " expected " ^ string_of_typ actatype ^ " in " ^ string_of_expr e)))
                 (* else if fname = "delete" then
-                   let acttype = expr oname in 
-                   let actqtype = getLinkedListType acttype in 
+                   let acttype = expr oname in
+                   let actqtype = getLinkedListType acttype in
                   ignore(check_assign actqtype et (Failure ("illegal actual delete argument found " ^ string_of_typ et ^
-                  " expected num type " ^ " in " ^ string_of_expr e))) 
+                  " expected num type " ^ " in " ^ string_of_expr e)))
              *)    (* else if fname = "peek" then
-                   let acttype = expr oname in 
-                   let actqtype = getQueueType acttype in 
+                   let acttype = expr oname in
+                   let actqtype = getQueueType acttype in
                   ignore(check_assign actqtype et (Failure ("illegal actual peek for queue argument found " ^ string_of_typ et ^
+<<<<<<< HEAD
                   " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
               *) 
                 else ignore (check_assign ft et (Failure ("illegal actual argument found " ^ string_of_typ et ^
