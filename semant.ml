@@ -55,11 +55,11 @@ let check (globals, functions) =
   (* Function declaration for a named function *)
   let built_in_decls =  StringMap.add "print"
      { typ = Void; fname = "print"; formals = [(Num, "x")];
-       body = [] } 
+       body = [] }
 
        (StringMap.add "printb"
      { typ = Void; fname = "printb"; formals = [(Bool, "x")];
-       body = [] } 
+       body = [] }
 
        (StringMap.add "enqueue"
     { typ = Void; fname = "enqueue"; formals = [(AnyType, "x")];
@@ -85,8 +85,8 @@ let check (globals, functions) =
      { typ = Void; fname = "delete"; formals = [(Int, "x")];
         body = [] }
 
-        (StringMap.singleton "printbig"
-     { typ = Void; fname = "printbig"; formals = [(Int, "x")];
+        (StringMap.singleton "quickSort"
+     { typ = Void; fname = "quickSort"; formals = [(Int, "x")];
        body = [] }
      ))))))))
    in
@@ -137,13 +137,13 @@ let check (globals, functions) =
 
     let getQueueType = function
        QueueType(typ) -> typ
-      | _ -> Void  
-    in 
+      | _ -> Void
+    in
 
     let getLinkedListType = function
        LinkedListType(typ) -> typ
-      | _ -> Void  
-    in 
+      | _ -> Void
+    in
     (* Return the type of an expression or throw an exception *)
     let rec expr = function
         NumLit _ -> Num
@@ -233,50 +233,55 @@ let check (globals, functions) =
           let rt = expr e in
           check_assign lt rt (Failure ("illegal assignment " ^ string_of_typ lt ^ " = " ^ string_of_typ rt ^ " in " ^ string_of_expr ex));
       | ObjectCall(oname, fname, actuals) as objectcall -> let fd = function_decl fname in
-          let returntype = ref (fd.typ) in 
+          let returntype = ref (fd.typ) in
           if List.length actuals != List.length fd.formals then
             raise (Failure ("expecting " ^ string_of_int
                (List.length fd.formals) ^ " arguments in " ^ string_of_expr objectcall))
 
           else
              List.iter2 (fun (ft, _) e -> let et = expr e in
-             
+
               (* if fname = "qfront" then let _ = print_endline (string_of_typ actqtype) in returntype := actqtype *)
                 if fname = "enqueue" then
-                   let acttype = expr oname in 
-                   let actqtype = getQueueType acttype in 
+                   let acttype = expr oname in
+                   let actqtype = getQueueType acttype in
                   ignore(check_assign actqtype et (Failure ("illegal actual enqueue argument found " ^ string_of_typ et ^
-                  " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
+                  " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e)))
+                else if fname = "quickSort" then
+                  let acttype = expr oname in
+                  let actatype = array_typ acttype in
+                  ignore(check_assign actatype et (Failure ("illegal actual dequeue argument found " ^ string_of_typ et ^
+                  " expected " ^ string_of_typ actatype ^ " in " ^ string_of_expr e)))
                 else if fname = "dequeue" then
-                   let acttype = expr oname in 
-                   let actqtype = getQueueType acttype in 
+                   let acttype = expr oname in
+                   let actqtype = getQueueType acttype in
                   ignore(check_assign actqtype et (Failure ("illegal actual dequeue argument found " ^ string_of_typ et ^
-                  " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
+                  " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e)))
                 else if fname = "add" then
-                   let acttype = expr oname in 
-                   let actqtype = getLinkedListType acttype in 
+                   let acttype = expr oname in
+                   let actqtype = getLinkedListType acttype in
                   ignore(check_assign actqtype et (Failure ("illegal actual add argument found " ^ string_of_typ et ^
-                  " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
+                  " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e)))
                 (* else if fname = "delete" then
-                   let acttype = expr oname in 
-                   let actqtype = getLinkedListType acttype in 
+                   let acttype = expr oname in
+                   let actqtype = getLinkedListType acttype in
                   ignore(check_assign actqtype et (Failure ("illegal actual delete argument found " ^ string_of_typ et ^
-                  " expected num type " ^ " in " ^ string_of_expr e))) 
+                  " expected num type " ^ " in " ^ string_of_expr e)))
              *)    (* else if fname = "peek" then
-                   let acttype = expr oname in 
-                   let actqtype = getQueueType acttype in 
+                   let acttype = expr oname in
+                   let actqtype = getQueueType acttype in
                   ignore(check_assign actqtype et (Failure ("illegal actual peek for queue argument found " ^ string_of_typ et ^
-                  " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
-              *) else if fname = "weight" then 
-                   let acttype = expr (List.hd actuals) in 
+                  " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e)))
+              *) else if fname = "weight" then
+                   let acttype = expr (List.hd actuals) in
                     ignore(check_assign acttype et (Failure ("illegal actual node argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ acttype ^ " in " ^ string_of_expr e)))
-                
-                else if fname = "p_push" then 
-                   let acttype = expr (List.hd actuals) in 
+
+                else if fname = "p_push" then
+                   let acttype = expr (List.hd actuals) in
                     ignore(check_assign acttype et (Failure ("illegal actual pqueue argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ acttype ^ " in " ^ string_of_expr e)))
-                
+
                 else ignore (check_assign ft et (Failure ("illegal actual argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e)))) fd.formals actuals;
              !returntype

@@ -9,10 +9,10 @@ module A = Ast
 module StringMap = Map.Make(String)
 
 let context = L.global_context ()
-let queuem = L.MemoryBuffer.of_file "queue.bc" 
-let listm = L.MemoryBuffer.of_file "linkedlist.bc" 
-let qqm = Llvm_bitreader.parse_bitcode context queuem 
-let list_qm = Llvm_bitreader.parse_bitcode context listm 
+let queuem = L.MemoryBuffer.of_file "queue.bc"
+let listm = L.MemoryBuffer.of_file "linkedlist.bc"
+let qqm = Llvm_bitreader.parse_bitcode context queuem
+let list_qm = Llvm_bitreader.parse_bitcode context listm
 let the_module = L.create_module context "Strux"
 and f_t    = L.double_type context  (* float *)
 and i8_t   = L.i8_type   context    (* print type *)
@@ -43,9 +43,9 @@ let rec ltype_of_typ = function (* LLVM type for AST type *)
     | A.TreeNode -> f_t *)
 
 and translate (globals, functions) =
-  let global_types = 
-    let global_type m (t, n) = StringMap.add n t m in 
-    List.fold_left global_type StringMap.empty globals 
+  let global_types =
+    let global_type m (t, n) = StringMap.add n t m in
+    List.fold_left global_type StringMap.empty globals
   in
   (* Declare each global variable; remember its value in a map *)
   let global_vars = ref StringMap.empty in
@@ -60,28 +60,38 @@ and translate (globals, functions) =
   let printf_func = L.declare_function "printf" printf_t the_module in
 
   (* built-in queue functions *)
-  let initQueue_t = L.function_type queue_t [| |] in 
+  let initQueue_t = L.function_type queue_t [| |] in
   let initQueue_f = L.declare_function "initQueue" initQueue_t the_module in
-  let enqueue_t = L.function_type void_t [| queue_t; L.pointer_type i8_t|] in 
+  let enqueue_t = L.function_type void_t [| queue_t; L.pointer_type i8_t|] in
   let enqueue_f = L.declare_function "enqueue" enqueue_t the_module in
-  let dequeue_t = L.function_type void_t [| queue_t |] in 
+  let dequeue_t = L.function_type void_t [| queue_t |] in
   let dequeue_f = L.declare_function "dequeue" dequeue_t the_module in
   let peek_t = L.function_type (L.pointer_type i8_t) [| queue_t |] in
   let peek_f = L.declare_function "peek" peek_t the_module in
-  let sizeQ_t = L.function_type i32_t [| queue_t |] in 
-  let sizeQ_f = L.declare_function "queue_size" sizeQ_t the_module in 
+  let sizeQ_t = L.function_type i32_t [| queue_t |] in
+  let sizeQ_f = L.declare_function "queue_size" sizeQ_t the_module in
 
   (*built-in linkedlist functions*)
-  let initList_t = L.function_type linkedlist_t [| |] in 
+  let initList_t = L.function_type linkedlist_t [| |] in
   let initList_f = L.declare_function "initList" initList_t the_module in
-  let add_t = L.function_type void_t [| linkedlist_t; L.pointer_type i8_t|] in 
+  let add_t = L.function_type void_t [| linkedlist_t; L.pointer_type i8_t|] in
   let add_f = L.declare_function "add" add_t the_module in
-  let delete_t = L.function_type void_t [| linkedlist_t; i32_t |] in 
+  let delete_t = L.function_type void_t [| linkedlist_t; i32_t |] in
   let delete_f = L.declare_function "delete" delete_t the_module in
   let get_t = L.function_type (L.pointer_type i8_t) [| linkedlist_t; i32_t |] in
   let get_f = L.declare_function "get" get_t the_module in
-  let sizeList_t = L.function_type i32_t [| linkedlist_t |] in 
-  let sizeList_f = L.declare_function "size" sizeList_t the_module in 
+  let sizeList_t = L.function_type i32_t [| linkedlist_t |] in
+  let sizeList_f = L.declare_function "size" sizeList_t the_module in
+
+  (* quicksort array functions *)
+  let cQuickSort_t = L.function_type (L.pointer_type (ltype_of_typ A.Int)) [| L.pointer_type (ltype_of_typ A.Int); i32_t |] in
+  let cQuickSort_f = L.declare_function "cQuickSort" cQuickSort_t the_module in
+  let cShowQuickSort_t = L.function_type (L.pointer_type (ltype_of_typ A.Int)) [| L.pointer_type (ltype_of_typ A.Int); i32_t |] in
+  let cShowQuickSort_f = L.declare_function "cShowQuickSort" cShowQuickSort_t the_module in
+  let cQuickfSort_t = L.function_type (L.pointer_type (ltype_of_typ A.Num)) [| L.pointer_type (ltype_of_typ A.Num); i32_t |] in
+  let cQuickfSort_f = L.declare_function "cQuickfSort" cQuickfSort_t the_module in
+  let cShowfQuickSort_t = L.function_type (L.pointer_type (ltype_of_typ A.Num)) [| L.pointer_type (ltype_of_typ A.Num); i32_t |] in
+  let cShowfQuickSort_f = L.declare_function "cShowfQuickSort" cShowfQuickSort_t the_module in
 
   (*print big *)
   let printbig_t = L.function_type i32_t [| i32_t |] in
@@ -97,11 +107,11 @@ and translate (globals, functions) =
       StringMap.add name (L.define_function name ftype the_module, func_decl) m in
     List.fold_left function_decl StringMap.empty functions in
 
-(*   let data_structures_str x_type b = 
-    let b = builder in 
+(*   let data_structures_str x_type b =
+    let b = builder in
     let n = idtostring q in
-    let q_type = getQueueType (lookup_types n) 
-    format_str q_type builder 
+    let q_type = getQueueType (lookup_types n)
+    format_str q_type builder
     in  *)
   (* Format str for printf *)
   let string_format_str b = L.build_global_stringptr "%s\n" "fmt" b
@@ -140,9 +150,9 @@ and translate (globals, functions) =
         (* add formals to the map *)
         ref (List.fold_left2 add_formal StringMap.empty func_decl.A.formals
           (Array.to_list (L.params the_function))) in
-    
-    let local_types = 
-      let add_type m (t, n) = StringMap.add n t m in 
+
+    let local_types =
+      let add_type m (t, n) = StringMap.add n t m in
       let formal_types = List.fold_left add_type StringMap.empty func_decl.A.formals in
           List.fold_left add_type formal_types func_decl.A.formals in
 
@@ -152,9 +162,9 @@ and translate (globals, functions) =
         try (snd (StringMap.find n !local_vars))
         with Not_found -> (snd (StringMap.find n !global_vars))
       in
-      
+
       let lookup_types n = try StringMap.find n global_types
-        with Not_found -> StringMap.find n global_types 
+        with Not_found -> StringMap.find n global_types
       in
 
       let name_to_type n : A.typ =
@@ -224,10 +234,10 @@ and translate (globals, functions) =
       | _ -> A.Void
     in
 
-    let idtostring = function 
-        A.Id s -> s 
-      | _ -> "" 
-    in 
+    let idtostring = function
+        A.Id s -> s
+      | _ -> ""
+    in
     (* Define each function (arguments and return type) so we can call it *)
     let rec expr_generator llbuilder = function
         A.NumLit(n) -> L.const_float f_t n
@@ -237,28 +247,28 @@ and translate (globals, functions) =
       | A.Id s -> L.build_load (lookup s) s llbuilder
       | A.QueueLit (typ, act) ->
         let d_ltyp = ltype_of_typ typ in
-        let queue_ptr = L.build_call initQueue_f [| |] "init" llbuilder in 
-        let add_element elem = 
-          let d_ptr = match typ with 
-          | A.QueueType _ -> expr_generator llbuilder elem 
-          | _ -> 
-            let element = expr_generator llbuilder elem in 
-            let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in 
-            ignore (L.build_store element d_ptr llbuilder); d_ptr in 
+        let queue_ptr = L.build_call initQueue_f [| |] "init" llbuilder in
+        let add_element elem =
+          let d_ptr = match typ with
+          | A.QueueType _ -> expr_generator llbuilder elem
+          | _ ->
+            let element = expr_generator llbuilder elem in
+            let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in
+            ignore (L.build_store element d_ptr llbuilder); d_ptr in
           let void_d_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in
           ignore (L.build_call enqueue_f [| queue_ptr; void_d_ptr |] "" llbuilder)
         in ignore (List.map add_element act);
         queue_ptr
       | A.LinkedListLit (typ, act) ->
         let d_ltyp = ltype_of_typ typ in
-        let list_ptr = L.build_call initList_f [| |] "init" llbuilder in 
-        let add_element elem = 
-          let d_ptr = match typ with 
-          | A.LinkedListType _ -> expr_generator llbuilder elem 
-          | _ -> 
-            let element = expr_generator llbuilder elem in 
-            let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in 
-            ignore (L.build_store element d_ptr llbuilder); d_ptr in 
+        let list_ptr = L.build_call initList_f [| |] "init" llbuilder in
+        let add_element elem =
+          let d_ptr = match typ with
+          | A.LinkedListType _ -> expr_generator llbuilder elem
+          | _ ->
+            let element = expr_generator llbuilder elem in
+            let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in
+            ignore (L.build_store element d_ptr llbuilder); d_ptr in
           let void_d_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in
           ignore (L.build_call add_f [| list_ptr; void_d_ptr |] "" llbuilder)
         in ignore (List.map add_element act);
@@ -372,38 +382,42 @@ and translate (globals, functions) =
             | _ -> f ^ "_result")
           in
           L.build_call fdef (Array.of_list actuals) result llbuilder
-      | A.ObjectCall (q, "enqueue", [e]) -> 
+      | A.ObjectCall(a, "quickSort", [e]) ->
+        let a_val = expr_generator llbuilder a in
+        let e_val = expr_generator llbuilder e in
+        ignore (L.build_call cQuickSort_f [| a_val; e_val|] "" llbuilder); a_val
+      | A.ObjectCall (q, "enqueue", [e]) ->
         let q_val = expr_generator llbuilder q in
-        let e_val = expr_generator llbuilder e in 
-        let d_ltyp = L.type_of e_val in 
-        let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in 
-        ignore(L.build_store e_val d_ptr llbuilder); 
-        let void_e_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in 
+        let e_val = expr_generator llbuilder e in
+        let d_ltyp = L.type_of e_val in
+        let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in
+        ignore(L.build_store e_val d_ptr llbuilder);
+        let void_e_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in
         ignore (L.build_call enqueue_f [| q_val; void_e_ptr|] "" llbuilder); q_val
-      | A.ObjectCall (q, "dequeue", [e]) -> 
+      | A.ObjectCall (q, "dequeue", [e]) ->
         let q_val = expr_generator llbuilder q in
-        ignore (L.build_call dequeue_f [| q_val|] "" llbuilder); q_val 
-      | A.ObjectCall (q, "peek", []) -> 
+        ignore (L.build_call dequeue_f [| q_val|] "" llbuilder); q_val
+      | A.ObjectCall (q, "peek", []) ->
         let q_val = expr_generator llbuilder q in
         let n = idtostring q in
-        let q_type = get_ds_type (lookup_types n) in 
+        let q_type = get_ds_type (lookup_types n) in
         let val_ptr = L.build_call peek_f [| q_val |] "val_ptr" llbuilder in
         let l_dtyp = ltype_of_typ q_type in
         let d_ptr = L.build_bitcast val_ptr (L.pointer_type l_dtyp) "d_ptr" llbuilder in
         (L.build_load d_ptr "d_ptr" llbuilder)
-      | A.ObjectCall (q, "size", []) -> 
+      | A.ObjectCall (q, "size", []) ->
         let q_val = expr_generator llbuilder q in
         let size_ptr = L.build_call sizeQ_f [| q_val|] "" llbuilder in size_ptr
       | A.ObjectCall (l, "add", [e]) ->
         let l_val = expr_generator llbuilder l in
-        let e_val = expr_generator llbuilder e in 
-        let d_ltyp = L.type_of e_val in 
-        let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in 
-        ignore(L.build_store e_val d_ptr llbuilder); 
-        let void_e_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in 
+        let e_val = expr_generator llbuilder e in
+        let d_ltyp = L.type_of e_val in
+        let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in
+        ignore(L.build_store e_val d_ptr llbuilder);
+        let void_e_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in
         ignore (L.build_call add_f [| l_val; void_e_ptr|] "" llbuilder); l_val
-      | A.ObjectCall (l, "delete", [e]) -> 
-        let l_val = expr_generator llbuilder l in 
+      | A.ObjectCall (l, "delete", [e]) ->
+        let l_val = expr_generator llbuilder l in
         let e_val = expr_generator llbuilder e in
         ignore (L.build_call delete_f [| l_val; e_val |] "" llbuilder);
         l_val
