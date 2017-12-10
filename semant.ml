@@ -97,8 +97,8 @@ let check (globals, functions) =
      { typ = Void; fname = "quickSort"; formals = [(Int, "x")];
        body = [] }
 
-         (StringMap.singleton "fquickSort"
-      { typ = Void; fname = "fquickSort"; formals = [(Int, "x")];
+         (StringMap.singleton "showQuickSort"
+      { typ = Void; fname = "showQuickSort"; formals = [(Int, "x")];
         body = [] }
 
      ))))))))))

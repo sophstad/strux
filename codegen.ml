@@ -554,10 +554,10 @@ and translate (globals, functions) =
         let l_dtyp = ltype_of_typ l_type in
         let d_ptr = L.build_bitcast val_ptr (L.pointer_type l_dtyp) "d_ptr" llbuilder in
         (L.build_load d_ptr "d_ptr" llbuilder)
-      | A.ObjectCall(a, "fquickSort", [e]) ->
+      | A.ObjectCall(a, "showQuickSort", [e]) ->
         let a_val = expr_generator llbuilder a in
         let e_val = expr_generator llbuilder e in
-        ignore (L.build_call cQuickfSort_f [| a_val; e_val|] "" llbuilder); a_val
+        ignore (L.build_call cShowQuickSort_f [| a_val; e_val|] "" llbuilder); a_val
       | A.ObjectCall(a, "quickSort", [e]) ->
         let a_val = expr_generator llbuilder a in
         let e_val = expr_generator llbuilder e in
