@@ -77,6 +77,10 @@ let check (globals, functions) =
     { typ = AnyType; fname = "peek"; formals = [];
         body = [] }
         
+        (StringMap.add "remove"
+    { typ = Void; fname = "remove"; formals = [];
+        body = [] }
+
         (StringMap.add "get"
     { typ = AnyType; fname = "get"; formals = [(Int, "x")];
         body = [] }
@@ -89,11 +93,7 @@ let check (globals, functions) =
      { typ = Void; fname = "delete"; formals = [(Int, "x")];
         body = [] }
 
-        (StringMap.add "pop"
-    { typ = Void; fname = "pop"; formals = [];
-        body = [] }
-
-       (StringMap.singleton "quickSort"
+        (StringMap.singleton "quickSort"
      { typ = Void; fname = "quickSort"; formals = [(Int, "x")];
        body = [] }
 
@@ -269,6 +269,7 @@ let check (globals, functions) =
                   let actatype = array_typ acttype in
                   ignore(check_assign actatype et (Failure ("illegal actual dequeue argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ actatype ^ " in " ^ string_of_expr e)))
+
                 (* else if fname = "delete" then
                    let acttype = expr oname in
                    let actqtype = getLinkedListType acttype in
@@ -278,12 +279,12 @@ let check (globals, functions) =
                    let acttype = expr oname in
                    let actqtype = getQueueType acttype in
                   ignore(check_assign actqtype et (Failure ("illegal actual peek for queue argument found " ^ string_of_typ et ^
-<<<<<<< HEAD
+
                   " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
               *) 
                 else ignore (check_assign ft et (Failure ("illegal actual argument found " ^ string_of_typ et ^
-                  " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e)))) fd.formals actuals;
-             !returntype
+                      " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e)))) fd.formals actuals;
+                 !returntype
 
     in
 

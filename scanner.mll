@@ -68,6 +68,7 @@ rule token = parse
   | "LinkedList"  { LINKEDLIST }
   | "Stack"       { STACK }
     (* 
+
   | "Stack"       { STACK }
   | "Queue"       { QUEUE }
   | "LinkedList"  { LINKEDLIST }

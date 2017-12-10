@@ -112,8 +112,7 @@ and translate (globals, functions) =
   let s_show_int = L.declare_function "stack_show_int" s_show_t the_module in
   let s_show_float = L.declare_function "stack_show_float" s_show_t the_module in
   let s_show_string = L.declare_function "stack_show_string" s_show_t the_module in
-  let sizeStack_t = L.function_type i32_t [| stack_t |] in
-  let sizeStack_f = L.declare_function "stack_size" sizeStack_t the_module in
+
 
   (* quicksort array functions *)
   let cQuickSort_t = L.function_type (L.pointer_type (ltype_of_typ A.Int)) [| L.pointer_type (ltype_of_typ A.Int); i32_t |] in
@@ -124,7 +123,6 @@ and translate (globals, functions) =
   let cQuickfSort_f = L.declare_function "cQuickfSort" cQuickfSort_t the_module in
   let cShowfQuickSort_t = L.function_type (L.pointer_type (ltype_of_typ A.Num)) [| L.pointer_type (ltype_of_typ A.Num); i32_t |] in
   let cShowfQuickSort_f = L.declare_function "cShowfQuickSort" cShowfQuickSort_t the_module in
-
 
   (*print big *)
   let printbig_t = L.function_type i32_t [| i32_t |] in
@@ -274,7 +272,7 @@ and translate (globals, functions) =
       A.Id name -> (match (name_to_type name) with
         A.QueueType _ -> sizeQ_f
       | A.LinkedListType _ -> sizeList_f
-      | A.StackType _ -> sizeStack_f
+      | A.StackType _ -> sizeS_f
       | _ -> raise (Failure ("Invalid data structure type - size function")))
     in
 
@@ -505,8 +503,8 @@ and translate (globals, functions) =
             | _ -> f ^ "_result")
           in
           L.build_call fdef (Array.of_list actuals) result llbuilder
-<<<<<<< HEAD
-      | A.ObjectCall (obj, "pop", []) ->
+
+      | A.ObjectCall (obj, "remove", []) ->
         let obj_val = expr_generator llbuilder obj in
         let obj_method = call_pop_ptr obj in
         ignore (L.build_call obj_method [| obj_val|] "" llbuilder); obj_val  
@@ -559,8 +557,7 @@ and translate (globals, functions) =
       | A.ObjectCall(a, "quickSort", [e]) ->
         let a_val = expr_generator llbuilder a in
         let e_val = expr_generator llbuilder e in
-        ignore (L.build_call cQuickSort_f [| a_val; e_val|] "" llbuilder); a_val
-
+        ignore (L.build_call cQuickSort_f [| a_val; e_val|] "" llbuilder); a_val in 
       (* Invoke "f llbuilder" if the current block doesn't already
          have a terminal (e.g., a branch). *)
       let add_terminal llbuilder f =
