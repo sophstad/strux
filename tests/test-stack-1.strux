@@ -4,7 +4,7 @@ int main() {
 	Stack::int s3 = new Stack::int();
 	Stack::bool s4 = new Stack::bool();
 	s.add("S");
-	s.pop();
+	s.remove();
 	s.peek();
 
         s2.add(2.63);

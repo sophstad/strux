@@ -3,7 +3,7 @@ int main() {
 	s.add("S");
 	s.add("OOOO");
 	s.add("WWWW");
-	s.pop();
+	s.remove();
 	string topelement = s.peek();
 	int x = s.size();
 	print(x);
