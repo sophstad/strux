@@ -1,10 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-int INTEGER = 0;
-int FLOATING = 1;
-int STRING = 2;
+#include "utils.h"
 
 struct Queue {
 	int size;
