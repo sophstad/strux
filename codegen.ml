@@ -558,6 +558,14 @@ and translate (globals, functions) =
         let a_val = expr_generator llbuilder a in
         let e_val = expr_generator llbuilder e in
         ignore (L.build_call cShowQuickSort_f [| a_val; e_val|] "" llbuilder); a_val
+      | A.ObjectCall(a, "fshowQuickSort", [e]) ->
+        let a_val = expr_generator llbuilder a in
+        let e_val = expr_generator llbuilder e in
+        ignore (L.build_call cShowfQuickSort_f [| a_val; e_val|] "" llbuilder); e_val
+      | A.ObjectCall(a, "fquickSort", [e]) ->
+        let a_val = expr_generator llbuilder a in
+        let e_val = expr_generator llbuilder e in
+        ignore (L.build_call cQuickfSort_f [| a_val; e_val|] "" llbuilder); e_val
       | A.ObjectCall(a, "quickSort", [e]) ->
         let a_val = expr_generator llbuilder a in
         let e_val = expr_generator llbuilder e in

@@ -93,6 +93,14 @@ let check (globals, functions) =
      { typ = Void; fname = "delete"; formals = [(Int, "x")];
         body = [] }
 
+        (StringMap.add "fquickSort"
+     { typ = Void; fname = "fquickSort"; formals = [(Int, "x")];
+       body = [] }
+
+        (StringMap.add "fshowQuickSort"
+     { typ = Void; fname = "fshowQuickSort"; formals = [(Int, "x")];
+       body = [] }
+
         (StringMap.add "quickSort"
      { typ = Void; fname = "quickSort"; formals = [(Int, "x")];
        body = [] }
@@ -101,7 +109,7 @@ let check (globals, functions) =
       { typ = Void; fname = "showQuickSort"; formals = [(Int, "x")];
         body = [] }
 
-     ))))))))))
+     ))))))))))))
 
    in
 
