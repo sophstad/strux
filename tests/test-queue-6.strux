@@ -1,5 +1,5 @@
 int main() {
-	Queue::string:: q = new Queue::string::();
+	Queue::string q = new Queue::string();
 	q.add("S");
 	string s = q.peek(); 
 	return 0;

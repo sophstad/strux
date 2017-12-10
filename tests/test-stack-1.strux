@@ -1,8 +1,8 @@
 int main() {
-	Stack::string:: s = new Stack::string::();
-	Stack::num:: s2 = new Stack::num::();
-	Stack::int:: s3 = new Stack::int::();
-	Stack::bool:: s4 = new Stack::bool::();
+	Stack::string s = new Stack::string();
+	Stack::num s2 = new Stack::num();
+	Stack::int s3 = new Stack::int();
+	Stack::bool s4 = new Stack::bool();
 	s.add("S");
 	s.pop();
 	s.peek();

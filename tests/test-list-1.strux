@@ -1,7 +1,7 @@
 int main() {
-	LinkedList::string:: l = new LinkedList::string::();
-	LinkedList::num:: l2 = new LinkedList::num::();
-	LinkedList::bool:: l3 = new LinkedList::bool::();
-	LinkedList::int:: l4 = new LinkedList::int::();
+	LinkedList::string l = new LinkedList::string();
+	LinkedList::num l2 = new LinkedList::num();
+	LinkedList::bool l3 = new LinkedList::bool();
+	LinkedList::int l4 = new LinkedList::int();
 	return 0;
 }

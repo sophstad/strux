@@ -1,4 +1,4 @@
 int main() {
-	Queue::string:: q = new Queue::string::(1,2,3);
+	Queue::string q = new Queue::string(1,2,3);
 	return 0;
 }

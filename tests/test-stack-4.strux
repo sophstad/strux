@@ -1,5 +1,5 @@
 int main() {
-  Stack::int:: si = new Stack::int::();
+  Stack::int si = new Stack::int();
   si.add(0);
   si.add(1);
   si.add(2);
@@ -7,13 +7,13 @@ int main() {
   si.add(4);
   si.show();
 
-  Stack::num:: sn = new Stack::num::();
+  Stack::num sn = new Stack::num();
   sn.add(326.3);
   sn.add(-1752552844.3);
   sn.add(98.0);
   sn.show();
 
-  Stack::string:: ss = new Stack::string::();
+  Stack::string ss = new Stack::string();
   ss.add("Sophie");
   ss.add("Strux");
   ss.add("Kofi");
@@ -21,7 +21,7 @@ int main() {
   ss.add("Josh");
   ss.show();
 
-  Stack::bool:: sb = new Stack::bool::();
+  Stack::bool sb = new Stack::bool();
   sb.add(true);
   sb.add(false);
   sb.add(true);
