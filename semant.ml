@@ -76,7 +76,7 @@ let check (globals, functions) =
         (StringMap.add "peek"
     { typ = AnyType; fname = "peek"; formals = [];
         body = [] }
-        
+
         (StringMap.add "remove"
     { typ = Void; fname = "remove"; formals = [];
         body = [] }
@@ -93,12 +93,16 @@ let check (globals, functions) =
      { typ = Void; fname = "delete"; formals = [(Int, "x")];
         body = [] }
 
-        (StringMap.singleton "quickSort"
+        (StringMap.add "quickSort"
      { typ = Void; fname = "quickSort"; formals = [(Int, "x")];
        body = [] }
 
-     )))))))))
-        
+         (StringMap.singleton "fquickSort"
+      { typ = Void; fname = "fquickSort"; formals = [(Int, "x")];
+        body = [] }
+
+     ))))))))))
+
    in
 
   let function_decls = List.fold_left (fun m fd -> StringMap.add fd.fname fd m)
@@ -149,7 +153,7 @@ let check (globals, functions) =
       QueueType(typ) -> typ
       | LinkedListType(typ) -> typ
       | StackType(typ) -> typ
-      | _ -> Void  
+      | _ -> Void
     in
 
     (* Return the type of an expression or throw an exception *)
@@ -193,7 +197,7 @@ let check (globals, functions) =
       | Noexpr -> Void
       | Assign(typ, var, e) as ex ->
           let rt = expr e in
-          if rt == Void then raise (Failure("Must initialize variable with a value.")) 
+          if rt == Void then raise (Failure("Must initialize variable with a value."))
         else
           ignore (check_assign typ rt (Failure ("illegal assignment " ^ string_of_typ typ ^ " = " ^ string_of_typ rt ^ " in " ^ string_of_expr ex)));
           check_var_decl var (Failure ("duplicate declaration of variable " ^ var));
@@ -253,8 +257,8 @@ let check (globals, functions) =
 
               (* if fname = "qfront" then let _ = print_endline (string_of_typ actqtype) in returntype := actqtype *)
                 if fname = "add" then
-                   let acttype = expr oname in 
-                   let actqtype = get_type acttype in 
+                   let acttype = expr oname in
+                   let actqtype = get_type acttype in
                   ignore(check_assign actqtype et (Failure ("illegal actual add argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
                 else if fname = "remove" then
@@ -265,7 +269,12 @@ let check (globals, functions) =
                 else if fname = "quickSort" then
                   let acttype = expr oname in
                   let actatype = array_typ acttype in
-                  ignore(check_assign actatype et (Failure ("illegal actual dequeue argument found " ^ string_of_typ et ^
+                  ignore(check_assign actatype et (Failure ("illegal actual size argument found " ^ string_of_typ et ^
+                  " expected " ^ string_of_typ actatype ^ " in " ^ string_of_expr e)))
+                else if fname = "fquickSort" then
+                  let acttype = expr oname in
+                  let actatype = array_typ acttype in
+                  ignore(check_assign actatype et (Failure ("illegal size argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ actatype ^ " in " ^ string_of_expr e)))
 
                 (* else if fname = "delete" then
@@ -278,8 +287,8 @@ let check (globals, functions) =
                    let actqtype = getQueueType acttype in
                   ignore(check_assign actqtype et (Failure ("illegal actual peek for queue argument found " ^ string_of_typ et ^
 
-                  " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
-              *) 
+                  " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e)))
+              *)
                 else ignore (check_assign ft et (Failure ("illegal actual argument found " ^ string_of_typ et ^
                       " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e)))) fd.formals actuals;
                  !returntype
