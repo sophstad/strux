@@ -59,15 +59,9 @@ primitive:
   | STRING       { String }
   | BOOL         { Bool }
   | VOID         { Void }
-  | QUEUE DOUBLECOL typ DOUBLECOL { QueueType($3)}
-  | LINKEDLIST DOUBLECOL typ DOUBLECOL { LinkedListType($3)}
-  | STACK DOUBLECOL typ DOUBLECOL { StackType($3)}
-  /*| STACK        { Stack }
-  | QUEUE        { Queue }
-  | LINKEDLIST   { LinkedList }
-  | LISTNODE     { ListNode }
-  | BSTREE       { BSTree }
-  | TREENODE     { TreeNode }*/
+  | QUEUE DOUBLECOL typ { QueueType($3) }
+  | LINKEDLIST DOUBLECOL typ { LinkedListType($3) }
+  | STACK DOUBLECOL typ { StackType($3) }
 
 array_type:
     primitive LBRACK RBRACK { Arraytype($1) }
@@ -117,9 +111,9 @@ expr:
   | expr GEQ    expr { Binop($1, Geq,   $3) }
   | expr AND    expr { Binop($1, And,   $3) }
   | expr OR     expr { Binop($1, Or,    $3) }
-  | NEW QUEUE DOUBLECOL typ DOUBLECOL LPAREN actuals_opt RPAREN { QueueLit($4, $7) }
-  | NEW LINKEDLIST DOUBLECOL typ DOUBLECOL LPAREN actuals_opt RPAREN { LinkedListLit($4, $7) }
-  | NEW STACK DOUBLECOL typ DOUBLECOL LPAREN actuals_opt RPAREN { StackLit($4, $7) }
+  | NEW QUEUE DOUBLECOL typ LPAREN actuals_opt RPAREN { QueueLit($4, $6) }
+  | NEW LINKEDLIST DOUBLECOL typ LPAREN actuals_opt RPAREN { LinkedListLit($4, $6) }
+  | NEW STACK DOUBLECOL typ LPAREN actuals_opt RPAREN { StackLit($4, $6) }
   | MINUS expr %prec NEG  { Unop(Neg, $2) }
   | NOT expr              { Unop(Not, $2) }
   | expr INCR             { Postop($1, Incr) }

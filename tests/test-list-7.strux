@@ -1,12 +1,12 @@
 int main() {
-	LinkedList::string:: l = new LinkedList::string::();
+	LinkedList::string l = new LinkedList::string();
 	l.add("HELLO WORLD");
 	l.add("HAII");
 	l.add("OIO");
 	l.add("WWW");
 	l.show();
 
-        LinkedList::bool:: lb = new LinkedList::bool::();
+        LinkedList::bool lb = new LinkedList::bool();
         lb.add(false);
         lb.add(true);
         lb.show();

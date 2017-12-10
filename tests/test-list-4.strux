@@ -1,5 +1,5 @@
 int main() {
-    LinkedList::string:: l = new LinkedList::string::();
+    LinkedList::string l = new LinkedList::string();
     l.add("HAPPY");
     string s = l.get(0);
     print(s);

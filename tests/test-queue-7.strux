@@ -1,12 +1,12 @@
 int main() {
-      Queue::num:: qn = new Queue::num::();
+      Queue::num qn = new Queue::num();
       qn.add(3.6);
       qn.add(4.216);
       qn.add(-5.25);
       qn.add(6.4);
       qn.show();
 
-      Queue::int:: qi = new Queue::int::();
+      Queue::int qi = new Queue::int();
       qi.add(23623);
       qi.add(-39632);
       qi.add(4 * 1);
@@ -16,7 +16,7 @@ int main() {
       qi.add(22);
       qi.show();
 
-      Queue::string:: qs = new Queue::string::();
+      Queue::string qs = new Queue::string();
       qs.add("Josh");
       qs.add("Kofi");
       qs.add("Millie");
@@ -25,7 +25,7 @@ int main() {
       print(qsSize);
       qs.show();
 
-      Queue::bool:: qb = new Queue::bool::();
+      Queue::bool qb = new Queue::bool();
       qb.add(true);
       qb.add(false);
       qb.show();

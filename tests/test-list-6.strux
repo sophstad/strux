@@ -1,5 +1,5 @@
 int main() {
-  LinkedList::int:: l = new LinkedList::int::();
+  LinkedList::int l = new LinkedList::int();
   l.add(6000000);
   l.add(0);
   l.add(-326);

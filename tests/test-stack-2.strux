@@ -1,5 +1,5 @@
 int main() {
-	Stack::string:: s = new Stack::string::();
+	Stack::string s = new Stack::string();
 	s.add("S");
 	s.add("H");
 	s.add("O");
