@@ -311,14 +311,17 @@ and translate (globals, functions) =
         A.QueueType _ -> (match ds_type with
            A.Int -> q_show_int
          | A.Num -> q_show_float 
+         | A.Bool -> q_show_int
          | A.String -> q_show_string)
       | A.StackType _ -> (match ds_type with
            A.Int -> s_show_int
          | A.Num -> s_show_float 
+         | A.Bool -> s_show_int
          | A.String -> s_show_string)
       | A.LinkedListType _ -> (match ds_type with
            A.Int -> l_show_int
          | A.Num -> l_show_float 
+         | A.Bool -> l_show_int
          | A.String -> l_show_string)
       | _ -> raise (Failure ("Invalid data structure type - show function")))
     in 
@@ -512,7 +515,7 @@ and translate (globals, functions) =
 (*  
         let q_type = get_type q in 
         (match q_type with 
-        A.Int -> ignore (L.build_call show_int [| q_val|] "" llbuilder); q_val 
+         A.Int -> ignore (L.build_call show_int [| q_val|] "" llbuilder); q_val 
        | A.Num -> ignore (L.build_call show_float [| q_val|] "" llbuilder); q_val 
        | A.String -> ignore (L.build_call show_string [| q_val|] "" llbuilder); q_val) *)
       | A.ObjectCall (obj, "size", []) ->
