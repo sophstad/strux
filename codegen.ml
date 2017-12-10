@@ -121,9 +121,9 @@ and translate (globals, functions) =
   let cQuickSort_f = L.declare_function "cQuickSort" cQuickSort_t the_module in
   let cShowQuickSort_t = L.function_type (L.pointer_type (ltype_of_typ A.Int)) [| L.pointer_type (ltype_of_typ A.Int); i32_t |] in
   let cShowQuickSort_f = L.declare_function "cShowQuickSort" cShowQuickSort_t the_module in
-  let cQuickfSort_t = L.function_type (L.pointer_type (ltype_of_typ A.Num)) [| L.pointer_type (ltype_of_typ A.Num); i32_t |] in
+  let cQuickfSort_t = L.function_type (L.pointer_type (ltype_of_typ A.Num)) [| L.pointer_type (ltype_of_typ A.Int); i32_t |] in
   let cQuickfSort_f = L.declare_function "cQuickfSort" cQuickfSort_t the_module in
-  let cShowfQuickSort_t = L.function_type (L.pointer_type (ltype_of_typ A.Num)) [| L.pointer_type (ltype_of_typ A.Num); i32_t |] in
+  let cShowfQuickSort_t = L.function_type (L.pointer_type (ltype_of_typ A.Num)) [| L.pointer_type (ltype_of_typ A.Int); i32_t |] in
   let cShowfQuickSort_f = L.declare_function "cShowfQuickSort" cShowfQuickSort_t the_module in
 
   (*print big *)
