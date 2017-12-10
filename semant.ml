@@ -173,16 +173,15 @@ let check (globals, functions) =
               string_of_typ t1 ^ " " ^ string_of_op op ^ " " ^
               string_of_typ t2 ^ " in " ^ string_of_expr e))
         )
-      | Postop (e, op) as ex ->
-          let t1 = expr e
-          and t2 = expr e in
+      | Postop (e, op) ->
+          let t1 = expr e in
           (match op with
-            Incr when t1 = Int && t2 = Int  -> Int
-          | Decr when t1 = Int && t2 = Int -> Int
-          | Incr when t1 = Num && t2 = Num -> Num
-          | Decr when t1 = Num && t2 = Num -> Num
+            Incr when t1 = Int -> Int
+          | Decr when t1 = Int -> Int
+          | Incr when t1 = Num -> Num
+          | Decr when t1 = Num -> Num
           | _ -> raise (Failure("illegal unary operator " ^
-                string_of_op op ^ " on " ^ string_of_expr ex)))
+                string_of_op op ^ " on " ^ string_of_expr e)))
       | Unop(op, e) as ex -> let t = expr e in
         (match op with
           Neg when t = Num -> Num
