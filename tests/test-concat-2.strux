@@ -1,0 +1,6 @@
+void main() {
+  string s = "hello " ^ "to this";
+  string m = " world!";
+  s = s ^ m;
+  print(s);
+}

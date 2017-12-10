@@ -166,6 +166,7 @@ let check (globals, functions) =
         (match op with
           Add | Sub | Mult | Div | Mod when t1 = Int && t2 = Int -> Int
         | Add | Sub | Mult | Div | Mod when t1 = Num && t2 = Num -> Num
+        | Concat when t1 = String && t2 = String -> String
         | Equal | Neq when t1 = t2 -> Bool
         | Less | Leq | Greater | Geq when t1 = Int && t2 = Int -> Bool
         | Less | Leq | Greater | Geq when t1 = Num && t2 = Num -> Bool
