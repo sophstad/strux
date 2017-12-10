@@ -25,5 +25,10 @@ int main() {
       print(qsSize);
       qs.show();
 
+      Queue::bool:: qb = new Queue::bool::();
+      qb.add(true);
+      qb.add(false);
+      qb.show();
+
       return 0;
 }

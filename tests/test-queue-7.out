@@ -11,3 +11,7 @@ Head                         Tail
 | Josh | Kofi | Millie | Sophie |
 +------+------+--------+--------+
 Head                         Tail
++---+---+
+| 1 | 0 |
++---+---+
+Head Tail

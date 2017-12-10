@@ -21,5 +21,11 @@ int main() {
   ss.add("Josh");
   ss.show();
 
+  Stack::bool:: sb = new Stack::bool::();
+  sb.add(true);
+  sb.add(false);
+  sb.add(true);
+  sb.show();
+
   return 0;
 }
