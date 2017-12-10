@@ -442,25 +442,20 @@ and translate (globals, functions) =
           else int_unops op e'
 
       | A.Postop (e, op) ->
-          let e' = expr_generator llbuilder e
-          and vali' = L.const_int i32_t 1
-          and valn' = L.const_float f_t 1.0
-          in
-
-          let num_postops e' op = (match op with
-            A.Incr     -> L.build_fadd e' valn' "tmp" llbuilder
-          | A.Decr    -> L.build_fsub e' valn' "tmp" llbuilder
-          | _         -> raise (Failure("unsupported operation for numbers"))
+          let e' = expr_generator llbuilder e in
+          let llval = (match e with
+            A.Id(s) -> s
+          | _ -> raise (Failure("This input type cannot be incremented/decremented"))
           )
-          and int_postops e' op = (match op with
-            A.Incr     -> L.build_add e' vali' "tmp" llbuilder
-          | A.Decr    -> L.build_sub e' vali' "tmp" llbuilder
-          | _         -> raise (Failure("unsupported operation for numbers"))
-          ) in
+          and op_typ = (match op with
+            A.Incr -> A.Add
+          | A.Decr -> A.Sub
+          )
+          and num_typ = if ((L.type_of e' = f_t))
+          then A.NumLit(1.0)
+          else A.IntLit(1) in
 
-          if ((L.type_of e' = f_t))
-          then num_postops e' op
-          else int_postops e' op
+          expr_generator llbuilder (A.Reassign(llval, A.Binop(e, op_typ, num_typ)))
       | A.Assign (t, s, e) ->
           let _ = (local_vars := StringMap.add s (t, (L.build_alloca (ltype_of_typ t)) s llbuilder) !local_vars) in
           let e' = expr_generator llbuilder e and llval = lookup s in
