@@ -9,14 +9,14 @@ module A = Ast
 module StringMap = Map.Make(String)
 
 let context = L.global_context ()
-let queuem = L.MemoryBuffer.of_file "queue.bc" 
-let listm = L.MemoryBuffer.of_file "linkedlist.bc" 
-let stackm = L.MemoryBuffer.of_file "stack.bc" 
-let quicksortm = L.MemoryBuffer.of_file "quicksort.bc" 
-let qqm = Llvm_bitreader.parse_bitcode context queuem 
-let list_qm = Llvm_bitreader.parse_bitcode context listm 
-let stack_qm = Llvm_bitreader.parse_bitcode context stackm 
-let quicksort_qm = Llvm_bitreader.parse_bitcode context quicksortm 
+let queuem = L.MemoryBuffer.of_file "queue.bc"
+let listm = L.MemoryBuffer.of_file "linkedlist.bc"
+let stackm = L.MemoryBuffer.of_file "stack.bc"
+let quicksortm = L.MemoryBuffer.of_file "quicksort.bc"
+let qqm = Llvm_bitreader.parse_bitcode context queuem
+let list_qm = Llvm_bitreader.parse_bitcode context listm
+let stack_qm = Llvm_bitreader.parse_bitcode context stackm
+let quicksort_qm = Llvm_bitreader.parse_bitcode context quicksortm
 let the_module = L.create_module context "Strux"
 and f_t    = L.double_type context  (* float *)
 and i8_t   = L.i8_type   context    (* print type *)
@@ -27,7 +27,7 @@ and i32_t  = L.i32_type  context
 and queue_t = L.pointer_type (match L.type_by_name qqm "struct.Queue" with
     None -> raise (Invalid_argument "Option.get queue") | Some x -> x)
 and stack_t = L.pointer_type (match L.type_by_name stack_qm "struct.Stack" with
-    None -> raise (Invalid_argument "Option.get stack") | Some x -> x) 
+    None -> raise (Invalid_argument "Option.get stack") | Some x -> x)
 and linkedlist_t = L.pointer_type (match L.type_by_name list_qm "struct.LinkedList" with
     None -> raise (Invalid_argument "Option.get linkedlmist") | Some x -> x) ;;
 
@@ -41,7 +41,7 @@ let rec ltype_of_typ = function (* LLVM type for AST type *)
   | A.QueueType _ -> queue_t
   | A.LinkedListType _ -> linkedlist_t
   | A.StackType _ -> stack_t
-  | A.AnyType -> str_t 
+  | A.AnyType -> str_t
   | _ -> raise(Failure("Invalid Data Type"))
   (* | A.Stack -> f_t
     | A.Queue -> f_t
@@ -76,9 +76,9 @@ and translate (globals, functions) =
   let dequeue_f = L.declare_function "dequeue" dequeue_t the_module in
   let peek_t = L.function_type (L.pointer_type i8_t) [| queue_t |] in
   let peek_f = L.declare_function "peek" peek_t the_module in
-  let sizeQ_t = L.function_type i32_t [| queue_t |] in 
-  let sizeQ_f = L.declare_function "queue_size" sizeQ_t the_module in 
-  let q_show_t = L.function_type void_t [| queue_t |] in 
+  let sizeQ_t = L.function_type i32_t [| queue_t |] in
+  let sizeQ_f = L.declare_function "queue_size" sizeQ_t the_module in
+  let q_show_t = L.function_type void_t [| queue_t |] in
   let q_show_int = L.declare_function "queue_show_int" q_show_t the_module in
   let q_show_float = L.declare_function "queue_show_float" q_show_t the_module in
   let q_show_string = L.declare_function "queue_show_string" q_show_t the_module in
@@ -92,15 +92,15 @@ and translate (globals, functions) =
   let delete_f = L.declare_function "delete" delete_t the_module in
   let get_t = L.function_type (L.pointer_type i8_t) [| linkedlist_t; i32_t |] in
   let get_f = L.declare_function "get" get_t the_module in
-  let sizeList_t = L.function_type i32_t [| linkedlist_t |] in 
-  let sizeList_f = L.declare_function "size" sizeList_t the_module in 
-  let l_show_t = L.function_type void_t [| linkedlist_t |] in 
+  let sizeList_t = L.function_type i32_t [| linkedlist_t |] in
+  let sizeList_f = L.declare_function "size" sizeList_t the_module in
+  let l_show_t = L.function_type void_t [| linkedlist_t |] in
   let l_show_int = L.declare_function "ll_show_int" l_show_t the_module in
   let l_show_float = L.declare_function "ll_show_float" l_show_t the_module in
   let l_show_string = L.declare_function "ll_show_string" l_show_t the_module in
 
   (*built-in stack functions*)
-  let initStack_t = L.function_type stack_t [| |] in 
+  let initStack_t = L.function_type stack_t [| |] in
   let initStack_f = L.declare_function "initStack" initStack_t the_module in
   let push_t = L.function_type void_t [| stack_t; L.pointer_type i8_t|] in
   let push_f = L.declare_function "push" push_t the_module in
@@ -110,7 +110,7 @@ and translate (globals, functions) =
   let top_f = L.declare_function "top" top_t the_module in
   let sizeS_t = L.function_type i32_t [| stack_t |] in
   let sizeS_f = L.declare_function "stack_size" sizeS_t the_module in
-  let s_show_t = L.function_type void_t [| stack_t |] in 
+  let s_show_t = L.function_type void_t [| stack_t |] in
   let s_show_int = L.declare_function "stack_show_int" s_show_t the_module in
   let s_show_float = L.declare_function "stack_show_float" s_show_t the_module in
   let s_show_string = L.declare_function "stack_show_string" s_show_t the_module in
@@ -262,13 +262,13 @@ and translate (globals, functions) =
       | A.Noexpr -> A.Void
     in
 
-    let get_type = function 
+    let get_type = function
       A.Id name -> (match (name_to_type name) with
         A.QueueType(typ) -> typ
       | A.LinkedListType(typ) -> typ
       | A.StackType(typ) -> typ
       | _ as typ -> typ)
-    in 
+    in
 
     let call_size_ptr = function
       A.Id name -> (match (name_to_type name) with
@@ -293,23 +293,23 @@ and translate (globals, functions) =
       | _ -> raise (Failure ("Invalid data structure type - delete function")))
     in
 
-  (*   let q_type_show ds_type = function  
+  (*   let q_type_show ds_type = function
        A.Int  -> q_show_int
-      | A.Num  -> q_show_float 
+      | A.Num  -> q_show_float
       | A.String  -> q_show_string
-    in 
+    in
 
-    let s_type_show ds_type = function 
+    let s_type_show ds_type = function
       A.Int -> s_show_int
-      | A.Num -> s_show_float 
+      | A.Num -> s_show_float
       | A.String -> s_show_string
-    in 
+    in
 
-    let l_type_show ds_type = function 
+    let l_type_show ds_type = function
       A.Int -> l_show_int
-      | A.Num -> l_show_float 
+      | A.Num -> l_show_float
       | A.String  -> l_show_string
-    in 
+    in
 
     let call_show_ptr obj_val ds_type = function
       A.Id name -> (match (name_to_type name) with
@@ -323,21 +323,21 @@ and translate (globals, functions) =
       A.Id name -> (match (name_to_type name) with
         A.QueueType _ -> (match ds_type with
            A.Int -> q_show_int
-         | A.Num -> q_show_float 
+         | A.Num -> q_show_float
          | A.Bool -> q_show_int
          | A.String -> q_show_string)
       | A.StackType _ -> (match ds_type with
            A.Int -> s_show_int
-         | A.Num -> s_show_float 
+         | A.Num -> s_show_float
          | A.Bool -> s_show_int
          | A.String -> s_show_string)
       | A.LinkedListType _ -> (match ds_type with
            A.Int -> l_show_int
-         | A.Num -> l_show_float 
+         | A.Num -> l_show_float
          | A.Bool -> l_show_int
          | A.String -> l_show_string)
       | _ -> raise (Failure ("Invalid data structure type - show function")))
-    in 
+    in
 
 
     let call_peek_ptr = function
@@ -383,14 +383,14 @@ and translate (globals, functions) =
         list_ptr
       | A.StackLit (typ, act) ->
         let d_ltyp = ltype_of_typ typ in
-        let stack_ptr = L.build_call initStack_f [| |] "init" llbuilder in 
-        let add_element elem = 
-          let d_ptr = match typ with 
-          | A.StackType _ -> expr_generator llbuilder elem 
-          | _ -> 
-            let element = expr_generator llbuilder elem in 
-            let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in 
-            ignore (L.build_store element d_ptr llbuilder); d_ptr in 
+        let stack_ptr = L.build_call initStack_f [| |] "init" llbuilder in
+        let add_element elem =
+          let d_ptr = match typ with
+          | A.StackType _ -> expr_generator llbuilder elem
+          | _ ->
+            let element = expr_generator llbuilder elem in
+            let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in
+            ignore (L.build_store element d_ptr llbuilder); d_ptr in
           let void_d_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in
           ignore (L.build_call push_f [| stack_ptr; void_d_ptr |] "" llbuilder)
         in ignore (List.map add_element act);
@@ -507,25 +507,25 @@ and translate (globals, functions) =
       | A.ObjectCall (obj, "remove", []) ->
         let obj_val = expr_generator llbuilder obj in
         let obj_method = call_pop_ptr obj in
-        ignore (L.build_call obj_method [| obj_val|] "" llbuilder); obj_val  
-      | A.ObjectCall (obj, "peek", []) -> 
+        ignore (L.build_call obj_method [| obj_val|] "" llbuilder); obj_val
+      | A.ObjectCall (obj, "peek", []) ->
         let obj_val = expr_generator llbuilder obj in
-        let obj_type = get_type obj in 
+        let obj_type = get_type obj in
         let obj_method = call_peek_ptr obj in
         let val_ptr = L.build_call obj_method [| obj_val |] "val_ptr" llbuilder in
         let dtyp = ltype_of_typ obj_type in
         let ptr = L.build_bitcast val_ptr (L.pointer_type dtyp) "d_ptr" llbuilder in
         (L.build_load ptr "d_ptr" llbuilder)
-      | A.ObjectCall (obj, "show", []) -> 
+      | A.ObjectCall (obj, "show", []) ->
         let obj_val = expr_generator llbuilder obj in
-        let obj_type = get_type obj in 
+        let obj_type = get_type obj in
         let obj_method = call_show_ptr obj_type obj in
         ignore (L.build_call obj_method [| obj_val |] "" llbuilder); obj_val
-(*  
-        let q_type = get_type q in 
-        (match q_type with 
-         A.Int -> ignore (L.build_call show_int [| q_val|] "" llbuilder); q_val 
-       | A.Num -> ignore (L.build_call show_float [| q_val|] "" llbuilder); q_val 
+(*
+        let q_type = get_type q in
+        (match q_type with
+         A.Int -> ignore (L.build_call show_int [| q_val|] "" llbuilder); q_val
+       | A.Num -> ignore (L.build_call show_float [| q_val|] "" llbuilder); q_val
        | A.String -> ignore (L.build_call show_string [| q_val|] "" llbuilder); q_val) *)
       | A.ObjectCall (obj, "size", []) ->
         let e = expr_generator llbuilder obj in
@@ -534,30 +534,34 @@ and translate (globals, functions) =
         size_ptr
       | A.ObjectCall (obj, "add", [e]) ->
         let obj_val = expr_generator llbuilder obj in
-        let e_val = expr_generator llbuilder e in 
-        let d_ltyp = L.type_of e_val in 
-        let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in 
-        ignore(L.build_store e_val d_ptr llbuilder); 
+        let e_val = expr_generator llbuilder e in
+        let d_ltyp = L.type_of e_val in
+        let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in
+        ignore(L.build_store e_val d_ptr llbuilder);
         let obj_method = call_add_ptr obj in
-        let void_e_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in 
+        let void_e_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in
         ignore (L.build_call obj_method [| obj_val; void_e_ptr|] "" llbuilder); obj_val
-      | A.ObjectCall (obj, "delete", [e]) -> 
-        let obj_val = expr_generator llbuilder obj in 
+      | A.ObjectCall (obj, "delete", [e]) ->
+        let obj_val = expr_generator llbuilder obj in
         let e_val = expr_generator llbuilder e in
         ignore (L.build_call delete_f [| obj_val; e_val |] "" llbuilder);
         obj_val
       | A.ObjectCall (l, "get", [e]) ->
         let l_ptr = expr_generator llbuilder l in
         let e_val = expr_generator llbuilder e in
-        let l_type = get_type l in 
+        let l_type = get_type l in
         let val_ptr = L.build_call get_f [| l_ptr; e_val |] "val_ptr" llbuilder in
         let l_dtyp = ltype_of_typ l_type in
         let d_ptr = L.build_bitcast val_ptr (L.pointer_type l_dtyp) "d_ptr" llbuilder in
         (L.build_load d_ptr "d_ptr" llbuilder)
+      | A.ObjectCall(a, "fquickSort", [e]) ->
+        let a_val = expr_generator llbuilder a in
+        let e_val = expr_generator llbuilder e in
+        ignore (L.build_call cQuickfSort_f [| a_val; e_val|] "" llbuilder); a_val
       | A.ObjectCall(a, "quickSort", [e]) ->
         let a_val = expr_generator llbuilder a in
         let e_val = expr_generator llbuilder e in
-        ignore (L.build_call cQuickSort_f [| a_val; e_val|] "" llbuilder); a_val in 
+        ignore (L.build_call cQuickSort_f [| a_val; e_val|] "" llbuilder); a_val in
       (* Invoke "f llbuilder" if the current block doesn't already
          have a terminal (e.g., a branch). *)
       let add_terminal llbuilder f =
