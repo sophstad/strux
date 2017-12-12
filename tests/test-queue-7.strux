@@ -11,7 +11,7 @@ int main() {
       qi.add(-39632);
       qi.add(4 * 1);
       qi.add(356);
-      qi.pop();
+      qi.remove();
       qi.add(89494);
       qi.add(22);
       qi.show();

@@ -252,16 +252,15 @@ let check (globals, functions) =
              List.iter2 (fun (ft, _) e -> let et = expr e in
 
               (* if fname = "qfront" then let _ = print_endline (string_of_typ actqtype) in returntype := actqtype *)
-
                 if fname = "add" then
                    let acttype = expr oname in 
                    let actqtype = get_type acttype in 
                   ignore(check_assign actqtype et (Failure ("illegal actual add argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
-                else if fname = "pop" then
+                else if fname = "remove" then
                    let acttype = expr oname in 
                    let actqtype = get_type acttype in 
-                  ignore(check_assign actqtype et (Failure ("illegal actual pop argument found " ^ string_of_typ et ^
+                  ignore(check_assign actqtype et (Failure ("illegal actual remove argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
                 else if fname = "quickSort" then
                   let acttype = expr oname in
