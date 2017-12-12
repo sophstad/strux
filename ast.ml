@@ -5,7 +5,7 @@ type op = Add | Sub | Mult | Div | Mod | Equal | Neq | Less | Leq | Greater | Ge
 
 type uop = Neg | Not
 
-type typ = Num | Int | String | Bool | Void | AnyType | Arraytype of typ | QueueType of typ | LinkedListType of typ | StackType of typ
+type typ = Num | Int | String | Bool | Void | AnyType | Arraytype of typ * int | QueueType of typ | LinkedListType of typ | StackType of typ
 (* | Stack | Queue | LinkedList | ListNode | BSTree | TreeNode *)
 
 type bind = typ * string
@@ -89,7 +89,7 @@ let rec string_of_typ = function
   | String -> "string"
   | Bool -> "bool"
   | Void -> "void"
-  | Arraytype(typ) -> string_of_typ typ ^ "[]"
+  | Arraytype(typ, len) -> string_of_typ typ ^ "[" ^ string_of_int len ^ "]"
   | QueueType(typ) -> "Queue " ^ string_of_typ typ 
   | LinkedListType(typ) -> "LinkedList " ^ string_of_typ typ 
   | StackType(typ) -> "Stack " ^ string_of_typ typ 

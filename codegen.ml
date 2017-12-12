@@ -37,7 +37,7 @@ let rec ltype_of_typ = function (* LLVM type for AST type *)
   | A.String -> str_t
   | A.Bool -> i1_t
   | A.Void -> void_t
-  | A.Arraytype(t) -> L.pointer_type (ltype_of_typ t)
+  | A.Arraytype(t, _) -> L.pointer_type (ltype_of_typ t)
   | A.QueueType _ -> queue_t
   | A.LinkedListType _ -> linkedlist_t
   | A.StackType _ -> stack_t
@@ -240,15 +240,21 @@ and translate (globals, functions) =
       if assign then _val else L.build_load _val "tmp" builder
     in
 
+    let get_array_len = function
+      A.Id name -> (match (name_to_type name) with
+                    A.Arraytype(_, len) -> len
+                  | _ -> raise (Failure ("Can't get the length of this object")))
+    in
+
     let rec gen_type = function
         A.IntLit _ -> A.Int
       | A.NumLit _ -> A.Num
       | A.StringLit _ -> A.String
       | A.BoolLit _ -> A.Bool
-      | A.ArrayLit el -> A.Arraytype (gen_type (List.nth el 0))
+      | A.ArrayLit el -> A.Arraytype (gen_type (List.nth el 0), List.length el)
       | A.ArrayElementAssign (_, _, el) -> gen_type el
       | A.Id name -> (match (name_to_type name) with
-                      A.Arraytype(t) -> t
+                      A.Arraytype(t, _) -> t
                     | _ as ty -> ty)
       | A.Unop(_,e) -> gen_type e
       | A.Binop(e1,_,_) -> gen_type e1
@@ -554,10 +560,10 @@ and translate (globals, functions) =
         let l_dtyp = ltype_of_typ l_type in
         let d_ptr = L.build_bitcast val_ptr (L.pointer_type l_dtyp) "d_ptr" llbuilder in
         (L.build_load d_ptr "d_ptr" llbuilder)
-      | A.ObjectCall(a, "quickSort", [e]) ->
+      | A.ObjectCall(a, "quickSort", []) ->
         let a_val = expr_generator llbuilder a in
-        let e_val = expr_generator llbuilder e in
-        ignore (L.build_call cQuickSort_f [| a_val; e_val|] "" llbuilder); a_val in 
+        let len = L.const_int i32_t (get_array_len a) in
+        ignore (L.build_call cQuickSort_f [| a_val; len |] "" llbuilder); a_val in
       (* Invoke "f llbuilder" if the current block doesn't already
          have a terminal (e.g., a branch). *)
       let add_terminal llbuilder f =

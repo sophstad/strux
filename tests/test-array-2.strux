@@ -1,5 +1,5 @@
 int main() {
-	num[] myArray = [5.4, 4.1, 1.5, 24.1];
+	num[4] myArray = [5.4, 4.1, 1.5, 24.1];
   	print(myArray[2]);
 
   	myArray[2] = 3.5;

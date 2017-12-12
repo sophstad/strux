@@ -30,10 +30,6 @@ let check (globals, functions) =
      the given lvalue type *)
   let check_assign lvaluet rvaluet err =
     if lvaluet = rvaluet then rvaluet
-    else if lvaluet = Arraytype(Num) && rvaluet = Num then rvaluet
-    else if lvaluet = Arraytype(Int) && rvaluet = Int then rvaluet
-    else if lvaluet = Arraytype(String) && rvaluet = String then rvaluet
-    else if lvaluet = Arraytype(Bool) && rvaluet = Bool then rvaluet
     else if lvaluet = Num && rvaluet = AnyType then lvaluet
     else if lvaluet = Int && rvaluet = AnyType then lvaluet
     else if lvaluet = String && rvaluet = AnyType then lvaluet
@@ -94,7 +90,7 @@ let check (globals, functions) =
         body = [] }
 
         (StringMap.singleton "quickSort"
-     { typ = Void; fname = "quickSort"; formals = [(Int, "x")];
+     { typ = Void; fname = "quickSort"; formals = [];
        body = [] }
 
      )))))))))
@@ -141,7 +137,7 @@ let check (globals, functions) =
     in
 
     let array_typ = function
-        Arraytype(typ) -> typ
+        Arraytype(typ, _) -> typ
       | _ -> raise(Failure("Expecting an array and was not an array"))
     in
 
@@ -192,10 +188,14 @@ let check (globals, functions) =
               string_of_typ t ^ " in " ^ string_of_expr ex)))
       | Noexpr -> Void
       | Assign(typ, var, e) as ex ->
+          let lt = (match typ with
+            Arraytype(t, _) -> t
+          | _ -> typ
+          ) in
           let rt = expr e in
           if rt == Void then raise (Failure("Must initialize variable with a value.")) 
         else
-          ignore (check_assign typ rt (Failure ("illegal assignment " ^ string_of_typ typ ^ " = " ^ string_of_typ rt ^ " in " ^ string_of_expr ex)));
+          ignore (check_assign lt rt (Failure ("illegal assignment " ^ string_of_typ typ ^ " = " ^ string_of_typ rt ^ " in " ^ string_of_expr ex)));
           check_var_decl var (Failure ("duplicate declaration of variable " ^ var));
           let _ =
             (match func.fname with
