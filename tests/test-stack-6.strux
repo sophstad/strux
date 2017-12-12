@@ -1,0 +1,18 @@
+int main() {
+	Stack::string s = new Stack::string("hello", "world");
+	string str = s.peek();
+	print(str); 
+
+	Stack::num s2 = new Stack::num(3.0, 4.0);
+	num n = s2.peek();
+	print(n); 
+
+	Stack::int s3 = new Stack::int(3, 4, 5);
+	int i = s3.peek();
+	print(i); 
+
+	Stack::bool s4 = new Stack::bool(true, false);
+	bool b = s4.peek();
+	print(b);
+	return 0;
+}
