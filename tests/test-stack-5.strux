@@ -1,0 +1,42 @@
+int main() {
+	Stack::string s = new Stack::string();
+	s.add("S");
+	s.add("OOOO");
+	s.add("WWWW");
+	s.remove();
+	int s_size = s.size();
+	print(s_size); 
+
+	Stack::num s2 = new Stack::num(); 
+	s2.add(3.0);
+	s2.add(50.0);
+	s2.add(99.0);
+	s2.remove();
+	s2.add(3.0);
+	s2.add(50.0);
+	s2.add(99.0);
+	s2.remove();
+	s2.add(3.0);
+	s2.add(50.0);
+	s2.add(99.0);
+	int s2_size = s2.size();
+	print(s2_size);
+
+	Stack::bool s3 = new Stack::bool();
+	s3.add(true);
+	s3.remove();
+	s3.add(false);
+	s3.add(true);
+	s3.add(true);
+	s3.add(true);
+	int s3_size = s3.size();
+	print(s3_size); 
+
+	Stack::int s4 = new Stack::int();
+	s4.add(1);
+	s4.remove();
+	s4.add(3);
+	int s4_size = s4.size();
+	print(s4_size);
+	return 0;
+}

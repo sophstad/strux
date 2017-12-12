@@ -1,0 +1,4 @@
+int main() {
+	Queue::string q = new Queue::num();
+	return 0;
+}

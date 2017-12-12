@@ -1,0 +1,5 @@
+int main() {
+	Queue::string q = new Queue::string();
+	q.remove("hello");
+	return 0;
+}

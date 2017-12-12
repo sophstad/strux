@@ -65,8 +65,8 @@ TESTS = add-1 add-2 add-3 and-or array-1 array-2 array-3assign-1 assign-2 \
 	assign-3 assign-4 decr-1 decr-2 div-1 div-2 div-3 elif-1 for-1 \
 	for-2 hello if-1 if-2 if-3 incr-1 list-1 list-2 list-3 list-4 local-1 \
 	mod-1 mod-2 multiple-1 print-1 print-2 print-3 print-4 print-5 \
-	queue-1 queue-2 queue-3 queue-4 queue-5 queue-6 return-1 return-2 \
-	return-3 stack-1 stack-2 stack-3 subtract-1 var-1 var-2 while-1
+	queue-0 queue-1 queue-2 queue-3 queue-4 queue-5 queue-6 queue-7 queue-8 queue-9 \
+	return-1 return-2 return-3 stack-1 stack-2 stack-3 subtract-1 var-1 var-2 while-1
 
 FAILS = no-main-1 return-1
 

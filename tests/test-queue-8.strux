@@ -1,0 +1,29 @@
+int main() {
+	Queue::num q = new Queue::num();
+	q.add(1.0);
+	q.add(3.0);
+	q.add(5.0);
+	num i = q.peek();
+	print(i);
+	Queue::int q2 = new Queue::int();
+	q2.add(3);
+	q2.add(4);
+	q2.add(5);
+	int k = q2.peek();
+	print(k);
+	Queue::string q3 = new Queue::string();
+	q3.add("mil");
+	q3.add("soph");
+	q3.add("kofi");
+	q3.add("josh");
+	string top = q3.peek();
+	print(top);
+	Queue::bool q4 = new Queue::bool();
+	q4.add(true);
+	q4.add(false);
+	q4.add(false);
+	q4.add(false);
+	bool first = q4.peek();
+	print(first);
+	return 0;
+}
