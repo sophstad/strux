@@ -279,12 +279,7 @@ let check (globals, functions) =
                   let actatype = array_typ acttype in
                   ignore(check_assign actatype et (Failure ("illegal actual size argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ actatype ^ " in " ^ string_of_expr e)))
-                else if fname = "fquickSort" then
-                  let acttype = expr oname in
-                  let actatype = array_typ acttype in
-                  ignore(check_assign actatype et (Failure ("illegal size argument found " ^ string_of_typ et ^
-                  " expected " ^ string_of_typ actatype ^ " in " ^ string_of_expr e)))
-
+            
                 (* else if fname = "delete" then
                    let acttype = expr oname in
                    let actqtype = getLinkedListType acttype in
