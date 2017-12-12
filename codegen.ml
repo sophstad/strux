@@ -154,16 +154,49 @@ and translate (globals, functions) =
   let format_str x_type builder =
     let b = builder in
       match x_type with
-        A.Int      -> int_format_str b
-      | A.Num    -> float_format_str b
-      | A.String  -> string_format_str b
-      | A.Bool     -> int_format_str b
-      (*TODO: fix this!!!!!!!!!*)
-(*       | A.QueueType _ -> float_format_str b
-      | A.LinkedListType _ -> float_format_str b
-      | A.StackType _ -> float_format_str b *)
+        A.Int -> int_format_str b
+      | A.Num -> float_format_str b
+      | A.String -> string_format_str b
+      | A.Bool -> int_format_str b
       | _ -> raise (Failure ("Invalid printf type"))
   in
+
+  let int_format_zeroth     b = L.build_global_stringptr "[%d" "fmt" b
+  and num_format_zeroth     b = L.build_global_stringptr "[%f" "fmt" b
+  and string_format_zeroth  b = L.build_global_stringptr "[%s" "fmt" b in
+
+  let int_format_arr      b = L.build_global_stringptr ", %d" "fmt" b
+  and num_format_arr      b = L.build_global_stringptr ", %f" "fmt" b
+  and string_format_arr   b = L.build_global_stringptr ", %s" "fmt" b in
+
+  let int_format_last     b = L.build_global_stringptr ", %d]\n" "fmt" b
+  and num_format_last     b = L.build_global_stringptr ", %f]\n" "fmt" b
+  and string_format_last  b = L.build_global_stringptr ", %s]\n" "fmt" b in
+
+  let format_arr_print x_type index length builder =
+    let b = builder in
+    if index == 0 then
+      match x_type with
+        A.Int -> int_format_zeroth b
+      | A.Num -> num_format_zeroth b
+      | A.String -> string_format_zeroth b
+      | A.Bool -> int_format_zeroth b
+      | _ -> raise (Failure ("Invalid array print type"))
+    else if index == length - 1 then
+      match x_type with
+        A.Int -> int_format_last b
+      | A.Num -> num_format_last b
+      | A.String -> string_format_last b
+      | A.Bool -> int_format_last b
+      | _ -> raise (Failure ("Invalid array print type"))
+    else
+      match x_type with
+        A.Int -> int_format_arr b
+      | A.Num -> num_format_arr b
+      | A.String -> string_format_arr b
+      | A.Bool -> int_format_arr b
+      | _ -> raise (Failure ("Invalid array print type"))
+    in
 
     (* Fill in the body of the given function *)
     let build_function_body func_decl =
@@ -246,6 +279,12 @@ and translate (globals, functions) =
                   | _ -> raise (Failure ("Can't get the length of this object")))
     in
 
+    let is_array = function
+      A.Id name -> (match (name_to_type name) with
+        A.Arraytype(_, _) -> true
+      | _ -> false)
+    in
+
     let rec gen_type = function
         A.IntLit _ -> A.Int
       | A.NumLit _ -> A.Num
@@ -273,6 +312,7 @@ and translate (globals, functions) =
         A.QueueType(typ) -> typ
       | A.LinkedListType(typ) -> typ
       | A.StackType(typ) -> typ
+      | A.Arraytype(typ, _) -> typ
       | _ as typ -> typ)
     in 
 
@@ -299,45 +339,19 @@ and translate (globals, functions) =
       | _ -> raise (Failure ("Invalid data structure type - delete function")))
     in
 
-  (*   let q_type_show ds_type = function  
-       A.Int  -> q_show_int
-      | A.Num  -> q_show_float 
-      | A.String  -> q_show_string
-    in 
-
-    let s_type_show ds_type = function 
-      A.Int -> s_show_int
-      | A.Num -> s_show_float 
-      | A.String -> s_show_string
-    in 
-
-    let l_type_show ds_type = function 
-      A.Int -> l_show_int
-      | A.Num -> l_show_float 
-      | A.String  -> l_show_string
-    in 
-
-    let call_show_ptr obj_val ds_type = function
+    let call_show_ptr data_type = function
       A.Id name -> (match (name_to_type name) with
-        A.QueueType _ -> q_type_show ds_type
-      | A.StackType _ -> s_type_show ds_type
-      | A.LinkedListType _ -> l_type_show ds_type
-      | _ -> raise (Failure ("Invalid data structure type - show function")))
-    in *)
-
-    let call_show_ptr ds_type = function
-      A.Id name -> (match (name_to_type name) with
-        A.QueueType _ -> (match ds_type with
+        A.QueueType _ -> (match data_type with
            A.Int -> q_show_int
          | A.Num -> q_show_float 
          | A.Bool -> q_show_int
          | A.String -> q_show_string)
-      | A.StackType _ -> (match ds_type with
+      | A.StackType _ -> (match data_type with
            A.Int -> s_show_int
          | A.Num -> s_show_float 
          | A.Bool -> s_show_int
          | A.String -> s_show_string)
-      | A.LinkedListType _ -> (match ds_type with
+      | A.LinkedListType _ -> (match data_type with
            A.Int -> l_show_int
          | A.Num -> l_show_float 
          | A.Bool -> l_show_int
@@ -525,14 +539,21 @@ and translate (globals, functions) =
       | A.ObjectCall (obj, "show", []) -> 
         let obj_val = expr_generator llbuilder obj in
         let obj_type = get_type obj in 
-        let obj_method = call_show_ptr obj_type obj in
-        ignore (L.build_call obj_method [| obj_val |] "" llbuilder); obj_val
-(*  
-        let q_type = get_type q in 
-        (match q_type with 
-         A.Int -> ignore (L.build_call show_int [| q_val|] "" llbuilder); q_val 
-       | A.Num -> ignore (L.build_call show_float [| q_val|] "" llbuilder); q_val 
-       | A.String -> ignore (L.build_call show_string [| q_val|] "" llbuilder); q_val) *)
+        let print_array arr builder =
+          let len = get_array_len obj in
+          let llval = lookup (match arr with
+                                A.Id(s) -> s
+                              | _ -> raise (Failure("variable not found"))) in
+          for index = 0 to len - 1 do
+            let item = access_array llval (L.const_int i32_t index) false builder in
+            (L.build_call printf_func [| (format_arr_print obj_type index len llbuilder) ; item |] "printf" llbuilder)
+          done
+        in
+
+        if is_array obj then print_array obj llbuilder
+        else (let obj_method = call_show_ptr obj_type obj in
+          ignore (L.build_call obj_method [| obj_val |] "" llbuilder));
+        obj_val
       | A.ObjectCall (obj, "size", []) ->
         let e = expr_generator llbuilder obj in
         let obj_size = call_size_ptr obj in

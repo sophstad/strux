@@ -1,0 +1,9 @@
+int main() {
+  string[4] struxers = ["Josh", "Kofi", "Millie", "Sophie"];
+  print(struxers[1]);
+  struxers.show();
+
+  bool[3] torf = [true, false, true];
+  torf.show();
+  return 0;
+}
