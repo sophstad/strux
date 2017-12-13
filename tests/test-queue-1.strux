@@ -1,7 +1,15 @@
 int main() {
-	Queue::string:: q = new Queue::string::();
-	Queue::num:: q2 = new Queue::num::();
-	Queue::int:: q3 = new Queue::int::();
-	Queue::bool:: q4 = new Queue::bool::();
+	Queue::string q = new Queue::string("hello", "world");
+	string s = q.peek();
+	print(s);
+	Queue::num q2 = new Queue::num(1.0, 3.0);
+	num n = q2.peek();
+	print(n);
+	Queue::int q3 = new Queue::int(1,2,3);
+	int i = q3.peek();
+	print(i);
+	Queue::bool q4 = new Queue::bool(true, false);
+	bool b = q4.peek();
+	print(b);
 	return 0;
 }

@@ -3,7 +3,7 @@
 
 struct BSTreeNode
 {
-    int data;
+    void *data;
     struct BSTreeNode *left;
     struct BSTreeNode *right;
     struct BSTreeNode *parent;
@@ -16,10 +16,10 @@ struct BSTree
 
 struct BSTree *initBSTree();
 void showTree(struct BSTreeNode *tree);
-struct BSTreeNode *createNode(int data);
-struct BSTreeNode *addElementToTree(struct BSTreeNode *node, int data);
-struct BSTreeNode *removeFromTree(struct BSTreeNode *node, int data);
-int treeContains(struct BSTreeNode *node, int data);
+struct BSTreeNode *createNode(void *data);
+void addElementToTree(struct BSTree *tree, void *data);
+void removeFromTree(struct BSTree *tree, void *data);
+int treeContains(struct BSTreeNode *node, void *data);
 void printTree(struct BSTreeNode *node);
 void postOrder(struct BSTreeNode *node, int indent);
 void postorder(struct BSTreeNode *node, int indent);

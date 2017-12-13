@@ -1,0 +1,35 @@
+int main() {
+	Queue::num q = new Queue::num();
+	q.add(1.0);
+	q.add(3.0);
+	q.add(5.0);
+	int q_size = q.size();
+	print(q_size);
+	Queue::int q2 = new Queue::int();
+	q2.add(3);
+	q2.add(4);
+	q2.add(5);
+	q2.add(3);
+	q2.add(4);
+	q2.add(5);
+	int q2_size = q2.size();
+	print(q2_size);
+	Queue::string q3 = new Queue::string();
+	q3.add("mil");
+	q3.add("soph");
+	q3.add("kofi");
+	q3.add("josh");
+	int q3_size = q3.size();
+	print(q3_size);
+	Queue::bool q4 = new Queue::bool();
+	q4.add(true);
+	q4.add(false);
+	q4.add(false);
+	q4.add(false);
+	q4.add(false);
+	q4.add(false);
+	q4.add(false);
+	int q4_size = q4.size();
+	print(q4_size);
+	return 0;
+}

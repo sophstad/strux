@@ -1,5 +1,47 @@
 int main() {
-	Queue::num:: q = new Queue::num::();
-	q.enqueue(3.0);
+	Queue::num q = new Queue::num();
+	q.add(3.0);
+	q.add(5.0);
+	q.remove();
+	q.add(6.0);
+	q.remove();
+	num top = q.peek();
+	print(top);
+
+	Queue::int q2 = new Queue::int();
+	q2.add(100);
+	q2.add(1000);
+	q2.remove();
+	q2.add(10);
+	q2.add(50);
+	q2.add(7);
+	q2.remove();
+	q2.add(8);
+	q2.remove();
+	int top_q2 = q2.peek();
+	print(top_q2);
+
+	Queue::string q3 = new Queue::string();
+	q3.add("rando");
+	q3.remove();
+	q3.add("mil");
+	q3.add("soph");
+	q3.add("kofi");
+	q3.add("josh");
+	string top_q3 = q3.peek();
+	print(top_q3);
+
+	Queue::bool q4 = new Queue::bool();
+	q4.add(true);
+	q4.add(true);
+	q4.add(false);
+	q4.remove();
+	q4.add(true);
+	q4.add(true);
+	q4.add(true);
+	q4.add(true);
+	q4.remove();
+	bool q4_top = q4.peek();
+	print(q4_top);
 	return 0;
 }

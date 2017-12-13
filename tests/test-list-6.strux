@@ -1,0 +1,9 @@
+int main() {
+  LinkedList::int l = new LinkedList::int();
+  l.add(6000000);
+  l.add(0);
+  l.add(-326);
+  l.add(7 + 89);
+  l.show();
+  return 0;
+}

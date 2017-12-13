@@ -1,0 +1,13 @@
+int main() {
+	Stack::string s = new Stack::string();
+	s.add("S");
+	s.add("H");
+	s.add("O");
+	s.add("W");
+	s.remove();
+	s.add("O");
+	s.add("W");
+	s.remove();
+	s.show();
+	return 0;
+}

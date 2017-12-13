@@ -34,6 +34,10 @@ let check (globals, functions) =
     else if lvaluet = Arraytype(Int) && rvaluet = Int then rvaluet
     else if lvaluet = Arraytype(String) && rvaluet = String then rvaluet
     else if lvaluet = Arraytype(Bool) && rvaluet = Bool then rvaluet
+    else if lvaluet = Num && rvaluet = AnyType then lvaluet
+    else if lvaluet = Int && rvaluet = AnyType then lvaluet
+    else if lvaluet = String && rvaluet = AnyType then lvaluet
+    else if lvaluet = Bool && rvaluet = AnyType then lvaluet
     else raise err
   in
 
@@ -55,26 +59,30 @@ let check (globals, functions) =
   (* Function declaration for a named function *)
   let built_in_decls =  StringMap.add "print"
      { typ = Void; fname = "print"; formals = [(Num, "x")];
-       body = [] } 
+       body = [] }
 
        (StringMap.add "printb"
      { typ = Void; fname = "printb"; formals = [(Bool, "x")];
-       body = [] } 
-
-       (StringMap.add "enqueue"
-    { typ = Void; fname = "enqueue"; formals = [(AnyType, "x")];
-        body = [] }
+       body = [] }
 
         (StringMap.add "add"
-    { typ = LinkedListType(AnyType); fname = "add"; formals = [(AnyType, "x")];
+    { typ = Void; fname = "add"; formals = [(AnyType, "x")];
         body = [] }
 
-        (StringMap.add "dequeue"
-    { typ = Void; fname = "dequeue"; formals = [];
+        (StringMap.add "show"
+    { typ = Void; fname = "show"; formals = [];
         body = [] }
 
         (StringMap.add "peek"
     { typ = AnyType; fname = "peek"; formals = [];
+        body = [] }
+        
+        (StringMap.add "remove"
+    { typ = Void; fname = "remove"; formals = [];
+        body = [] }
+
+        (StringMap.add "get"
+    { typ = AnyType; fname = "get"; formals = [(Int, "x")];
         body = [] }
 
         (StringMap.add "size"
@@ -85,10 +93,12 @@ let check (globals, functions) =
      { typ = Void; fname = "delete"; formals = [(Int, "x")];
         body = [] }
 
-        (StringMap.singleton "printbig"
-     { typ = Void; fname = "printbig"; formals = [(Int, "x")];
+        (StringMap.singleton "quickSort"
+     { typ = Void; fname = "quickSort"; formals = [(Int, "x")];
        body = [] }
-     ))))))))
+
+     )))))))))
+        
    in
 
   let function_decls = List.fold_left (fun m fd -> StringMap.add fd.fname fd m)
@@ -135,23 +145,23 @@ let check (globals, functions) =
       | _ -> raise(Failure("Expecting an array and was not an array"))
     in
 
-    let getQueueType = function
-       QueueType(typ) -> typ
+    let get_type = function
+      QueueType(typ) -> typ
+      | LinkedListType(typ) -> typ
+      | StackType(typ) -> typ
       | _ -> Void  
-    in 
+    in
 
-    let getLinkedListType = function
-       LinkedListType(typ) -> typ
-      | _ -> Void  
-    in 
-    (* Return the type of an expression or throw an exception *) 
+
     (*TODO(josh): IMPLEMENT BSTREE CHECKING STUFF HERE *)
+    (* Return the type of an expression or throw an exception *)
     let rec expr = function
         NumLit _ -> Num
       | IntLit _ -> Int
       | StringLit _ -> String
       | QueueLit (t, _) -> QueueType(t)
       | LinkedListLit (t, _) -> LinkedListType(t)
+      | StackLit (t, _) -> StackType(t)
       | BoolLit _ -> Bool
       | Id s -> type_of_identifier s
       | Binop(e1, op, e2) as e -> let t1 = expr e1 and t2 = expr e2 in
@@ -166,16 +176,15 @@ let check (globals, functions) =
               string_of_typ t1 ^ " " ^ string_of_op op ^ " " ^
               string_of_typ t2 ^ " in " ^ string_of_expr e))
         )
-      | Postop (e, op) as ex ->
-          let t1 = expr e
-          and t2 = expr e in
+      | Postop (e, op) ->
+          let t1 = expr e in
           (match op with
-            Incr when t1 = Int && t2 = Int  -> Int
-          | Decr when t1 = Int && t2 = Int -> Int
-          | Incr when t1 = Num && t2 = Num -> Num
-          | Decr when t1 = Num && t2 = Num -> Num
+            Incr when t1 = Int -> Int
+          | Decr when t1 = Int -> Int
+          | Incr when t1 = Num -> Num
+          | Decr when t1 = Num -> Num
           | _ -> raise (Failure("illegal unary operator " ^
-                string_of_op op ^ " on " ^ string_of_expr ex)))
+                string_of_op op ^ " on " ^ string_of_expr e)))
       | Unop(op, e) as ex -> let t = expr e in
         (match op with
           Neg when t = Num -> Num
@@ -186,7 +195,8 @@ let check (globals, functions) =
       | Noexpr -> Void
       | Assign(typ, var, e) as ex ->
           let rt = expr e in
-          if rt == Void then raise (Failure("Must initialize variable with a value.")) else
+          if rt == Void then raise (Failure("Must initialize variable with a value.")) 
+        else
           ignore (check_assign typ rt (Failure ("illegal assignment " ^ string_of_typ typ ^ " = " ^ string_of_typ rt ^ " in " ^ string_of_expr ex)));
           check_var_decl var (Failure ("duplicate declaration of variable " ^ var));
           let _ =
@@ -195,6 +205,7 @@ let check (globals, functions) =
               | _ -> variables := StringMap.add var typ (!variables)
             )
           in rt
+
       | Reassign(var, e) as ex ->
           let rt = expr e and lt = type_of_identifier var in
           check_assign lt rt (Failure ("illegal assignment " ^ string_of_typ lt ^ " = " ^ string_of_typ rt ^ " in " ^ string_of_expr ex))
@@ -234,53 +245,46 @@ let check (globals, functions) =
           let rt = expr e in
           check_assign lt rt (Failure ("illegal assignment " ^ string_of_typ lt ^ " = " ^ string_of_typ rt ^ " in " ^ string_of_expr ex));
       | ObjectCall(oname, fname, actuals) as objectcall -> let fd = function_decl fname in
-          let returntype = ref (fd.typ) in 
+          let returntype = ref (fd.typ) in
           if List.length actuals != List.length fd.formals then
             raise (Failure ("expecting " ^ string_of_int
                (List.length fd.formals) ^ " arguments in " ^ string_of_expr objectcall))
 
           else
              List.iter2 (fun (ft, _) e -> let et = expr e in
-             
+
               (* if fname = "qfront" then let _ = print_endline (string_of_typ actqtype) in returntype := actqtype *)
-                if fname = "enqueue" then
+                if fname = "add" then
                    let acttype = expr oname in 
-                   let actqtype = getQueueType acttype in 
-                  ignore(check_assign actqtype et (Failure ("illegal actual enqueue argument found " ^ string_of_typ et ^
-                  " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
-                else if fname = "dequeue" then
-                   let acttype = expr oname in 
-                   let actqtype = getQueueType acttype in 
-                  ignore(check_assign actqtype et (Failure ("illegal actual dequeue argument found " ^ string_of_typ et ^
-                  " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
-                else if fname = "add" then
-                   let acttype = expr oname in 
-                   let actqtype = getLinkedListType acttype in 
+                   let actqtype = get_type acttype in 
                   ignore(check_assign actqtype et (Failure ("illegal actual add argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
-                (* else if fname = "delete" then
+                else if fname = "remove" then
                    let acttype = expr oname in 
-                   let actqtype = getLinkedListType acttype in 
-                  ignore(check_assign actqtype et (Failure ("illegal actual delete argument found " ^ string_of_typ et ^
-                  " expected num type " ^ " in " ^ string_of_expr e))) 
-             *)    (* else if fname = "peek" then
-                   let acttype = expr oname in 
-                   let actqtype = getQueueType acttype in 
-                  ignore(check_assign actqtype et (Failure ("illegal actual peek for queue argument found " ^ string_of_typ et ^
+                   let actqtype = get_type acttype in 
+                  ignore(check_assign actqtype et (Failure ("illegal actual remove argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
-              *) else if fname = "weight" then 
-                   let acttype = expr (List.hd actuals) in 
-                    ignore(check_assign acttype et (Failure ("illegal actual node argument found " ^ string_of_typ et ^
-                  " expected " ^ string_of_typ acttype ^ " in " ^ string_of_expr e)))
-                
-                else if fname = "p_push" then 
-                   let acttype = expr (List.hd actuals) in 
-                    ignore(check_assign acttype et (Failure ("illegal actual pqueue argument found " ^ string_of_typ et ^
-                  " expected " ^ string_of_typ acttype ^ " in " ^ string_of_expr e)))
-                
+                else if fname = "quickSort" then
+                  let acttype = expr oname in
+                  let actatype = array_typ acttype in
+                  ignore(check_assign actatype et (Failure ("illegal actual dequeue argument found " ^ string_of_typ et ^
+                  " expected " ^ string_of_typ actatype ^ " in " ^ string_of_expr e)))
+
+                (* else if fname = "delete" then
+                   let acttype = expr oname in
+                   let actqtype = getLinkedListType acttype in
+                  ignore(check_assign actqtype et (Failure ("illegal actual delete argument found " ^ string_of_typ et ^
+                  " expected num type " ^ " in " ^ string_of_expr e)))
+             *)    (* else if fname = "peek" then
+                   let acttype = expr oname in
+                   let actqtype = getQueueType acttype in
+                  ignore(check_assign actqtype et (Failure ("illegal actual peek for queue argument found " ^ string_of_typ et ^
+
+                  " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e))) 
+              *) 
                 else ignore (check_assign ft et (Failure ("illegal actual argument found " ^ string_of_typ et ^
-                  " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e)))) fd.formals actuals;
-             !returntype
+                      " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e)))) fd.formals actuals;
+                 !returntype
 
     in
 

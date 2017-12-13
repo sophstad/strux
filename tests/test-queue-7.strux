@@ -1,0 +1,34 @@
+int main() {
+      Queue::num qn = new Queue::num();
+      qn.add(3.6);
+      qn.add(4.216);
+      qn.add(-5.25);
+      qn.add(6.4);
+      qn.show();
+
+      Queue::int qi = new Queue::int();
+      qi.add(23623);
+      qi.add(-39632);
+      qi.add(4 * 1);
+      qi.add(356);
+      qi.remove();
+      qi.add(89494);
+      qi.add(22);
+      qi.show();
+
+      Queue::string qs = new Queue::string();
+      qs.add("Josh");
+      qs.add("Kofi");
+      qs.add("Millie");
+      qs.add("Sophie");
+      int qsSize = qs.size();
+      print(qsSize);
+      qs.show();
+
+      Queue::bool qb = new Queue::bool();
+      qb.add(true);
+      qb.add(false);
+      qb.show();
+
+      return 0;
+}

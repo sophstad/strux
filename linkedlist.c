@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdlib.h>
+#include <string.h>
 
 struct LinkedList {
 	struct ListNode *head;
@@ -90,12 +91,12 @@ int size(struct LinkedList *list) {
 	return (list->size);
 }
 
-void show(struct LinkedList* list, void (*fptr)(void *))
-{
+void ll_show_int(struct LinkedList* list)
+{	
 	for (int i = 0; i < list->size; i++) {
-		printf("%s", "| " );
-		(*fptr)(get(list, i));
-		printf("%s", " |" );
+		printf("%s", "[ ");
+		printf("%d", *(int*)get(list, i));
+		printf("%s", " ]");
 
 		if (access(list, i) -> next != NULL) {
 			printf("%s", " -> ");
@@ -104,20 +105,46 @@ void show(struct LinkedList* list, void (*fptr)(void *))
 	printf("\n");
 }
 
-// Function to print an integer
-void printInt(void *n)
-{
-   printf("%d", *(int *)n);
+void ll_show_string(struct LinkedList* list)
+{	
+	
+	for (int i = 0; i < list->size; i++) {
+
+		printf("%s", "[ ");
+		printf("%s", *(char **) get(list, i));
+		printf("%s", " ]");
+
+		if (access(list, i) -> next != NULL) {
+			printf("%s", " -> ");
+		}
+	}
+	printf("\n");
 }
 
-// Function to print a float
-void printFloat(void *f)
-{
-   printf("%f", *(float *)f);
+void ll_show_float(struct LinkedList* list)
+{	
+	for (int i = 0; i < list->size; i++) {
+		printf("%s", "[ ");
+		printf("%f", *(double*)get(list, i));
+		printf("%s", " ]");
+
+		if (access(list, i) -> next != NULL) {
+			printf("%s", " -> ");
+		}
+	}
+	printf("\n");
 }
 
-// Function to print a string
-void printString(void *s)
-{
-   printf("%s", (char *)s);
-}
+
+// int main()
+// {
+//     struct LinkedList* list = initList();
+ 
+//     add(list, 10);
+//     add(list, 20);
+//     add(list, 30);
+ 
+//     printf("Front item is %d\n", get(list, 0));
+//	   show(list);
+//     return 0;
+// }

@@ -1,0 +1,35 @@
+int main() {
+	LinkedList::string l = new LinkedList::string();
+	l.add("HELLO WORLD");
+	l.add("HAII");
+	l.add("OIO");
+	l.add("WWW");
+	int l_size = l.size();
+	print(l_size);
+
+    LinkedList::bool lb = new LinkedList::bool();
+    lb.add(false);
+    lb.add(true);
+    int lb_size = lb.size();
+	print(lb_size);
+
+    LinkedList::num l3 = new LinkedList::num();
+    l3.add(3.0);
+    l3.add(5.0);
+    l3.add(7.0);
+    l3.add(3.0);
+    l3.add(5.0);
+    l3.add(7.0);
+    l3.add(3.0);
+    l3.add(5.0);
+    l3.add(7.0);
+    int l3_size = l3.size();
+	print(l3_size);
+
+	LinkedList::int l4 = new LinkedList::int();
+    l4.add(3);
+    int l4_size = l4.size();
+	print(l4_size);
+
+	return 0;
+}

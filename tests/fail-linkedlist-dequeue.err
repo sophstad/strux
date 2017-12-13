@@ -1,1 +1,1 @@
-Fatal error: exception Failure("illegal actual dequeue argument found string expected void in s")
+Fatal error: exception Failure("unrecognized function dequeue")

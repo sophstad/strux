@@ -1,0 +1,19 @@
+int main() {
+	LinkedList::string l = new LinkedList::string("hello", "world");
+	string s = l.get(0);
+    print(s);
+
+    LinkedList::num l2 = new LinkedList::num(3.0, 4.0, 5.0);
+    num n = l2.get(1);
+    print(n);
+    
+    LinkedList::int l3 = new LinkedList::int(100, 1000, 10000);
+    int n2 = l3.get(1);
+    print(n2);
+
+    LinkedList::bool l4 = new LinkedList::bool(true, false, true, false, true);
+    bool b = l4.get(3);
+    print(b);
+
+	return 0;
+}

@@ -1,0 +1,5 @@
+int main() {
+	Stack::string s = new Stack::string();
+	s.add(3);
+	return 0;
+}

@@ -1,10 +1,11 @@
 int main() {
-	Queue::num:: q = new Queue::num::();
-	q.enqueue(3.0);
-	q.dequeue();
+	Queue::string q = new Queue::string();
+	q.add("hello");
+	q.add("bye");
+	q.add("sick");
+	q.add("yes");
+	q.add("hello");
 	int x = q.size();
 	print(x);
-
-	:( TODO: doing print(q.size()) does not work at the moment ):
 	return 0;
 }

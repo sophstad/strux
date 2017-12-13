@@ -1,0 +1,26 @@
+int main() {
+	Stack::string s = new Stack::string();
+	Stack::num s2 = new Stack::num();
+	Stack::int s3 = new Stack::int();
+	Stack::bool s4 = new Stack::bool();
+	s.add("S");
+	s.remove();
+	s.peek();
+
+        s2.add(2.63);
+        s2.add(5.2);
+        num top = s2.peek();
+        int numSize = s2.size();
+        print(numSize);
+        print(top);
+
+        s3.add(35);
+        int popInt = s3.peek();
+        print(popInt);
+
+        s4.add(true);
+        bool topBool = s4.peek();
+        print(topBool);
+
+	return 0;
+}

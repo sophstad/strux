@@ -5,16 +5,17 @@
 int main()
 {
     struct BSTree *tree = initBSTree();
-    struct BSTreeNode *root = createNode(5);
-    tree->root = root;
-    addElementToTree(tree->root, 4);
-    addElementToTree(tree->root, 2);
-    addElementToTree(tree->root, 3);
-    addElementToTree(tree->root, 1);
+    int a = 5;
+    int b = 4;
+    int c = 2;
+    int d = 3;
+    int e = 1;
+    addElementToTree(tree, (void *) &a);
+    addElementToTree(tree, (void *) &b);
+    addElementToTree(tree, (void *) &c);
+    addElementToTree(tree, (void *) &d);
+    addElementToTree(tree, (void *) &e);
+    printf("%d\n", *(int *) tree->root->data);
     //postorder(tree->root, 0);
-    showTree(root);
-    free(root->right);
-    free(root->left);
-    free(root);
-    free(tree);
+    //showTree(tree->root);
 }

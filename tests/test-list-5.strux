@@ -1,0 +1,11 @@
+int main() {
+	LinkedList::num l = new LinkedList::num();
+	l.add(9.0);
+	l.add(8.0);
+	l.add(7.0);
+	l.delete(0);
+	l.delete(1);
+	l.add(6.0);
+	l.show();
+	return 0;
+}

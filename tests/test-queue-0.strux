@@ -1,0 +1,47 @@
+int main() {
+	Queue::num q = new Queue::num();
+	q.add(1.0);
+	q.remove();
+	q.add(3.0);
+	q.add(5.0);
+	q.remove();
+	int q_size = q.size();
+	print(q_size);
+
+	Queue::int q2 = new Queue::int();
+	q2.add(100);
+	q2.add(4);
+	q2.remove();
+	q2.add(5);
+	q2.add(6);
+	q2.add(7);
+	q2.remove();
+	q2.add(8);
+	q2.remove();
+	int q2_size = q2.size();
+	print(q2_size);
+
+	Queue::string q3 = new Queue::string();
+	q3.add("rando");
+	q3.remove();
+	q3.add("mil");
+	q3.add("soph");
+	q3.add("kofi");
+	q3.add("josh");
+	int q3_size = q3.size();
+	print(q3_size);
+
+	Queue::bool q4 = new Queue::bool();
+	q4.add(true);
+	q4.add(false);
+	q4.add(false);
+	q4.remove();
+	q4.add(false);
+	q4.add(false);
+	q4.add(false);
+	q4.add(false);
+	q4.remove();
+	int q4_size = q4.size();
+	print(q4_size);
+	return 0;
+}
