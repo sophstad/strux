@@ -63,6 +63,7 @@ primitive:
   | QUEUE DOUBLECOL typ { QueueType($3) }
   | LINKEDLIST DOUBLECOL typ { LinkedListType($3) }
   | STACK DOUBLECOL typ { StackType($3) }
+  | BSTREE DOUBLECOL typ { BSTreeType($3) }
 
 array_type:
     primitive LBRACK RBRACK { Arraytype($1) }

@@ -149,6 +149,7 @@ let check (globals, functions) =
       QueueType(typ) -> typ
       | LinkedListType(typ) -> typ
       | StackType(typ) -> typ
+      | BSTreeType(typ) -> typ
       | _ -> Void  
     in
 
@@ -162,6 +163,7 @@ let check (globals, functions) =
       | QueueLit (t, _) -> QueueType(t)
       | LinkedListLit (t, _) -> LinkedListType(t)
       | StackLit (t, _) -> StackType(t)
+      | BSTreeLit (t, _) -> BSTreeType(t)
       | BoolLit _ -> Bool
       | Id s -> type_of_identifier s
       | Binop(e1, op, e2) as e -> let t1 = expr e1 and t2 = expr e2 in

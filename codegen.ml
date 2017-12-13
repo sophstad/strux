@@ -134,10 +134,10 @@ and translate (globals, functions) =
   (*built-in bstree functions*)
   let initBSTree_t = L.function_type bstree_t [| |] in 
   let initBSTree_f = L.declare_function "initBSTree" initBSTree_t the_module in
-  let BSTreeAdd_t = L.function_type void_t [| bstree_t; L.pointer_type i8_t|] in
-  let BSTreeAdd_f = L.declare_function "addElementToTree" BSTreeAdd_t the_module in
-  let BSTreeRemove_t = L.function_type void_t [| bstree_t; L.pointer_type i8_t|] in
-  let BSTreeRemove_f = L.declare_function "removeFromTree" BSTreeRemove_t the_module in
+  let bstreeadd_t = L.function_type void_t [| bstree_t; L.pointer_type i8_t|] in
+  let bstreeadd_f = L.declare_function "addElementToTree" bstreeadd_t the_module in
+  (*let BSTreeRemove_t = L.function_type void_t [| bstree_t; L.pointer_type i8_t|] in
+  let BSTreeRemove_f = L.declare_function "removeFromTree" BSTreeRemove_t the_module in*)
 
   (*print big *)
   let printbig_t = L.function_type i32_t [| i32_t |] in
@@ -298,6 +298,7 @@ and translate (globals, functions) =
         A.QueueType _ -> enqueue_f
       | A.LinkedListType _ -> add_f
       | A.StackType _ -> push_f
+      | A.BSTreeType _ -> bstreeadd_f
       | _ -> raise (Failure ("Invalid data structure type - add function")))
     in
 

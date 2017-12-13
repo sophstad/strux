@@ -1,20 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "bstree.h"
 
-// struct BSTreeNode
-// {
-//     void *data;
-//     struct BSTreeNode *left;
-//     struct BSTreeNode *right;
-//     struct BSTreeNode *parent;
-// };
+struct BSTreeNode
+{
+    void *data;
+    struct BSTreeNode *left;
+    struct BSTreeNode *right;
+    struct BSTreeNode *parent;
+};
 
-// struct BSTree
-// {
-//     struct BSTreeNode *root;
-// };
+struct BSTree
+{
+    struct BSTreeNode *root;
+};
 
 struct BSTree *initBSTree()
 {
