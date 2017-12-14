@@ -313,7 +313,7 @@ void cShowfQuickSort(double a[], int length) {
 }
 
 void cQuickSort(int a[], int length) {
-  length = length - 1;
+  length = length;
   quickSort(a, 0, length);
 }
 
