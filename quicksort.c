@@ -301,24 +301,24 @@ void showfQuickSort(double a[], int left, int right, int length)
 }
 
 void cShowQuickSort(int a[], int length) {
-  int right = length - 1;
+  int right = length;
   length = length;
   showQuickSort(a, 0, right, length);
 }
 
 void cShowfQuickSort(double a[], int length) {
-  int right = length - 1;
+  int right = length;
   length = length;
   showfQuickSort(a, 0, right, length);
 }
 
 void cQuickSort(int a[], int length) {
-  length = length - 1;
+  length = length;
   quickSort(a, 0, length);
 }
 
 void cQuickfSort(double a[], int length) {
-  length = length - 1;
+  length = length;
   fquickSort(a, 0, length);
 }
 //
