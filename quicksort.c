@@ -18,10 +18,10 @@ void swap(int *x, int *y)
 }
 
 // for swapping values in array
-void fswap(float *x, float *y)
+void fswap(double *x, double *y)
 {
     // intermediate place holder variable
-    float z;
+    double z;
 
     // allocate value of x to z, set x to y and y to z
     z = *x;
@@ -43,7 +43,7 @@ void display(int a[], int length) {
 }
 
 // prints out float list
-void fdisplay(float a[], int length) {
+void fdisplay(double a[], int length) {
     int i;
     printf("[");
 
@@ -75,7 +75,7 @@ int median_of_3(int a[], int left, int right)
     return a[right - 1];
 }
 
-float fmedian_of_3(float a[], int left, int right)
+double fmedian_of_3(double a[], int left, int right)
 {
 // get middle of array
     int middle = (left + right)/2;
@@ -119,7 +119,7 @@ void quickSort(int a[], int left, int right)
         return ;
     }
 
-void fquickSort(float a[], int left, int right)
+void fquickSort(double a[], int left, int right)
 {
   if (left < right) {
     int pivot = fmedian_of_3(a,left,right);
@@ -172,9 +172,9 @@ int partition(int a[], int left, int right, int length)
   return i+1;
 }
 
-float fpartition(float a[], int left, int right, int length)
+double fpartition(double a[], int left, int right, int length)
 {
-  float x = a[right];
+  double x = a[right];
   int i = left-1;
   for(int j=left; j<right; j++)
   {
@@ -237,7 +237,7 @@ int show_median_of_3(int a[], int left, int right, int length)
     return a[right - 1];
 }
 
-float show_fmedian_of_3(float a[], int left, int right, int length)
+double show_fmedian_of_3(double a[], int left, int right, int length)
 {
 // get middle of array
     int middle = (left + right)/2;
@@ -288,7 +288,7 @@ void showQuickSort(int a[], int left, int right, int length)
   }
 }
 
-void showfQuickSort(float a[], int left, int right, int length)
+void showfQuickSort(double a[], int left, int right, int length)
 {
   if(left < right)
   {
@@ -306,7 +306,7 @@ void cShowQuickSort(int a[], int length) {
   showQuickSort(a, 0, right, length);
 }
 
-void cShowfQuickSort(float a[], int length) {
+void cShowfQuickSort(double a[], int length) {
   int right = length - 1;
   length = length - 1;
   showfQuickSort(a, 0, right, length);
@@ -317,35 +317,35 @@ void cQuickSort(int a[], int length) {
   quickSort(a, 0, length);
 }
 
-void cQuickfSort(float a[], int length) {
+void cQuickfSort(double a[], int length) {
   length = length - 1;
   fquickSort(a, 0, length);
 }
 
-// int main()
-// {
-//     // int a[] = {10, 35, 25, 56, 2002, 100, 90, 86, 40, 50, 7};
-//     // cShowQuickSort(a, 11);
-//     // cQuickSort(a, 11);
+int main()
+{
+    // int a[] = {10, 35, 25, 56, 2002, 100, 90, 86, 40, 50, 7};
+    // cShowQuickSort(a, 11);
+    // cQuickSort(a, 11);
 
-//     // int b[] = {85,331,234,46,4,3,22,89,7,12, 33, 44,55,66,77};
-//     // cShowQuickSort(b, 15);
-//     // cQuickSort(b, 15);
+    // int b[] = {85,331,234,46,4,3,22,89,7,12, 33, 44,55,66,77};
+    // cShowQuickSort(b, 15);
+    // cQuickSort(b, 15);
 
-//     // float c[] = { 3.4, 56.2, 5.3, 6.0, 2.6, 566.7, 778.3};
-//     // cShowfQuickSort(c, 7);
-//     // cQuickfSort(c, 7);
+    // double c[] = { 3.4, 56.2, 5.3, 6.0, 2.6, 566.7, 778.3};
+    // cShowfQuickSort(c, 7);
+    // cQuickfSort(c, 7);
 
-//     // float d[] = { 55.4, 36.2, 23.3, 16.0, 52.6, 26.7, 78.3};
-//     // cShowfQuickSort(d, 7);
-//     // cQuickfSort(d, 7);
+    // double d[] = { 55.4, 36.2, 23.3, 16.0, 52.6, 26.7, 78.3};
+    // cShowfQuickSort(d, 7);
+    // cQuickfSort(d, 7);
 
-//     // int f[] = {10, 100, 30, 90, 40, 50, 70};
-//     // cShowQuickSort(f, 7);
-//     // cQuickSort(f, 7);
+    // int f[] = {10, 100, 30, 90, 40, 50, 70};
+    // cShowQuickSort(f, 7);
+    // cQuickSort(f, 7);
 
-//     // int g[] = {4,6,3,2,1,9,7};
-//     // cShowQuickSort(g, 7);
-//     // cQuickSort(g, 7);
+    // int g[] = {4,6,3,2,1,9,7};
+    // cShowQuickSort(g, 7);
+    // cQuickSort(g, 7);
 
-// }
+}
