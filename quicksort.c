@@ -321,31 +321,31 @@ void cQuickfSort(double a[], int length) {
   length = length - 1;
   fquickSort(a, 0, length);
 }
-
-int main()
-{
-    // int a[] = {10, 35, 25, 56, 2002, 100, 90, 86, 40, 50, 7};
-    // cShowQuickSort(a, 11);
-    // cQuickSort(a, 11);
-
-    // int b[] = {85,331,234,46,4,3,22,89,7,12, 33, 44,55,66,77};
-    // cShowQuickSort(b, 15);
-    // cQuickSort(b, 15);
-
-    // double c[] = { 3.4, 56.2, 5.3, 6.0, 2.6, 566.7, 778.3};
-    // cShowfQuickSort(c, 7);
-    // cQuickfSort(c, 7);
-
-    // double d[] = { 55.4, 36.2, 23.3, 16.0, 52.6, 26.7, 78.3};
-    // cShowfQuickSort(d, 7);
-    // cQuickfSort(d, 7);
-
-    // int f[] = {10, 100, 30, 90, 40, 50, 70};
-    // cShowQuickSort(f, 7);
-    // cQuickSort(f, 7);
-
-    // int g[] = {4,6,3,2,1,9,7};
-    // cShowQuickSort(g, 7);
-    // cQuickSort(g, 7);
-
-}
+//
+// int main()
+// {
+//     int a[] = {10, 35, 25, 56, 2002, 100, 90, 86, 40, 50, 7};
+//     cShowQuickSort(a, 11);
+//     cQuickSort(a, 11);
+//
+//     int b[] = {85,331,234,46,4,3,22,89,7,12, 33, 44,55,66,77};
+//     cShowQuickSort(b, 15);
+//     cQuickSort(b, 15);
+//
+//     double c[] = { 3.4, 56.2, 5.3, 6.0, 2.6, 566.7, 778.3};
+//     cShowfQuickSort(c, 7);
+//     cQuickfSort(c, 7);
+//
+//     double d[] = { 55.4, 36.2, 23.3, 16.0, 52.6, 26.7, 78.3};
+//     cShowfQuickSort(d, 7);
+//     cQuickfSort(d, 7);
+//
+//     int f[] = {10, 100, 30, 90, 40, 50, 70};
+//     cShowQuickSort(f, 7);
+//     cQuickSort(f, 7);
+//
+//     int g[] = {4,6,3,2,1,9,7};
+//     cShowQuickSort(g, 7);
+//     cQuickSort(g, 7);
+//
+// }
