@@ -135,9 +135,11 @@ and translate (globals, functions) =
   let initBSTree_t = L.function_type bstree_t [| |] in 
   let initBSTree_f = L.declare_function "initBSTree" initBSTree_t the_module in
   let bstreeadd_t = L.function_type void_t [| bstree_t; L.pointer_type i8_t|] in
-  let bstreeadd_f = L.declare_function "addElementToTree" bstreeadd_t the_module in
-  (*let BSTreeRemove_t = L.function_type void_t [| bstree_t; L.pointer_type i8_t|] in
-  let BSTreeRemove_f = L.declare_function "removeFromTree" BSTreeRemove_t the_module in*)
+  let bstreeadd_int_f = L.declare_function "addIntToTree" bstreeadd_t the_module in
+  let bstreeremove_t = L.function_type void_t [| bstree_t; i32_t|] in
+  let bstreeremove_int_f = L.declare_function "removeIntFromTree" bstreeremove_t the_module in
+  let bstree_show_t = L.function_type void_t [| bstree_t |] in 
+  let bstree_show_int = L.declare_function "showIntTree" bstree_show_t the_module in
 
   (*print big *)
   let printbig_t = L.function_type i32_t [| i32_t |] in
@@ -293,12 +295,13 @@ and translate (globals, functions) =
       | _ -> raise (Failure ("Invalid data structure type - size function")))
     in
 
-    let call_add_ptr = function
+    let call_add_ptr ds_type = function
       A.Id name -> (match (name_to_type name) with
         A.QueueType _ -> enqueue_f
       | A.LinkedListType _ -> add_f
       | A.StackType _ -> push_f
-      | A.BSTreeType _ -> bstreeadd_f
+      | A.BSTreeType _ -> (match ds_type with 
+            A.Int -> bstreeadd_int_f)
       | _ -> raise (Failure ("Invalid data structure type - add function")))
     in
 
@@ -352,8 +355,18 @@ and translate (globals, functions) =
          | A.Num -> l_show_float 
          | A.Bool -> l_show_int
          | A.String -> l_show_string)
+      | A.BSTreeType _ -> (match ds_type with 
+            A.Int -> bstree_show_int)
       | _ -> raise (Failure ("Invalid data structure type - show function")))
-    in 
+    in
+
+    let call_delete_ptr ds_type = function
+      A.Id name -> (match (name_to_type name) with
+        A.LinkedListType _ -> delete_f
+      | A.BSTreeType _ -> (match ds_type with 
+            A.Int -> bstreeremove_int_f)
+      | _ -> raise (Failure ("Invalid data structure type - delete function")))
+    in
 
 
     let call_peek_ptr = function
@@ -564,17 +577,20 @@ and translate (globals, functions) =
         size_ptr
       | A.ObjectCall (obj, "add", [e]) ->
         let obj_val = expr_generator llbuilder obj in
+        let obj_type = get_type obj in
         let e_val = expr_generator llbuilder e in 
         let d_ltyp = L.type_of e_val in 
         let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in 
         ignore(L.build_store e_val d_ptr llbuilder); 
-        let obj_method = call_add_ptr obj in
+        let obj_method = call_add_ptr obj_type obj in
         let void_e_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in 
         ignore (L.build_call obj_method [| obj_val; void_e_ptr|] "" llbuilder); obj_val
       | A.ObjectCall (obj, "delete", [e]) -> 
-        let obj_val = expr_generator llbuilder obj in 
+        let obj_val = expr_generator llbuilder obj in
+        let obj_type = get_type obj in
         let e_val = expr_generator llbuilder e in
-        ignore (L.build_call delete_f [| obj_val; e_val |] "" llbuilder);
+        let obj_method = call_delete_ptr obj_type obj in
+        ignore (L.build_call obj_method [| obj_val; e_val |] "" llbuilder);
         obj_val
       | A.ObjectCall (l, "get", [e]) ->
         let l_ptr = expr_generator llbuilder l in

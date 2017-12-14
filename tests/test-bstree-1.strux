@@ -1,4 +1,5 @@
 int main() {
     BSTree::int tree = new BSTree::int();
+    BSTree::num tree = new BSTree::num();
     return 0;
 }

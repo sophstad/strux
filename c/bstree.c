@@ -33,83 +33,53 @@ struct BSTreeNode *createNode(void *data)
     return newNode;
 }
 
-
-void postOrder(struct BSTreeNode *node, int indent)
-{
-    char out[7] = "%4s  ";
-
-    char number[3];
-    sprintf(number, "%d", indent);
-
-    if(node != NULL) {
-
-        if(node->right) {
-            postOrder(node->right, indent+4);
-        }
-
-        if (indent) {
-            printf(out, "");
-        }
-
-        if (node->right) {
-            printf("%4s  /\n ", "");
-        }
-
-        printf("%d\n ", *(int *) node->data);
-
-        if(node->left) {
-            printf("%4s\n  \\\n", "");
-            postOrder(node->left, indent+4);
-        }
-    }
-}
-
-void postorder(struct BSTreeNode *node, int indent)
-{
-    if(node != NULL) {
-
-        char number[4];
-        sprintf(number, "%d", indent);
-        char out[20] = "%c";
-        strcat(out, number);
-        strcat(out, "s");
-
-        if(node->left)
-            postorder(node->left, indent+4);
-        if(node->right)
-            postorder(node->right, indent+4);
-        
-        if (indent) {
-            //std::cout << std::setw(indent) << ' ';
-            printf(out, " ");
-        }
-        //cout<< p->data << "\n ";
-        printf("%d\n ", *(int *) node->data);
-    }
-}
-
 /* Adds the given data to the tree */
-struct BSTreeNode *addElementToTreeHelper(struct BSTreeNode *node, void *data)
+struct BSTreeNode *addIntToTreeHelper(struct BSTreeNode *node, void *data)
 {
     /* Node is empty, place the new node here */
     if (node == NULL)
         return createNode(data);
 
     if (*(int *) data < *(int *) node->data) 
-        node->left = addElementToTreeHelper(node->left, data);
+        node->left = addIntToTreeHelper(node->left, data);
     else if (*(int *) data > *(int *) node->data)
-        node->right = addElementToTreeHelper(node->right, data);
+        node->right = addIntToTreeHelper(node->right, data);
     
     return node;
 }
 
-void addElementToTree(struct BSTree *tree, void *data)
+void addIntToTree(struct BSTree *tree, void *data)
 {
     if (tree->root == NULL) {
         tree->root = createNode(data);
     }
     else {
-        addElementToTreeHelper(tree->root, data);
+        addIntToTreeHelper(tree->root, data);
+    }
+}
+
+/* Adds the given data to the tree */
+struct BSTreeNode *addNumToTreeHelper(struct BSTreeNode *node, void *data)
+{
+    /* Node is empty, place the new node here */
+    if (node == NULL)
+        return createNode(data);
+
+    if (*(double *) data < *(double *) node->data) 
+        node->left = addNumToTreeHelper(node->left, data);
+    else if (*(double *) data > *(double *) node->data)
+        node->right = addNumToTreeHelper(node->right, data);
+    
+    return node;
+}
+
+void addNumToTree(struct BSTree *tree, void *data)
+{
+    if (tree->root == NULL) {
+        tree->root = createNode(data);
+    }
+    else {
+        addNumToTreeHelper(tree->root, data);
     }
 }
 
@@ -125,7 +95,7 @@ struct BSTreeNode *getMin(struct BSTreeNode *node)
         return node;
 }
 
-struct BSTreeNode *removeFromTreeHelper(struct BSTreeNode *node, void *data)
+struct BSTreeNode *removeIntFromTreeHelper(struct BSTreeNode *node, int data)
 {
     struct BSTreeNode *temp;
 
@@ -133,10 +103,10 @@ struct BSTreeNode *removeFromTreeHelper(struct BSTreeNode *node, void *data)
     if (node == NULL)
         return NULL;
 
-    if (*(int *) data < *(int *) node->data)
-        node->left = removeFromTreeHelper(node->left, data);
-    else if (*(int *) data > *(int *) node->data)
-        node->right = removeFromTreeHelper(node->right, data);
+    if (data < *(int *) node->data)
+        node->left = removeIntFromTreeHelper(node->left, data);
+    else if (data > *(int *) node->data)
+        node->right = removeIntFromTreeHelper(node->right, data);
 
     /* element found */
     else{
@@ -146,7 +116,7 @@ struct BSTreeNode *removeFromTreeHelper(struct BSTreeNode *node, void *data)
 
             temp = getMin(node->right);
             node->data = temp->data;
-            node->right = removeFromTreeHelper(node->right, temp->data);
+            node->right = removeIntFromTreeHelper(node->right, *(int *) temp->data);
         }
 
         /* zero or one child present, handle accordingly */
@@ -167,9 +137,56 @@ struct BSTreeNode *removeFromTreeHelper(struct BSTreeNode *node, void *data)
 
 }
 
-void removeFromTree(struct BSTree *tree, void *data)
+void removeIntFromTree(struct BSTree *tree, int data)
 {
-    removeFromTreeHelper(tree->root, data);
+    removeIntFromTreeHelper(tree->root, data);
+}
+
+struct BSTreeNode *removeNumFromTreeHelper(struct BSTreeNode *node, int data)
+{
+    struct BSTreeNode *temp;
+
+    /* element not found */
+    if (node == NULL)
+        return NULL;
+
+    if (data < *(double *) node->data)
+        node->left = removeNumFromTreeHelper(node->left, data);
+    else if (data > *(double *) node->data)
+        node->right = removeNumFromTreeHelper(node->right, data);
+
+    /* element found */
+    else{
+
+        /* two children present, handle accordingly */
+        if (node->left && node->right) {
+
+            temp = getMin(node->right);
+            node->data = temp->data;
+            node->right = removeNumFromTreeHelper(node->right, *(int *) temp->data);
+        }
+
+        /* zero or one child present, handle accordingly */
+        else {
+
+            temp = node;
+
+            if (node->left == NULL)
+                node = node->right;
+            else if (node->right == NULL)
+                node = node->left;
+
+            free(temp);
+        }
+    }
+
+    return node;
+
+}
+
+void removeNumFromTree(struct BSTree *tree, int data)
+{
+    removeNumFromTreeHelper(tree->root, data);
 }
 
 
@@ -191,13 +208,6 @@ int treeContains(struct BSTreeNode *node, void *data)
         return 1;
 }
 
-
-
-
-
-
-
-
 int _print_t(struct BSTreeNode *tree, int is_left, int offset, int depth, char s[20][255])
 {
     char b[20];
@@ -205,30 +215,11 @@ int _print_t(struct BSTreeNode *tree, int is_left, int offset, int depth, char s
 
     if (!tree) return 0;
 
-    sprintf(b, "(%03d)", *(int *)tree->data);
+    sprintf(b, "(%.1lf)", *(double *)tree->data);
 
     int left  = _print_t(tree->left,  1, offset,                depth + 1, s);
     int right = _print_t(tree->right, 0, offset + left + width, depth + 1, s);
 
-#ifdef COMPACT
-    for (int i = 0; i < width; i++)
-        s[depth][offset + left + i] = b[i];
-
-    if (depth && is_left) {
-
-        for (int i = 0; i < width + right; i++)
-            s[depth - 1][offset + left + width/2 + i] = '-';
-
-        s[depth - 1][offset + left + width/2] = '.';
-
-    } else if (depth && !is_left) {
-
-        for (int i = 0; i < left + width; i++)
-            s[depth - 1][offset - width/2 + i] = '-';
-
-        s[depth - 1][offset + left + width/2] = '.';
-    }
-#else
     for (int i = 0; i < width; i++)
         s[2 * depth][offset + left + i] = b[i];
 
@@ -237,18 +228,17 @@ int _print_t(struct BSTreeNode *tree, int is_left, int offset, int depth, char s
         for (int i = 0; i < width + right; i++)
             s[2 * depth - 1][offset + left + width/2 + i] = '-';
 
-        s[2 * depth - 1][offset + left + width/2] = '+';
-        s[2 * depth - 1][offset + left + width + right + width/2] = '+';
+        s[2 * depth - 1][offset + left + width/2] = '*';
+        s[2 * depth - 1][offset + left + width + right + width/2] = '*';
 
     } else if (depth && !is_left) {
 
         for (int i = 0; i < left + width; i++)
             s[2 * depth - 1][offset - width/2 + i] = '-';
 
-        s[2 * depth - 1][offset + left + width/2] = '+';
-        s[2 * depth - 1][offset - width/2 - 1] = '+';
+        s[2 * depth - 1][offset + left + width/2] = '*';
+        s[2 * depth - 1][offset - width/2 - 1] = '*';
     }
-#endif
 
     return left + width + right;
 }
@@ -263,4 +253,9 @@ void showTree(struct BSTreeNode *tree)
 
     for (int i = 0; i < 20; i++)
         printf("%s\n", s[i]);
+}
+
+void showIntTree(struct BSTree *tree)
+{
+    showTree(tree -> root);
 }

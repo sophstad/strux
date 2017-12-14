@@ -1,0 +1,12 @@
+int main() {
+    BSTree::int tree = new BSTree::int();
+    tree.add(1);
+    tree.add(2);
+    tree.add(3);
+    tree.add(0);
+    tree.add(-4);
+    tree.add(-2);
+    tree.add(-3);
+    tree.show();
+    return 0;
+}
