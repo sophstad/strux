@@ -35,7 +35,7 @@ void display(int a[], int length) {
     int i;
     printf("[");
 
-    for(i = 0;i<=length;i++) {
+    for(i = 1;i<=length;i++) {
       printf("%d ",a[i]);
   }
 
@@ -47,7 +47,7 @@ void fdisplay(double a[], int length) {
     int i;
     printf("[");
 
-    for(i = 0;i<=length;i++) {
+    for(i = 1;i<=length;i++) {
       printf("%f ",a[i]);
   }
 
@@ -302,13 +302,13 @@ void showfQuickSort(double a[], int left, int right, int length)
 
 void cShowQuickSort(int a[], int length) {
   int right = length - 1;
-  length = length - 1;
+  length = length;
   showQuickSort(a, 0, right, length);
 }
 
 void cShowfQuickSort(double a[], int length) {
   int right = length - 1;
-  length = length - 1;
+  length = length;
   showfQuickSort(a, 0, right, length);
 }
 
