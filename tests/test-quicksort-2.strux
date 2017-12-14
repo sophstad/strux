@@ -1,5 +1,5 @@
 int main() {
-	int[] a = [1, 4, 3, 6, 7, 2, 99, 23, 37];
-  	a.showQuickSort();
+	int[9] a = [1, 4, 3, 6, 7, 2, 99, 23, 37];
+  a.showQuickSort();
 	return 0;
 }
