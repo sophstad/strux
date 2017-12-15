@@ -5,7 +5,6 @@ int main() {
 	q.add("sick");
 	q.add("yes");
 	q.add("hello");
-	int x = q.size();
-	print(x);
+        print(q.size());
 	return 0;
 }

@@ -4,10 +4,8 @@ int main() {
 	s.add("OOOO");
 	s.add("WWWW");
 	s.remove();
-	string topelement = s.peek();
-	int x = s.size();
-	print(x);
-	print(topelement);
+	print(s.size());
+	print(s.peek());
 
         Stack::int emptyStack = new Stack::int();
         emptyStack.show();
