@@ -4,7 +4,7 @@
 %token PLUS MINUS TIMES DIVIDE INCR DECR MOD ASSIGN NOT
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
 %token RETURN NULL IF ELSE ELIF BREAK CONTINUE NEW FOR FOREACH IN WHILE NUM INT BOOL STRING VOID DOT
-%token QUEUE LINKEDLIST STACK
+%token QUEUE LINKEDLIST STACK BSTREE
 /*%token STACK QUEUE LINKEDLIST LISTNODE BSTREE TREENODE*/
 %token <float> NUM_LITERAL
 %token <int> INT_LITERAL
@@ -62,6 +62,7 @@ primitive:
   | QUEUE DOUBLECOL typ { QueueType($3) }
   | LINKEDLIST DOUBLECOL typ { LinkedListType($3) }
   | STACK DOUBLECOL typ { StackType($3) }
+  | BSTREE DOUBLECOL typ { BSTreeType($3) }
 
 array_type:
     primitive LBRACK INT_LITERAL RBRACK { Arraytype($1, $3) }
@@ -114,6 +115,7 @@ expr:
   | NEW QUEUE DOUBLECOL typ LPAREN actuals_opt RPAREN { QueueLit($4, $6) }
   | NEW LINKEDLIST DOUBLECOL typ LPAREN actuals_opt RPAREN { LinkedListLit($4, $6) }
   | NEW STACK DOUBLECOL typ LPAREN actuals_opt RPAREN { StackLit($4, $6) }
+  | NEW BSTREE DOUBLECOL typ LPAREN actuals_opt RPAREN { BSTreeLit($4, $6) }
   | MINUS expr %prec NEG  { Unop(Neg, $2) }
   | NOT expr              { Unop(Not, $2) }
   | expr INCR             { Postop($1, Incr) }

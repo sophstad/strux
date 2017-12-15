@@ -93,9 +93,9 @@ Check() {
 
     # generatedfiles="$generatedfiles ${basename}.ll ${basename}.out" &&
     generatedfiles="$generatedfiles ${basename}.ll ${basename}.s ${basename}.exe ${basename}.out" &&
-    Run "$STRUX" "<" $1 ">" "${basename}.ll" &&
+    Run "$STRUX" "<" "$1" ">" "${basename}.ll" &&
     Run "$LLC" "${basename}.ll" ">" "${basename}.s" &&
-    Run "$CC" "-o" "${basename}.exe" "${basename}.s" "queue.bc" "linkedlist.bc" "stack.bc" "quicksort.bc" &&
+    Run "$CC" "-o" "${basename}.exe" "${basename}.s" "queue.bc" "bstree.bc" "linkedlist.bc" "stack.bc" "quicksort.bc" &&
     Run "./${basename}.exe" > "${basename}.out" &&
     Compare ${basename}.out ${reffile}.out ${basename}.diff
 
@@ -183,6 +183,13 @@ fi
 if [ ! -f queue.bc ]
     then
         echo "Could not find queue.bc"
+        echo "Try \"./generateModules.sh\""
+        exit 1
+fi
+
+if [ ! -f bstree.bc ]
+    then
+        echo "Could not find bstree.bc"
         echo "Try \"./generateModules.sh\""
         exit 1
 fi

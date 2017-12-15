@@ -9,14 +9,18 @@ module A = Ast
 module StringMap = Map.Make(String)
 
 let context = L.global_context ()
-let queuem = L.MemoryBuffer.of_file "queue.bc"
-let listm = L.MemoryBuffer.of_file "linkedlist.bc"
-let stackm = L.MemoryBuffer.of_file "stack.bc"
+
+let queuem = L.MemoryBuffer.of_file "queue.bc" 
+let listm = L.MemoryBuffer.of_file "linkedlist.bc" 
+let stackm = L.MemoryBuffer.of_file "stack.bc" 
 let quicksortm = L.MemoryBuffer.of_file "quicksort.bc"
-let qqm = Llvm_bitreader.parse_bitcode context queuem
-let list_qm = Llvm_bitreader.parse_bitcode context listm
+let bstreem = L.MemoryBuffer.of_file "bstree.bc" 
+let qqm = Llvm_bitreader.parse_bitcode context queuem 
+let list_qm = Llvm_bitreader.parse_bitcode context listm 
 let stack_qm = Llvm_bitreader.parse_bitcode context stackm
-let quicksort_qm = Llvm_bitreader.parse_bitcode context quicksortm
+let bstree_qm = Llvm_bitreader.parse_bitcode context bstreem 
+let quicksort_qm = Llvm_bitreader.parse_bitcode context quicksortm 
+
 let the_module = L.create_module context "Strux"
 and f_t    = L.double_type context  (* float *)
 and i8_t   = L.i8_type   context    (* print type *)
@@ -29,7 +33,9 @@ and queue_t = L.pointer_type (match L.type_by_name qqm "struct.Queue" with
 and stack_t = L.pointer_type (match L.type_by_name stack_qm "struct.Stack" with
     None -> raise (Invalid_argument "Option.get stack") | Some x -> x)
 and linkedlist_t = L.pointer_type (match L.type_by_name list_qm "struct.LinkedList" with
-    None -> raise (Invalid_argument "Option.get linkedlmist") | Some x -> x) ;;
+    None -> raise (Invalid_argument "Option.get linkedlmist") | Some x -> x) 
+and bstree_t = L.pointer_type (match L.type_by_name bstree_qm "struct.BSTree" with
+    None -> raise (Invalid_argument "Option.get bstree") | Some x -> x);;
 
 let rec ltype_of_typ = function (* LLVM type for AST type *)
     A.Num -> f_t
@@ -40,8 +46,10 @@ let rec ltype_of_typ = function (* LLVM type for AST type *)
   | A.Arraytype(t, _) -> L.pointer_type (ltype_of_typ t)
   | A.QueueType _ -> queue_t
   | A.LinkedListType _ -> linkedlist_t
+  | A.BSTreeType _ -> bstree_t
   | A.StackType _ -> stack_t
   | A.AnyType -> str_t
+  | A.NumberType -> str_t 
   | _ -> raise(Failure("Invalid Data Type"))
 
 and translate (globals, functions) =
@@ -120,6 +128,20 @@ and translate (globals, functions) =
   let num_show_quickSort_t = L.function_type void_t [| L.pointer_type (ltype_of_typ A.Num); i32_t |] in
   let num_show_quickSort_f = L.declare_function "cShowfQuickSort" num_show_quickSort_t the_module in
 
+  (*built-in bstree functions*)
+  let initBSTree_t = L.function_type bstree_t [| |] in 
+  let initBSTree_f = L.declare_function "initBSTree" initBSTree_t the_module in
+  let bstreeadd_t = L.function_type void_t [| bstree_t; L.pointer_type i8_t|] in
+  let bstreeadd_int_f = L.declare_function "addIntToTree" bstreeadd_t the_module in
+  let bstreeadd_float_f = L.declare_function "addNumToTree" bstreeadd_t the_module in
+  let bstreedelete_int_t = L.function_type void_t [| bstree_t; i32_t|] in
+  let bstreedelete_int_f = L.declare_function "deleteIntFromTree" bstreedelete_int_t the_module in
+  let bstreedelete_float_t = L.function_type void_t [| bstree_t; f_t|] in
+  let bstreedelete_float_f = L.declare_function "deleteNumFromTree" bstreedelete_float_t the_module in
+  let bstree_show_t = L.function_type void_t [| bstree_t |] in 
+  let bstree_show_int = L.declare_function "showIntTree" bstree_show_t the_module in
+  let bstree_show_float = L.declare_function "showNumTree" bstree_show_t the_module in
+
   (*print big *)
   let printbig_t = L.function_type i32_t [| i32_t |] in
   let printbig_func = L.declare_function "printbig" printbig_t the_module in
@@ -142,10 +164,15 @@ and translate (globals, functions) =
   let format_str x_type builder =
     let b = builder in
       match x_type with
-        A.Int -> int_format_str b
-      | A.Num -> float_format_str b
-      | A.String -> string_format_str b
-      | A.Bool -> int_format_str b
+        A.Int      -> int_format_str b
+      | A.Num    -> float_format_str b
+      | A.String  -> string_format_str b
+      | A.Bool     -> int_format_str b
+      (*TODO: fix this!!!!!!!!!*)
+(*       | A.QueueType _ -> float_format_str b
+      | A.LinkedListType _ -> float_format_str b
+      | A.BSTreeType _ -> float_format_str b
+      | A.StackType _ -> float_format_str b *)
       | _ -> raise (Failure ("Invalid printf type"))
   in
 
@@ -299,6 +326,7 @@ and translate (globals, functions) =
       A.Id name -> (match (name_to_type name) with
         A.QueueType(typ) -> typ
       | A.LinkedListType(typ) -> typ
+      | A.BSTreeType(typ) -> typ
       | A.StackType(typ) -> typ
       | A.Arraytype(typ, _) -> typ
       | _ as typ -> typ)
@@ -312,11 +340,14 @@ and translate (globals, functions) =
       | _ -> raise (Failure ("Invalid data structure type - size function")))
     in
 
-    let call_add_ptr = function
+    let call_add_ptr ds_type = function
       A.Id name -> (match (name_to_type name) with
         A.QueueType _ -> enqueue_f
       | A.LinkedListType _ -> add_f
       | A.StackType _ -> push_f
+      | A.BSTreeType _ -> (match ds_type with 
+            A.Int -> bstreeadd_int_f
+          | A.Num -> bstreeadd_float_f)
       | _ -> raise (Failure ("Invalid data structure type - add function")))
     in
 
@@ -344,9 +375,20 @@ and translate (globals, functions) =
          | A.Num -> l_show_float
          | A.Bool -> l_show_int
          | A.String -> l_show_string)
+      | A.BSTreeType _ -> (match data_type with 
+            A.Int -> bstree_show_int
+          | A.Num -> bstree_show_float)
       | _ -> raise (Failure ("Invalid data structure type - show function")))
     in
 
+    let call_delete_ptr ds_type = function
+      A.Id name -> (match (name_to_type name) with
+        A.LinkedListType _ -> delete_f
+      | A.BSTreeType _ -> (match ds_type with 
+            A.Int -> bstreedelete_int_f
+          | A.Num -> bstreedelete_float_f)
+      | _ -> raise (Failure ("Invalid data structure type - delete function")))
+    in
     let call_quicksort_ptr data_type = function
       A.Id name -> (match (name_to_type name) with
         A.Arraytype(_, _) -> (match data_type with
@@ -418,6 +460,20 @@ and translate (globals, functions) =
           ignore (L.build_call push_f [| stack_ptr; void_d_ptr |] "" llbuilder)
         in ignore (List.map add_element act);
         stack_ptr
+      | A.BSTreeLit (typ, act) ->
+        let d_ltyp = ltype_of_typ typ in
+        let bstree_ptr = L.build_call initBSTree_f [| |] "init" llbuilder in 
+        let add_element elem = 
+          let d_ptr = match typ with 
+          | A.BSTreeType _ -> expr_generator llbuilder elem 
+          | _ -> 
+            let element = expr_generator llbuilder elem in 
+            let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in 
+            ignore (L.build_store element d_ptr llbuilder); d_ptr in 
+          let void_d_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in
+          ignore (L.build_call push_f [| bstree_ptr; void_d_ptr |] "" llbuilder)
+        in ignore (List.map add_element act);
+        bstree_ptr
       | A.Binop (e1, op, e2) ->
         let e1' = expr_generator llbuilder e1 in
         let e2' = expr_generator llbuilder e2
@@ -564,17 +620,20 @@ and translate (globals, functions) =
         size_ptr
       | A.ObjectCall (obj, "add", [e]) ->
         let obj_val = expr_generator llbuilder obj in
-        let e_val = expr_generator llbuilder e in
-        let d_ltyp = L.type_of e_val in
-        let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in
-        ignore(L.build_store e_val d_ptr llbuilder);
-        let obj_method = call_add_ptr obj in
-        let void_e_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in
+        let obj_type = get_type obj in
+        let e_val = expr_generator llbuilder e in 
+        let d_ltyp = L.type_of e_val in 
+        let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in 
+        ignore(L.build_store e_val d_ptr llbuilder); 
+        let obj_method = call_add_ptr obj_type obj in
+        let void_e_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in 
         ignore (L.build_call obj_method [| obj_val; void_e_ptr|] "" llbuilder); obj_val
-      | A.ObjectCall (obj, "delete", [e]) ->
+      | A.ObjectCall (obj, "delete", [e]) -> 
         let obj_val = expr_generator llbuilder obj in
+        let obj_type = get_type obj in
         let e_val = expr_generator llbuilder e in
-        ignore (L.build_call delete_f [| obj_val; e_val |] "" llbuilder);
+        let obj_method = call_delete_ptr obj_type obj in
+        ignore (L.build_call obj_method [| obj_val; e_val |] "" llbuilder);
         obj_val
       | A.ObjectCall (l, "get", [e]) ->
         let l_ptr = expr_generator llbuilder l in

@@ -1,0 +1,5 @@
+int main() {
+    BSTree::int tree1 = new BSTree::int();
+    BSTree::num tree2 = new BSTree::num();
+    return 0;
+}

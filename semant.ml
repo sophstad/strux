@@ -34,6 +34,8 @@ let check (globals, functions) =
     else if lvaluet = Int && rvaluet = AnyType then lvaluet
     else if lvaluet = String && rvaluet = AnyType then lvaluet
     else if lvaluet = Bool && rvaluet = AnyType then lvaluet
+    else if lvaluet = Num && rvaluet = NumberType then lvaluet
+    else if lvaluet = Int && rvaluet = NumberType then lvaluet
     else raise err
   in
 
@@ -86,7 +88,7 @@ let check (globals, functions) =
         body = [] }
 
         (StringMap.add "delete"
-     { typ = Void; fname = "delete"; formals = [(Int, "x")];
+     { typ = Void; fname = "delete"; formals = [(NumberType, "x")];
         body = [] }
 
         (StringMap.add "fquickSort"
@@ -157,9 +159,12 @@ let check (globals, functions) =
       QueueType(typ) -> typ
       | LinkedListType(typ) -> typ
       | StackType(typ) -> typ
-      | _ -> Void
+      | BSTreeType(typ) -> typ
+      | _ -> Void  
     in
 
+
+    (*TODO(josh): IMPLEMENT BSTREE CHECKING STUFF HERE *)
     (* Return the type of an expression or throw an exception *)
     let rec expr = function
         NumLit _ -> Num
@@ -168,6 +173,7 @@ let check (globals, functions) =
       | QueueLit (t, _) -> QueueType(t)
       | LinkedListLit (t, _) -> LinkedListType(t)
       | StackLit (t, _) -> StackType(t)
+      | BSTreeLit (t, _) -> BSTreeType(t)
       | BoolLit _ -> Bool
       | Id s -> type_of_identifier s
       | Binop(e1, op, e2) as e -> let t1 = expr e1 and t2 = expr e2 in
@@ -279,13 +285,17 @@ let check (globals, functions) =
                   let actatype = array_typ acttype in
                   ignore(check_assign actatype et (Failure ("illegal actual size argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ actatype ^ " in " ^ string_of_expr e)))
-            
-                (* else if fname = "delete" then
+    
+                else if fname = "delete" then
                    let acttype = expr oname in
-                   let actqtype = getLinkedListType acttype in
-                  ignore(check_assign actqtype et (Failure ("illegal actual delete argument found " ^ string_of_typ et ^
-                  " expected num type " ^ " in " ^ string_of_expr e)))
-             *)    (* else if fname = "peek" then
+                   let actqtype = get_type acttype in
+                   match acttype with
+                   | BSTreeType(actqtype) -> ignore(check_assign actqtype et (Failure ("illegal actual delete argument found " ^ string_of_typ et ^
+                  " expected " ^ string_of_typ actqtype ^ " type " ^ " in " ^ string_of_expr e)))
+                   | LinkedListType(actqtype) -> ignore(check_assign Int et (Failure ("illegal actual delete argument found " ^ string_of_typ et ^
+                  " expected int type " ^ " in " ^ string_of_expr e)))
+                  
+                 (* else if fname = "peek" then
                    let acttype = expr oname in
                    let actqtype = getQueueType acttype in
                   ignore(check_assign actqtype et (Failure ("illegal actual peek for queue argument found " ^ string_of_typ et ^

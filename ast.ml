@@ -5,7 +5,7 @@ type op = Add | Sub | Mult | Div | Mod | Equal | Neq | Less | Leq | Greater | Ge
 
 type uop = Neg | Not
 
-type typ = Num | Int | String | Bool | Void | AnyType | Arraytype of typ * int | QueueType of typ | LinkedListType of typ | StackType of typ
+type typ = Num | Int | String | Bool | Void | AnyType | NumberType | Arraytype of typ * int | QueueType of typ | LinkedListType of typ | StackType of typ | BSTreeType of typ
 (* | Stack | Queue | LinkedList | ListNode | BSTree | TreeNode *)
 
 type bind = typ * string
@@ -26,8 +26,9 @@ type expr =
   | Reassign of string * expr
   | FuncCall of string * expr list
   | QueueLit of typ * expr list 
+  | BSTreeLit of typ * expr list 
   | LinkedListLit of typ * expr list 
-  | StackLit of typ * expr list 
+  | StackLit of typ * expr list
   | ObjectCall of expr * string * expr list 
   (* | ArrayCreate of typ * expr list
   | ArrayAccess of expr * expr list
@@ -91,9 +92,11 @@ let rec string_of_typ = function
   | Void -> "void"
   | Arraytype(typ, len) -> string_of_typ typ ^ "[" ^ string_of_int len ^ "]"
   | QueueType(typ) -> "Queue " ^ string_of_typ typ 
+  | BSTreeType(typ) -> "BSTree " ^ string_of_typ typ 
   | LinkedListType(typ) -> "LinkedList " ^ string_of_typ typ 
   | StackType(typ) -> "Stack " ^ string_of_typ typ 
   | AnyType -> "AnyType"
+  | NumberType -> "NumberType"
   (* | Stack -> "Stack"
   | Queue -> "Queue"
   | LinkedList -> "LinkedList"
@@ -124,6 +127,7 @@ let rec string_of_expr = function
   | Noexpr -> ""
   | QueueLit(typ, e1) -> "new " ^ "Queue" ^ "::" ^ string_of_typ typ ^ "(" ^ String.concat ", " (List.map string_of_expr e1) ^ ")"
   | LinkedListLit(typ, e1) -> "new " ^ "LinkedList" ^ "::" ^ string_of_typ typ ^ "(" ^ String.concat ", " (List.map string_of_expr e1) ^ ")"
+  | BSTreeLit(typ, e1) -> "new " ^ "BSTree" ^ "::" ^ string_of_typ typ ^ "(" ^ String.concat ", " (List.map string_of_expr e1) ^ ")"
   | StackLit(typ, e1) -> "new " ^ "Stack" ^ "::" ^ string_of_typ typ ^ "(" ^ String.concat ", " (List.map string_of_expr e1) ^ ")"
  
   (* | Array -> "array"
