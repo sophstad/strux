@@ -46,7 +46,8 @@ let rec ltype_of_typ = function (* LLVM type for AST type *)
   | A.LinkedListType _ -> linkedlist_t
   | A.BSTreeType _ -> bstree_t
   | A.StackType _ -> stack_t
-  | A.AnyType -> str_t 
+  | A.AnyType -> str_t
+  | A.NumberType -> str_t 
   | _ -> raise(Failure("Invalid Data Type"))
   (* | A.Stack -> f_t
     | A.Queue -> f_t
@@ -136,10 +137,14 @@ and translate (globals, functions) =
   let initBSTree_f = L.declare_function "initBSTree" initBSTree_t the_module in
   let bstreeadd_t = L.function_type void_t [| bstree_t; L.pointer_type i8_t|] in
   let bstreeadd_int_f = L.declare_function "addIntToTree" bstreeadd_t the_module in
-  let bstreeremove_t = L.function_type void_t [| bstree_t; i32_t|] in
-  let bstreeremove_int_f = L.declare_function "removeIntFromTree" bstreeremove_t the_module in
+  let bstreeadd_float_f = L.declare_function "addNumToTree" bstreeadd_t the_module in
+  let bstreedelete_int_t = L.function_type void_t [| bstree_t; i32_t|] in
+  let bstreedelete_int_f = L.declare_function "deleteIntFromTree" bstreedelete_int_t the_module in
+  let bstreedelete_float_t = L.function_type void_t [| bstree_t; f_t|] in
+  let bstreedelete_float_f = L.declare_function "deleteNumFromTree" bstreedelete_float_t the_module in
   let bstree_show_t = L.function_type void_t [| bstree_t |] in 
   let bstree_show_int = L.declare_function "showIntTree" bstree_show_t the_module in
+  let bstree_show_float = L.declare_function "showNumTree" bstree_show_t the_module in
 
   (*print big *)
   let printbig_t = L.function_type i32_t [| i32_t |] in
@@ -301,7 +306,8 @@ and translate (globals, functions) =
       | A.LinkedListType _ -> add_f
       | A.StackType _ -> push_f
       | A.BSTreeType _ -> (match ds_type with 
-            A.Int -> bstreeadd_int_f)
+            A.Int -> bstreeadd_int_f
+          | A.Num -> bstreeadd_float_f)
       | _ -> raise (Failure ("Invalid data structure type - add function")))
     in
 
@@ -356,7 +362,8 @@ and translate (globals, functions) =
          | A.Bool -> l_show_int
          | A.String -> l_show_string)
       | A.BSTreeType _ -> (match ds_type with 
-            A.Int -> bstree_show_int)
+            A.Int -> bstree_show_int
+          | A.Num -> bstree_show_float)
       | _ -> raise (Failure ("Invalid data structure type - show function")))
     in
 
@@ -364,7 +371,8 @@ and translate (globals, functions) =
       A.Id name -> (match (name_to_type name) with
         A.LinkedListType _ -> delete_f
       | A.BSTreeType _ -> (match ds_type with 
-            A.Int -> bstreeremove_int_f)
+            A.Int -> bstreedelete_int_f
+          | A.Num -> bstreedelete_float_f)
       | _ -> raise (Failure ("Invalid data structure type - delete function")))
     in
 

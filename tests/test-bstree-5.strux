@@ -1,0 +1,8 @@
+int main() {
+    BSTree::num tree = new BSTree::num();
+    tree.add(1.1);
+    tree.add(2.42);
+    tree.delete(2.42);
+    tree.show();
+    return 0;
+}

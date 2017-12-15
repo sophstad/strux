@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "utils.h"
 
 struct BSTreeNode
 {
@@ -95,7 +96,7 @@ struct BSTreeNode *getMin(struct BSTreeNode *node)
         return node;
 }
 
-struct BSTreeNode *removeIntFromTreeHelper(struct BSTreeNode *node, int data)
+struct BSTreeNode *deleteIntFromTreeHelper(struct BSTreeNode *node, int data)
 {
     struct BSTreeNode *temp;
 
@@ -104,9 +105,9 @@ struct BSTreeNode *removeIntFromTreeHelper(struct BSTreeNode *node, int data)
         return NULL;
 
     if (data < *(int *) node->data)
-        node->left = removeIntFromTreeHelper(node->left, data);
+        node->left = deleteIntFromTreeHelper(node->left, data);
     else if (data > *(int *) node->data)
-        node->right = removeIntFromTreeHelper(node->right, data);
+        node->right = deleteIntFromTreeHelper(node->right, data);
 
     /* element found */
     else{
@@ -116,7 +117,7 @@ struct BSTreeNode *removeIntFromTreeHelper(struct BSTreeNode *node, int data)
 
             temp = getMin(node->right);
             node->data = temp->data;
-            node->right = removeIntFromTreeHelper(node->right, *(int *) temp->data);
+            node->right = deleteIntFromTreeHelper(node->right, *(int *) temp->data);
         }
 
         /* zero or one child present, handle accordingly */
@@ -137,12 +138,12 @@ struct BSTreeNode *removeIntFromTreeHelper(struct BSTreeNode *node, int data)
 
 }
 
-void removeIntFromTree(struct BSTree *tree, int data)
+void deleteIntFromTree(struct BSTree *tree, int data)
 {
-    removeIntFromTreeHelper(tree->root, data);
+    deleteIntFromTreeHelper(tree->root, data);
 }
 
-struct BSTreeNode *removeNumFromTreeHelper(struct BSTreeNode *node, int data)
+struct BSTreeNode *deleteNumFromTreeHelper(struct BSTreeNode *node, double data)
 {
     struct BSTreeNode *temp;
 
@@ -151,9 +152,9 @@ struct BSTreeNode *removeNumFromTreeHelper(struct BSTreeNode *node, int data)
         return NULL;
 
     if (data < *(double *) node->data)
-        node->left = removeNumFromTreeHelper(node->left, data);
+        node->left = deleteNumFromTreeHelper(node->left, data);
     else if (data > *(double *) node->data)
-        node->right = removeNumFromTreeHelper(node->right, data);
+        node->right = deleteNumFromTreeHelper(node->right, data);
 
     /* element found */
     else{
@@ -163,7 +164,7 @@ struct BSTreeNode *removeNumFromTreeHelper(struct BSTreeNode *node, int data)
 
             temp = getMin(node->right);
             node->data = temp->data;
-            node->right = removeNumFromTreeHelper(node->right, *(int *) temp->data);
+            node->right = deleteNumFromTreeHelper(node->right, *(int *) temp->data);
         }
 
         /* zero or one child present, handle accordingly */
@@ -184,9 +185,9 @@ struct BSTreeNode *removeNumFromTreeHelper(struct BSTreeNode *node, int data)
 
 }
 
-void removeNumFromTree(struct BSTree *tree, int data)
+void deleteNumFromTree(struct BSTree *tree, double data)
 {
-    removeNumFromTreeHelper(tree->root, data);
+    deleteNumFromTreeHelper(tree->root, data);
 }
 
 
@@ -208,17 +209,20 @@ int treeContains(struct BSTreeNode *node, void *data)
         return 1;
 }
 
-int _print_t(struct BSTreeNode *tree, int is_left, int offset, int depth, char s[20][255])
+int _print_t(struct BSTreeNode *tree, int is_left, int offset, int depth, char s[20][255], int typ)
 {
     char b[20];
-    int width = 5;
+    int width = 6;
 
     if (!tree) return 0;
 
-    sprintf(b, "(%.1lf)", *(double *)tree->data);
+    if (typ == FLOATING)
+        sprintf(b, "(%.2lf)", *(double *)tree->data);
+    else
+        sprintf(b, "(%04d)", *(int *)tree->data);
 
-    int left  = _print_t(tree->left,  1, offset,                depth + 1, s);
-    int right = _print_t(tree->right, 0, offset + left + width, depth + 1, s);
+    int left  = _print_t(tree->left,  1, offset,                depth + 1, s, typ);
+    int right = _print_t(tree->right, 0, offset + left + width, depth + 1, s, typ);
 
     for (int i = 0; i < width; i++)
         s[2 * depth][offset + left + i] = b[i];
@@ -243,13 +247,13 @@ int _print_t(struct BSTreeNode *tree, int is_left, int offset, int depth, char s
     return left + width + right;
 }
 
-void showTree(struct BSTreeNode *tree)
+void showTree(struct BSTreeNode *tree, int typ)
 {
     char s[20][255];
     for (int i = 0; i < 20; i++)
         sprintf(s[i], "%80s", " ");
 
-    _print_t(tree, 0, 0, 0, s);
+    _print_t(tree, 0, 0, 0, s, typ);
 
     for (int i = 0; i < 20; i++)
         printf("%s\n", s[i]);
@@ -257,5 +261,10 @@ void showTree(struct BSTreeNode *tree)
 
 void showIntTree(struct BSTree *tree)
 {
-    showTree(tree -> root);
+    showTree(tree -> root, INTEGER);
+}
+
+void showNumTree(struct BSTree *tree)
+{
+    showTree(tree -> root, FLOATING);
 }
