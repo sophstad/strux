@@ -51,12 +51,6 @@ let rec ltype_of_typ = function (* LLVM type for AST type *)
   | A.AnyType -> str_t
   | A.NumberType -> str_t 
   | _ -> raise(Failure("Invalid Data Type"))
-  (* | A.Stack -> f_t
-    | A.Queue -> f_t
-    | A.LinkedList -> f_t
-    | A.ListNode -> f_t
-    | A.BSTree -> f_t
-    | A.TreeNode -> f_t *)
 
 and translate (globals, functions) =
   let global_types =
@@ -67,9 +61,6 @@ and translate (globals, functions) =
   let global_vars = ref StringMap.empty in
 
   (* -------BUILT IN FUNCTIONS----------- *)
-
-  (* Declare our print function here *)
-
 
   (* print *)
   let printf_t = L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
@@ -126,16 +117,16 @@ and translate (globals, functions) =
 
   (* quicksort array functions *)
   (*takes in int[] to do quick sort *)
-  let cQuickSort_t = L.function_type (L.pointer_type (ltype_of_typ A.Int)) [| L.pointer_type (ltype_of_typ A.Int); i32_t |] in
-  let cQuickSort_f = L.declare_function "cQuickSort" cQuickSort_t the_module in
-  let cShowQuickSort_t = L.function_type void_t [| L.pointer_type (ltype_of_typ A.Int); i32_t |] in
-  let cShowQuickSort_f = L.declare_function "cShowQuickSort" cShowQuickSort_t the_module in
+  let int_quickSort_t = L.function_type (L.pointer_type (ltype_of_typ A.Int)) [| L.pointer_type (ltype_of_typ A.Int); i32_t |] in
+  let int_quickSort_f = L.declare_function "cQuickSort" int_quickSort_t the_module in
+  let int_show_quickSort_t = L.function_type void_t [| L.pointer_type (ltype_of_typ A.Int); i32_t |] in
+  let int_show_quickSort_f = L.declare_function "cShowQuickSort" int_show_quickSort_t the_module in
   
   (*takes in num[] to do quick sort *)
-  let cQuickfSort_t = L.function_type (L.pointer_type (ltype_of_typ A.Num)) [| L.pointer_type (ltype_of_typ A.Num); i32_t |] in
-  let cQuickfSort_f = L.declare_function "cQuickfSort" cQuickfSort_t the_module in
-  let cShowfQuickSort_t = L.function_type void_t [| L.pointer_type (ltype_of_typ A.Num); i32_t |] in
-  let cShowfQuickSort_f = L.declare_function "cShowfQuickSort" cShowfQuickSort_t the_module in
+  let num_quickSort_t = L.function_type (L.pointer_type (ltype_of_typ A.Num)) [| L.pointer_type (ltype_of_typ A.Num); i32_t |] in
+  let num_quickSort_f = L.declare_function "cQuickfSort" num_quickSort_t the_module in
+  let num_show_quickSort_t = L.function_type void_t [| L.pointer_type (ltype_of_typ A.Num); i32_t |] in
+  let num_show_quickSort_f = L.declare_function "cShowfQuickSort" num_show_quickSort_t the_module in
 
   (*built-in bstree functions*)
   let initBSTree_t = L.function_type bstree_t [| |] in 
@@ -165,12 +156,6 @@ and translate (globals, functions) =
       StringMap.add name (L.define_function name ftype the_module, func_decl) m in
     List.fold_left function_decl StringMap.empty functions in
 
-(*   let data_structures_str x_type b =
-    let b = builder in
-    let n = idtostring q in
-    let q_type = getQueueType (lookup_types n)
-    format_str q_type builder
-    in  *)
   (* Format str for printf *)
   let string_format_str b = L.build_global_stringptr "%s\n" "fmt" b
   and int_format_str    b = L.build_global_stringptr "%d\n" "fmt" b
@@ -404,7 +389,21 @@ and translate (globals, functions) =
           | A.Num -> bstreedelete_float_f)
       | _ -> raise (Failure ("Invalid data structure type - delete function")))
     in
+    let call_quicksort_ptr data_type = function
+      A.Id name -> (match (name_to_type name) with
+        A.Arraytype(_, _) -> (match data_type with
+          A.Int -> int_quickSort_f
+        | A.Num -> num_quickSort_f)
+      | _ -> raise (Failure ("Cannot perform quicksort on this datatype")))
+    in
 
+    let call_show_quicksort_ptr data_type = function
+      A.Id name -> (match (name_to_type name) with
+        A.Arraytype(_, _) -> (match data_type with
+          A.Int -> int_show_quickSort_f
+        | A.Num -> num_show_quickSort_f)
+      | _ -> raise (Failure ("Cannot perform quicksort on this datatype")))
+    in
 
     let call_peek_ptr = function
       A.Id name -> (match (name_to_type name) with
@@ -647,19 +646,14 @@ and translate (globals, functions) =
       | A.ObjectCall(a, "quickSort", []) ->
         let a_val = expr_generator llbuilder a in
         let len = L.const_int i32_t (get_array_len a) in
-        ignore (L.build_call cQuickSort_f [| a_val; len |] "" llbuilder); a_val
+        let obj_method = call_quicksort_ptr (get_type a) a in
+        ignore (L.build_call obj_method [| a_val; len |] "" llbuilder); a_val
       | A.ObjectCall(a, "showQuickSort", []) ->
         let a_val = expr_generator llbuilder a in
         let len = L.const_int i32_t (get_array_len a) in
-        ignore (L.build_call cShowQuickSort_f [| a_val; len|] "" llbuilder); a_val
-      | A.ObjectCall(a, "fshowQuickSort", []) ->
-        let a_val = expr_generator llbuilder a in
-        let len = L.const_int i32_t (get_array_len a) in
-        ignore (L.build_call cShowfQuickSort_f [| a_val; len|] "" llbuilder); a_val
-      | A.ObjectCall(a, "fquickSort", []) ->
-        let a_val = expr_generator llbuilder a in
-        let len = L.const_int i32_t (get_array_len a) in
-        ignore (L.build_call cQuickfSort_f [| a_val; len|] "" llbuilder); a_val in
+        let obj_method = call_show_quicksort_ptr (get_type a) a in
+        ignore (L.build_call obj_method [| a_val; len|] "" llbuilder); a_val in
+
       (* Invoke "f llbuilder" if the current block doesn't already
          have a terminal (e.g., a branch). *)
       let add_terminal llbuilder f =
