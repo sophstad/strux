@@ -304,6 +304,18 @@ and translate (globals, functions) =
       | _ -> false)
     in
 
+    let rec get_array_index e =
+      match e with
+        A.IntLit x -> x
+      | A.Binop (e1, op, e2) -> (match op with
+              A.Add -> (get_array_index e1) + (get_array_index e2)
+            | A.Sub -> (get_array_index e1) - (get_array_index e2)
+            | A.Mult -> (get_array_index e1) * (get_array_index e2)
+            | A.Div -> (get_array_index e1) / (get_array_index e2)
+            | _ -> 0)
+      | _ -> 0 (* If index is a variable we can't check, so default to 0 *)
+    in
+
     let rec gen_type = function
         A.IntLit _ -> A.Int
       | A.NumLit _ -> A.Num
@@ -571,9 +583,16 @@ and translate (globals, functions) =
       | A.ArrayLit el -> let t = gen_type (List.nth el 0) in
           initialize_array t (List.map (expr_generator llbuilder) el) llbuilder
       | A.ArrayAccess (s, i) ->
-          let index = expr_generator llbuilder i and llval = lookup s in
-          (* if (List.length llval < index) || (index < 0) then raise (Failure ("Array index out of bounds")) else *)
-          access_array llval index false llbuilder
+          let index = expr_generator llbuilder i
+          and llval = lookup s in
+          let index_int = get_array_index i
+          and len = match (name_to_type s) with
+                    A.Arraytype(_, len) -> len
+                  | _ -> raise (Failure ("Can't get the length of this object")) in
+
+          if (len < index_int) || (index_int < 0)
+          then raise (Failure ("Array index out of bounds"))
+          else access_array llval index false llbuilder
       | A.ArrayElementAssign (s, i, e) ->
           let e' = expr_generator llbuilder e in
           let index = expr_generator llbuilder i in

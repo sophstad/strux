@@ -159,8 +159,23 @@ let check (globals, functions) =
       | _ -> raise(Failure("Expecting an array and was not an array"))
     in
 
+    let arr_lit_len = function
+        ArrayLit(el) -> List.length el
+      | _ -> -1
+    in
+
+    let invalid_arr_size s e =
+      let literal_len = arr_lit_len e in
+      if literal_len == -1
+      then false
+      else
+        let decl_len = (match s with
+                          Arraytype(_, len) -> len) in
+        if decl_len == literal_len then false else true
+    in
+
     let get_type = function
-      QueueType(typ) -> typ
+        QueueType(typ) -> typ
       | LinkedListType(typ) -> typ
       | StackType(typ) -> typ
       | BSTreeType(typ) -> typ
@@ -214,7 +229,10 @@ let check (globals, functions) =
             Arraytype(t, _) -> t
           | _ -> typ
           ) in
-          let rt = expr e in
+          let rt = expr e
+          and invalid_arr = invalid_arr_size typ e in
+          if invalid_arr then raise (Failure ("Invalid length declaration"))
+          else
           if rt == Void then raise (Failure("Must initialize variable with a value."))
         else
           ignore (check_assign lt rt (Failure ("illegal assignment " ^ string_of_typ typ ^ " = " ^ string_of_typ rt ^ " in " ^ string_of_expr ex)));
