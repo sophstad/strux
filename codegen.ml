@@ -138,6 +138,10 @@ and translate (globals, functions) =
   let bstreedelete_int_f = L.declare_function "deleteIntFromTree" bstreedelete_int_t the_module in
   let bstreedelete_float_t = L.function_type void_t [| bstree_t; f_t|] in
   let bstreedelete_float_f = L.declare_function "deleteNumFromTree" bstreedelete_float_t the_module in
+  let bstreecontains_int_t = L.function_type i32_t [| bstree_t; i32_t|] in
+  let bstreecontains_int_f = L.declare_function "treeContainsInt" bstreecontains_int_t the_module in
+  let bstreecontains_float_t = L.function_type f_t [| bstree_t; f_t|] in
+  let bstreecontains_float_f = L.declare_function "treeContainsFloat" bstreecontains_float_t the_module in
   let bstree_show_t = L.function_type void_t [| bstree_t |] in 
   let bstree_show_int = L.declare_function "showIntTree" bstree_show_t the_module in
   let bstree_show_float = L.declare_function "showNumTree" bstree_show_t the_module in
@@ -389,6 +393,15 @@ and translate (globals, functions) =
           | A.Num -> bstreedelete_float_f)
       | _ -> raise (Failure ("Invalid data structure type - delete function")))
     in
+
+    let call_contains_ptr ds_type = function
+      A.Id name -> (match (name_to_type name) with
+        A.BSTreeType _ -> (match ds_type with 
+            A.Int -> bstreecontains_int_f
+          | A.Num -> bstreecontains_float_f)
+      | _ -> raise (Failure ("Invalid data structure type - contains function")))
+    in
+
     let call_quicksort_ptr data_type = function
       A.Id name -> (match (name_to_type name) with
         A.Arraytype(_, _) -> (match data_type with
@@ -635,6 +648,13 @@ and translate (globals, functions) =
         let obj_method = call_delete_ptr obj_type obj in
         ignore (L.build_call obj_method [| obj_val; e_val |] "" llbuilder);
         obj_val
+      | A.ObjectCall (obj, "contains", [e]) -> 
+        let obj_val = expr_generator llbuilder obj in
+        let obj_type = get_type obj in
+        let e_val = expr_generator llbuilder e in
+        let obj_method = call_contains_ptr obj_type obj in
+        let result = L.build_call obj_method [| obj_val; e_val |] "res" llbuilder in
+        result
       | A.ObjectCall (l, "get", [e]) ->
         let l_ptr = expr_generator llbuilder l in
         let e_val = expr_generator llbuilder e in

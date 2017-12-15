@@ -91,6 +91,10 @@ let check (globals, functions) =
      { typ = Void; fname = "delete"; formals = [(NumberType, "x")];
         body = [] }
 
+        (StringMap.add "contains"
+     { typ = Int; fname = "contains"; formals = [(NumberType, "x")];
+        body = [] }
+
         (StringMap.add "fquickSort"
      { typ = Void; fname = "fquickSort"; formals = [];
        body = [] }
@@ -107,7 +111,7 @@ let check (globals, functions) =
       { typ = Void; fname = "showQuickSort"; formals = [];
         body = [] }
 
-     ))))))))))))
+     )))))))))))))
 
    in
 
@@ -294,6 +298,14 @@ let check (globals, functions) =
                   " expected " ^ string_of_typ actqtype ^ " type " ^ " in " ^ string_of_expr e)))
                    | LinkedListType(actqtype) -> ignore(check_assign Int et (Failure ("illegal actual delete argument found " ^ string_of_typ et ^
                   " expected int type " ^ " in " ^ string_of_expr e)))
+
+                else if fname = "contains" then
+                   let acttype = expr oname in
+                   let actqtype = get_type acttype in
+                   match acttype with
+                   | BSTreeType(actqtype) -> ignore(check_assign actqtype et (Failure ("illegal actual contains argument found " ^ string_of_typ et ^
+                  " expected " ^ string_of_typ actqtype ^ " type " ^ " in " ^ string_of_expr e)))
+                   | _ -> raise (Failure (".contains() is only applicable to the the tree data type"))
                   
                  (* else if fname = "peek" then
                    let acttype = expr oname in

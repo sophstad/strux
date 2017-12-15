@@ -1,0 +1,9 @@
+int main() {
+    BSTree::int tree = new BSTree::int();
+    tree.add(2);
+    tree.add(3);
+    tree.add(1);
+    int i = tree.contains(1);
+    print(i);
+    return 0;
+}
