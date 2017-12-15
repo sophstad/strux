@@ -1,8 +1,9 @@
 int main() {
-  int[] a = [1, 2, 3];
+  int[3] a = [1, 2, 3];
   print(a[0]);
   print(a[1]);
   print(a[2]);
+  a.show();
 
   print(testBoolArray());
   print(testStringArray());
@@ -10,11 +11,11 @@ int main() {
 }
 
 bool testBoolArray() {
-  bool[] myBoolArray = [true, false, true];
+  bool[3] myBoolArray = [true, false, true];
   return myBoolArray[1];
 }
 
 string testStringArray() {
-  string[] myStringArray = ["hello", "world"];
+  string[2] myStringArray = ["hello", "world"];
   return myStringArray[1];
 }

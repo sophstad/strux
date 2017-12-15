@@ -9,6 +9,7 @@ module A = Ast
 module StringMap = Map.Make(String)
 
 let context = L.global_context ()
+
 let queuem = L.MemoryBuffer.of_file "queue.bc" 
 let listm = L.MemoryBuffer.of_file "linkedlist.bc" 
 let stackm = L.MemoryBuffer.of_file "stack.bc" 
@@ -19,6 +20,7 @@ let list_qm = Llvm_bitreader.parse_bitcode context listm
 let stack_qm = Llvm_bitreader.parse_bitcode context stackm
 let bstree_qm = Llvm_bitreader.parse_bitcode context bstreem 
 let quicksort_qm = Llvm_bitreader.parse_bitcode context quicksortm 
+
 let the_module = L.create_module context "Strux"
 and f_t    = L.double_type context  (* float *)
 and i8_t   = L.i8_type   context    (* print type *)
@@ -29,7 +31,7 @@ and i32_t  = L.i32_type  context
 and queue_t = L.pointer_type (match L.type_by_name qqm "struct.Queue" with
     None -> raise (Invalid_argument "Option.get queue") | Some x -> x)
 and stack_t = L.pointer_type (match L.type_by_name stack_qm "struct.Stack" with
-    None -> raise (Invalid_argument "Option.get stack") | Some x -> x) 
+    None -> raise (Invalid_argument "Option.get stack") | Some x -> x)
 and linkedlist_t = L.pointer_type (match L.type_by_name list_qm "struct.LinkedList" with
     None -> raise (Invalid_argument "Option.get linkedlmist") | Some x -> x) 
 and bstree_t = L.pointer_type (match L.type_by_name bstree_qm "struct.BSTree" with
@@ -41,7 +43,7 @@ let rec ltype_of_typ = function (* LLVM type for AST type *)
   | A.String -> str_t
   | A.Bool -> i1_t
   | A.Void -> void_t
-  | A.Arraytype(t) -> L.pointer_type (ltype_of_typ t)
+  | A.Arraytype(t, _) -> L.pointer_type (ltype_of_typ t)
   | A.QueueType _ -> queue_t
   | A.LinkedListType _ -> linkedlist_t
   | A.BSTreeType _ -> bstree_t
@@ -82,9 +84,9 @@ and translate (globals, functions) =
   let dequeue_f = L.declare_function "dequeue" dequeue_t the_module in
   let peek_t = L.function_type (L.pointer_type i8_t) [| queue_t |] in
   let peek_f = L.declare_function "peek" peek_t the_module in
-  let sizeQ_t = L.function_type i32_t [| queue_t |] in 
-  let sizeQ_f = L.declare_function "queue_size" sizeQ_t the_module in 
-  let q_show_t = L.function_type void_t [| queue_t |] in 
+  let sizeQ_t = L.function_type i32_t [| queue_t |] in
+  let sizeQ_f = L.declare_function "queue_size" sizeQ_t the_module in
+  let q_show_t = L.function_type void_t [| queue_t |] in
   let q_show_int = L.declare_function "queue_show_int" q_show_t the_module in
   let q_show_float = L.declare_function "queue_show_float" q_show_t the_module in
   let q_show_string = L.declare_function "queue_show_string" q_show_t the_module in
@@ -98,15 +100,15 @@ and translate (globals, functions) =
   let delete_f = L.declare_function "delete" delete_t the_module in
   let get_t = L.function_type (L.pointer_type i8_t) [| linkedlist_t; i32_t |] in
   let get_f = L.declare_function "get" get_t the_module in
-  let sizeList_t = L.function_type i32_t [| linkedlist_t |] in 
-  let sizeList_f = L.declare_function "size" sizeList_t the_module in 
-  let l_show_t = L.function_type void_t [| linkedlist_t |] in 
+  let sizeList_t = L.function_type i32_t [| linkedlist_t |] in
+  let sizeList_f = L.declare_function "size" sizeList_t the_module in
+  let l_show_t = L.function_type void_t [| linkedlist_t |] in
   let l_show_int = L.declare_function "ll_show_int" l_show_t the_module in
   let l_show_float = L.declare_function "ll_show_float" l_show_t the_module in
   let l_show_string = L.declare_function "ll_show_string" l_show_t the_module in
 
   (*built-in stack functions*)
-  let initStack_t = L.function_type stack_t [| |] in 
+  let initStack_t = L.function_type stack_t [| |] in
   let initStack_f = L.declare_function "initStack" initStack_t the_module in
   let push_t = L.function_type void_t [| stack_t; L.pointer_type i8_t|] in
   let push_f = L.declare_function "push" push_t the_module in
@@ -116,20 +118,23 @@ and translate (globals, functions) =
   let top_f = L.declare_function "top" top_t the_module in
   let sizeS_t = L.function_type i32_t [| stack_t |] in
   let sizeS_f = L.declare_function "stack_size" sizeS_t the_module in
-  let s_show_t = L.function_type void_t [| stack_t |] in 
+  let s_show_t = L.function_type void_t [| stack_t |] in
   let s_show_int = L.declare_function "stack_show_int" s_show_t the_module in
   let s_show_float = L.declare_function "stack_show_float" s_show_t the_module in
   let s_show_string = L.declare_function "stack_show_string" s_show_t the_module in
 
 
   (* quicksort array functions *)
+  (*takes in int[] to do quick sort *)
   let cQuickSort_t = L.function_type (L.pointer_type (ltype_of_typ A.Int)) [| L.pointer_type (ltype_of_typ A.Int); i32_t |] in
   let cQuickSort_f = L.declare_function "cQuickSort" cQuickSort_t the_module in
-  let cShowQuickSort_t = L.function_type (L.pointer_type (ltype_of_typ A.Int)) [| L.pointer_type (ltype_of_typ A.Int); i32_t |] in
+  let cShowQuickSort_t = L.function_type void_t [| L.pointer_type (ltype_of_typ A.Int); i32_t |] in
   let cShowQuickSort_f = L.declare_function "cShowQuickSort" cShowQuickSort_t the_module in
+  
+  (*takes in num[] to do quick sort *)
   let cQuickfSort_t = L.function_type (L.pointer_type (ltype_of_typ A.Num)) [| L.pointer_type (ltype_of_typ A.Num); i32_t |] in
   let cQuickfSort_f = L.declare_function "cQuickfSort" cQuickfSort_t the_module in
-  let cShowfQuickSort_t = L.function_type (L.pointer_type (ltype_of_typ A.Num)) [| L.pointer_type (ltype_of_typ A.Num); i32_t |] in
+  let cShowfQuickSort_t = L.function_type void_t [| L.pointer_type (ltype_of_typ A.Num); i32_t |] in
   let cShowfQuickSort_f = L.declare_function "cShowfQuickSort" cShowfQuickSort_t the_module in
 
   (*built-in bstree functions*)
@@ -185,6 +190,43 @@ and translate (globals, functions) =
       | A.StackType _ -> float_format_str b *)
       | _ -> raise (Failure ("Invalid printf type"))
   in
+
+  let int_format_zeroth     b = L.build_global_stringptr "[%d" "fmt" b
+  and num_format_zeroth     b = L.build_global_stringptr "[%f" "fmt" b
+  and string_format_zeroth  b = L.build_global_stringptr "[%s" "fmt" b in
+
+  let int_format_arr      b = L.build_global_stringptr ", %d" "fmt" b
+  and num_format_arr      b = L.build_global_stringptr ", %f" "fmt" b
+  and string_format_arr   b = L.build_global_stringptr ", %s" "fmt" b in
+
+  let int_format_last     b = L.build_global_stringptr ", %d]\n" "fmt" b
+  and num_format_last     b = L.build_global_stringptr ", %f]\n" "fmt" b
+  and string_format_last  b = L.build_global_stringptr ", %s]\n" "fmt" b in
+
+  let format_arr_print x_type index length builder =
+    let b = builder in
+    if index == 0 then
+      match x_type with
+        A.Int -> int_format_zeroth b
+      | A.Num -> num_format_zeroth b
+      | A.String -> string_format_zeroth b
+      | A.Bool -> int_format_zeroth b
+      | _ -> raise (Failure ("Invalid array print type"))
+    else if index == length - 1 then
+      match x_type with
+        A.Int -> int_format_last b
+      | A.Num -> num_format_last b
+      | A.String -> string_format_last b
+      | A.Bool -> int_format_last b
+      | _ -> raise (Failure ("Invalid array print type"))
+    else
+      match x_type with
+        A.Int -> int_format_arr b
+      | A.Num -> num_format_arr b
+      | A.String -> string_format_arr b
+      | A.Bool -> int_format_arr b
+      | _ -> raise (Failure ("Invalid array print type"))
+    in
 
     (* Fill in the body of the given function *)
     let build_function_body func_decl =
@@ -261,15 +303,27 @@ and translate (globals, functions) =
       if assign then _val else L.build_load _val "tmp" builder
     in
 
+    let get_array_len = function
+      A.Id name -> (match (name_to_type name) with
+                    A.Arraytype(_, len) -> len
+                  | _ -> raise (Failure ("Can't get the length of this object")))
+    in
+
+    let is_array = function
+      A.Id name -> (match (name_to_type name) with
+        A.Arraytype(_, _) -> true
+      | _ -> false)
+    in
+
     let rec gen_type = function
         A.IntLit _ -> A.Int
       | A.NumLit _ -> A.Num
       | A.StringLit _ -> A.String
       | A.BoolLit _ -> A.Bool
-      | A.ArrayLit el -> A.Arraytype (gen_type (List.nth el 0))
+      | A.ArrayLit el -> A.Arraytype (gen_type (List.nth el 0), List.length el)
       | A.ArrayElementAssign (_, _, el) -> gen_type el
       | A.Id name -> (match (name_to_type name) with
-                      A.Arraytype(t) -> t
+                      A.Arraytype(t, _) -> t
                     | _ as ty -> ty)
       | A.Unop(_,e) -> gen_type e
       | A.Binop(e1,_,_) -> gen_type e1
@@ -283,14 +337,15 @@ and translate (globals, functions) =
       | A.Noexpr -> A.Void
     in
 
-    let get_type = function 
+    let get_type = function
       A.Id name -> (match (name_to_type name) with
         A.QueueType(typ) -> typ
       | A.LinkedListType(typ) -> typ
       | A.BSTreeType(typ) -> typ
       | A.StackType(typ) -> typ
+      | A.Arraytype(typ, _) -> typ
       | _ as typ -> typ)
-    in 
+    in
 
     let call_size_ptr = function
       A.Id name -> (match (name_to_type name) with
@@ -318,50 +373,24 @@ and translate (globals, functions) =
       | _ -> raise (Failure ("Invalid data structure type - delete function")))
     in
 
-  (*   let q_type_show ds_type = function  
-       A.Int  -> q_show_int
-      | A.Num  -> q_show_float 
-      | A.String  -> q_show_string
-    in 
-
-    let s_type_show ds_type = function 
-      A.Int -> s_show_int
-      | A.Num -> s_show_float 
-      | A.String -> s_show_string
-    in 
-
-    let l_type_show ds_type = function 
-      A.Int -> l_show_int
-      | A.Num -> l_show_float 
-      | A.String  -> l_show_string
-    in 
-
-    let call_show_ptr obj_val ds_type = function
+    let call_show_ptr data_type = function
       A.Id name -> (match (name_to_type name) with
-        A.QueueType _ -> q_type_show ds_type
-      | A.StackType _ -> s_type_show ds_type
-      | A.LinkedListType _ -> l_type_show ds_type
-      | _ -> raise (Failure ("Invalid data structure type - show function")))
-    in *)
-
-    let call_show_ptr ds_type = function
-      A.Id name -> (match (name_to_type name) with
-        A.QueueType _ -> (match ds_type with
+        A.QueueType _ -> (match data_type with
            A.Int -> q_show_int
-         | A.Num -> q_show_float 
+         | A.Num -> q_show_float
          | A.Bool -> q_show_int
          | A.String -> q_show_string)
-      | A.StackType _ -> (match ds_type with
+      | A.StackType _ -> (match data_type with
            A.Int -> s_show_int
-         | A.Num -> s_show_float 
+         | A.Num -> s_show_float
          | A.Bool -> s_show_int
          | A.String -> s_show_string)
-      | A.LinkedListType _ -> (match ds_type with
+      | A.LinkedListType _ -> (match data_type with
            A.Int -> l_show_int
-         | A.Num -> l_show_float 
+         | A.Num -> l_show_float
          | A.Bool -> l_show_int
          | A.String -> l_show_string)
-      | A.BSTreeType _ -> (match ds_type with 
+      | A.BSTreeType _ -> (match data_type with 
             A.Int -> bstree_show_int
           | A.Num -> bstree_show_float)
       | _ -> raise (Failure ("Invalid data structure type - show function")))
@@ -420,14 +449,14 @@ and translate (globals, functions) =
         list_ptr
       | A.StackLit (typ, act) ->
         let d_ltyp = ltype_of_typ typ in
-        let stack_ptr = L.build_call initStack_f [| |] "init" llbuilder in 
-        let add_element elem = 
-          let d_ptr = match typ with 
-          | A.StackType _ -> expr_generator llbuilder elem 
-          | _ -> 
-            let element = expr_generator llbuilder elem in 
-            let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in 
-            ignore (L.build_store element d_ptr llbuilder); d_ptr in 
+        let stack_ptr = L.build_call initStack_f [| |] "init" llbuilder in
+        let add_element elem =
+          let d_ptr = match typ with
+          | A.StackType _ -> expr_generator llbuilder elem
+          | _ ->
+            let element = expr_generator llbuilder elem in
+            let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in
+            ignore (L.build_store element d_ptr llbuilder); d_ptr in
           let void_d_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in
           ignore (L.build_call push_f [| stack_ptr; void_d_ptr |] "" llbuilder)
         in ignore (List.map add_element act);
@@ -558,26 +587,33 @@ and translate (globals, functions) =
       | A.ObjectCall (obj, "remove", []) ->
         let obj_val = expr_generator llbuilder obj in
         let obj_method = call_pop_ptr obj in
-        ignore (L.build_call obj_method [| obj_val|] "" llbuilder); obj_val  
-      | A.ObjectCall (obj, "peek", []) -> 
+        ignore (L.build_call obj_method [| obj_val|] "" llbuilder); obj_val
+      | A.ObjectCall (obj, "peek", []) ->
         let obj_val = expr_generator llbuilder obj in
-        let obj_type = get_type obj in 
+        let obj_type = get_type obj in
         let obj_method = call_peek_ptr obj in
         let val_ptr = L.build_call obj_method [| obj_val |] "val_ptr" llbuilder in
         let dtyp = ltype_of_typ obj_type in
         let ptr = L.build_bitcast val_ptr (L.pointer_type dtyp) "d_ptr" llbuilder in
         (L.build_load ptr "d_ptr" llbuilder)
-      | A.ObjectCall (obj, "show", []) -> 
+      | A.ObjectCall (obj, "show", []) ->
         let obj_val = expr_generator llbuilder obj in
         let obj_type = get_type obj in 
-        let obj_method = call_show_ptr obj_type obj in
-        ignore (L.build_call obj_method [| obj_val |] "" llbuilder); obj_val
-(*  
-        let q_type = get_type q in 
-        (match q_type with 
-         A.Int -> ignore (L.build_call show_int [| q_val|] "" llbuilder); q_val 
-       | A.Num -> ignore (L.build_call show_float [| q_val|] "" llbuilder); q_val 
-       | A.String -> ignore (L.build_call show_string [| q_val|] "" llbuilder); q_val) *)
+        let print_array arr builder =
+          let len = get_array_len obj in
+          let llval = lookup (match arr with
+                                A.Id(s) -> s
+                              | _ -> raise (Failure("variable not found"))) in
+          for index = 0 to len - 1 do
+            let item = access_array llval (L.const_int i32_t index) false builder in
+            (L.build_call printf_func [| (format_arr_print obj_type index len llbuilder) ; item |] "printf" llbuilder)
+          done
+        in
+
+        if is_array obj then print_array obj llbuilder
+        else (let obj_method = call_show_ptr obj_type obj in
+          ignore (L.build_call obj_method [| obj_val |] "" llbuilder));
+        obj_val
       | A.ObjectCall (obj, "size", []) ->
         let e = expr_generator llbuilder obj in
         let obj_size = call_size_ptr obj in
@@ -603,15 +639,27 @@ and translate (globals, functions) =
       | A.ObjectCall (l, "get", [e]) ->
         let l_ptr = expr_generator llbuilder l in
         let e_val = expr_generator llbuilder e in
-        let l_type = get_type l in 
+        let l_type = get_type l in
         let val_ptr = L.build_call get_f [| l_ptr; e_val |] "val_ptr" llbuilder in
         let l_dtyp = ltype_of_typ l_type in
         let d_ptr = L.build_bitcast val_ptr (L.pointer_type l_dtyp) "d_ptr" llbuilder in
         (L.build_load d_ptr "d_ptr" llbuilder)
-      | A.ObjectCall(a, "quickSort", [e]) ->
+      | A.ObjectCall(a, "quickSort", []) ->
         let a_val = expr_generator llbuilder a in
-        let e_val = expr_generator llbuilder e in
-        ignore (L.build_call cQuickSort_f [| a_val; e_val|] "" llbuilder); a_val in 
+        let len = L.const_int i32_t (get_array_len a) in
+        ignore (L.build_call cQuickSort_f [| a_val; len |] "" llbuilder); a_val
+      | A.ObjectCall(a, "showQuickSort", []) ->
+        let a_val = expr_generator llbuilder a in
+        let len = L.const_int i32_t (get_array_len a) in
+        ignore (L.build_call cShowQuickSort_f [| a_val; len|] "" llbuilder); a_val
+      | A.ObjectCall(a, "fshowQuickSort", []) ->
+        let a_val = expr_generator llbuilder a in
+        let len = L.const_int i32_t (get_array_len a) in
+        ignore (L.build_call cShowfQuickSort_f [| a_val; len|] "" llbuilder); a_val
+      | A.ObjectCall(a, "fquickSort", []) ->
+        let a_val = expr_generator llbuilder a in
+        let len = L.const_int i32_t (get_array_len a) in
+        ignore (L.build_call cQuickfSort_f [| a_val; len|] "" llbuilder); a_val in
       (* Invoke "f llbuilder" if the current block doesn't already
          have a terminal (e.g., a branch). *)
       let add_terminal llbuilder f =

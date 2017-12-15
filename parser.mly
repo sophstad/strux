@@ -66,7 +66,7 @@ primitive:
   | BSTREE DOUBLECOL typ { BSTreeType($3) }
 
 array_type:
-    primitive LBRACK RBRACK { Arraytype($1) }
+    primitive LBRACK INT_LITERAL RBRACK { Arraytype($1, $3) }
 
 typ:
     primitive   { $1 }
