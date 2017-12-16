@@ -29,8 +29,9 @@ struct BSTreeNode *deleteNumFromTreeHelper(struct BSTreeNode *node, double data)
 void deleteNumFromTree(struct BSTree *tree, double data);
 int treeContainsInt(struct BSTree *tree, int data);
 int treeContainsNum(struct BSTree *tree, double data);
-int printLeftChild(struct BSTreeNode *tree, int offset, int depth, char s[20][255], int typ);
-int printRightChild(struct BSTreeNode *tree, int offset, int depth, char s[20][255], int typ);
+int treeHeight(struct BSTreeNode* node);
+int printLeftChild(struct BSTreeNode *tree, int offset, int depth, char s[50][255], int typ);
+int printRightChild(struct BSTreeNode *tree, int offset, int depth, char s[50][255], int typ);
 void showTree(struct BSTreeNode *tree, int typ);
 void showIntTree(struct BSTree *tree);
 void showNumTree(struct BSTree *tree);

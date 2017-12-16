@@ -224,9 +224,27 @@ int treeContainsInt(struct BSTree *tree, int data)
     return treeContainsIntHelper(tree->root, data);
 }
 
+int treeHeight(struct BSTreeNode* node) 
+{
+    if (node == NULL)
+        return 0;
+
+    else {
+
+        /* get the height of both children */
+        int leftHeight = treeHeight(node->left);
+        int rightHeight = treeHeight(node->right);
+
+        /* take the larger of the two */
+        if (leftHeight > rightHeight)
+            return (leftHeight + 1);
+        else 
+            return (rightHeight + 1);
+   }
+} 
 
 
-int printLeftChild(struct BSTreeNode *tree, int offset, int depth, char s[20][255], int typ)
+int printLeftChild(struct BSTreeNode *tree, int offset, int depth, char s[50][255], int typ)
 {
     char b[20];
 
@@ -256,7 +274,7 @@ int printLeftChild(struct BSTreeNode *tree, int offset, int depth, char s[20][25
     return left + DATA_WIDTH + right;
 }
 
-int printRightChild(struct BSTreeNode *tree, int offset, int depth, char s[20][255], int typ)
+int printRightChild(struct BSTreeNode *tree, int offset, int depth, char s[50][255], int typ)
 {
     char b[20];
 
@@ -285,24 +303,39 @@ int printRightChild(struct BSTreeNode *tree, int offset, int depth, char s[20][2
     return left + DATA_WIDTH + right;
 }
 
-void showTree(struct BSTreeNode *tree, int typ)
+void showTree(struct BSTreeNode *root, int typ)
 {
-    char s[20][255];
-    for (int i = 0; i < 20; i++)
+    int maxDepth = treeHeight(root);
+    
+    char s[50][255];
+
+    for (int i = 0; i < 50; i++)
         sprintf(s[i], "%80s", " ");
 
-    printLeftChild(tree, 0, 0, s, typ);
+    printLeftChild(root, 0, 0, s, typ);
 
-    for (int i = 0; i < 20; i++)
+    for (int i = 0; i < maxDepth*2-1; i++)
         printf("%s\n", s[i]);
 }
 
 void showIntTree(struct BSTree *tree)
 {
-    showTree(tree -> root, INTEGER);
+    if (tree->root) {
+        showTree(tree -> root, INTEGER);
+        printf("\n%s\n", "--------------------------------------------------------------------------------");
+    }
+    else {
+        printf("%s\n", "Tree is empty!");
+    }
 }
 
 void showNumTree(struct BSTree *tree)
-{
-    showTree(tree -> root, FLOATING);
+{   
+    if (tree->root) {
+        showTree(tree -> root, FLOATING);
+        printf("\n%s\n", "--------------------------------------------------------------------------------");
+    }
+    else {
+        printf("%s\n", "Tree is empty!");
+    }
 }
