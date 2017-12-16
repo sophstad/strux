@@ -1,0 +1,8 @@
+int main() {
+  LinkedList::int lst = new LinkedList::int();
+  for (int i = 0; i < 1000; i++) {
+    lst.add(i);
+  }
+  lst.show();
+  return 0;
+}

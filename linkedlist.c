@@ -132,9 +132,34 @@ void printIndexes(struct LinkedList *list, int typ) {
     printf("<- Index\n");
 }
 
+void ll_simple_show(struct LinkedList *list, int typ) {
+    int i;
+    for (i = 0; i < list->size; i++) {
+        printf("[ ");
+        if (typ == INTEGER) {
+            printf("%d", *(int *) get(list, i));
+        } else if (typ == FLOATING) {
+            printf("%f", *(double *) get(list, i));
+        } else if (typ == STRING) {
+            printf("%s", *(char **) get(list, i));
+        }
+        printf(" ]");
+
+        if (access(list, i) -> next != NULL) {
+            printf("%s", " -> ");
+        }
+    }
+    printf(" -> [ NULL ]\n");
+}
+
 void ll_show(struct LinkedList *list, int typ) {
     if (list->size == 0) {
         printf("LinkedList is empty!");
+        return;
+    }
+
+    if (list->size > 10) {
+        ll_simple_show(list, typ);
         return;
     }
 

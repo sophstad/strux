@@ -101,9 +101,33 @@ void printHeadTail(int len) {
 	printf("%-*s%s\n", padding, "Head", "Tail");
 }
 
+void queue_simple_show(struct Queue *q, int typ) {
+    int i;
+    struct Node *curr = q->front;
+    printf("Head->");
+    for (i = 0; i < q->size; i++) {
+        printf("[ ");
+        if (typ == INTEGER) {
+            printf("%d", *(int *) curr->data);
+        } else if (typ == FLOATING) {
+            printf("%f", *(double *) curr->data);
+        } else if (typ == STRING) {
+            printf("%s", *(char **) curr->data);
+        }
+        curr = curr-> next;
+        printf(" ]");
+    }
+    printf("<-Tail\n");
+}
+
 void queue_show(struct Queue *q, int typ) {
         if (q->size == 0) {
             printf("Queue is empty!");
+            return;
+        }
+
+        if (q-> size > 10) {
+            queue_simple_show(q, typ);
             return;
         }
 
