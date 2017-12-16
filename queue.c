@@ -102,6 +102,11 @@ void printHeadTail(int len) {
 }
 
 void queue_show(struct Queue *q, int typ) {
+        if (q->size == 0) {
+            printf("Queue is empty!");
+            return;
+        }
+
 	// Print top border
 	printBorder(q, typ);
 
