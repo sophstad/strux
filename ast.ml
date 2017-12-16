@@ -48,7 +48,6 @@ type stmt =
   | Return of expr
   | If of expr * stmt * stmt
   | For of expr * expr * expr * stmt
-  | ForEach of typ * expr * expr * stmt (* Is typ correct here? *)
   | While of expr * stmt
 
 type func_decl = {
@@ -150,9 +149,6 @@ let rec string_of_stmt = function
   | For(e1, e2, e3, s) ->
       "for (" ^ string_of_expr e1  ^ " ; " ^ string_of_expr e2 ^ " ; " ^
       string_of_expr e3  ^ ") " ^ string_of_stmt s
-  | ForEach(t, e1, e2, s) ->
-      "forEach (" ^ string_of_typ t ^ " " ^ string_of_expr e1 ^ " in " ^
-      string_of_expr e2 ^ ") " ^ string_of_stmt s
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"

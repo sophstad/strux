@@ -1,8 +1,6 @@
 (* Code generation: translate takes a semantically checked AST and
 produces LLVM IR
 *)
-open Llvm
-
 module L = Llvm
 module A = Ast
 
@@ -53,10 +51,6 @@ let rec ltype_of_typ = function (* LLVM type for AST type *)
   | _ -> raise(Failure("Invalid Data Type"))
 
 and translate (globals, functions) =
-  let global_types =
-    let global_type m (t, n) = StringMap.add n t m in
-    List.fold_left global_type StringMap.empty globals
-  in
   (* Declare each global variable; remember its value in a map *)
   let global_vars = ref StringMap.empty in
 
@@ -233,20 +227,11 @@ and translate (globals, functions) =
         ref (List.fold_left2 add_formal StringMap.empty func_decl.A.formals
           (Array.to_list (L.params the_function))) in
 
-    let local_types =
-      let add_type m (t, n) = StringMap.add n t m in
-      let formal_types = List.fold_left add_type StringMap.empty func_decl.A.formals in
-          List.fold_left add_type formal_types func_decl.A.formals in
-
       (* Return the value or the type for a variable or formal argument *)
       (* All the tables have the structure (type, llvalue) *)
       let lookup n : L.llvalue =
         try (snd (StringMap.find n !local_vars))
         with Not_found -> (snd (StringMap.find n !global_vars))
-      in
-
-      let lookup_types n = try StringMap.find n global_types
-        with Not_found -> StringMap.find n global_types
       in
 
       let name_to_type n : A.typ =
@@ -691,7 +676,6 @@ and translate (globals, functions) =
     | A.If (predicate, s1, s2) -> generate_if predicate s1 s2 llbuilder
     | A.While (predicate, body) -> generate_while  predicate body llbuilder
     | A.For (e1, e2, e3, s) -> stmt_generator llbuilder ( A.Block [A.Expr e1 ; A.While (e2, A.Block [s ; A.Expr e3]) ] )
-    (* | A.ForEach (e1, e2, s) -> generate_for_each typ e1 e2 e3 s llbuilder *)
 
     and generate_if predicate s1 s2 llbuilder =
       let bool_val = expr_generator llbuilder predicate in
