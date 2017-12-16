@@ -1,0 +1,5 @@
+int main() {
+    BSTree::int tree = new BSTree::int(1,3,2,4,6,0,-1,53);
+    tree.show();
+    return 0;
+}

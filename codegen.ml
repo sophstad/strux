@@ -140,7 +140,7 @@ and translate (globals, functions) =
   let bstreedelete_float_f = L.declare_function "deleteNumFromTree" bstreedelete_float_t the_module in
   let bstreecontains_int_t = L.function_type i32_t [| bstree_t; i32_t|] in
   let bstreecontains_int_f = L.declare_function "treeContainsInt" bstreecontains_int_t the_module in
-  let bstreecontains_float_t = L.function_type f_t [| bstree_t; f_t|] in
+  let bstreecontains_float_t = L.function_type i32_t [| bstree_t; f_t|] in
   let bstreecontains_float_f = L.declare_function "treeContainsFloat" bstreecontains_float_t the_module in
   let bstree_show_t = L.function_type void_t [| bstree_t |] in 
   let bstree_show_int = L.declare_function "showIntTree" bstree_show_t the_module in
@@ -437,6 +437,12 @@ and translate (globals, functions) =
       | _ -> raise (Failure ("Invalid data structure type - peek function")))
     in
 
+    let init_bstree_add typ = match typ with
+      | A.Int -> bstreeadd_int_f
+      | A.Num -> bstreeadd_float_f
+      | _ -> raise (Failure ("Invalid tree constructor"))
+    in
+
     let rec expr_generator llbuilder = function
         A.NumLit(n) -> L.const_float f_t n
       | A.IntLit(i) -> L.const_int i32_t i
@@ -488,6 +494,7 @@ and translate (globals, functions) =
       | A.BSTreeLit (typ, act) ->
         let d_ltyp = ltype_of_typ typ in
         let bstree_ptr = L.build_call initBSTree_f [| |] "init" llbuilder in 
+        let obj_method = init_bstree_add typ in
         let add_element elem = 
           let d_ptr = match typ with 
           | A.BSTreeType _ -> expr_generator llbuilder elem 
@@ -496,7 +503,7 @@ and translate (globals, functions) =
             let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in 
             ignore (L.build_store element d_ptr llbuilder); d_ptr in 
           let void_d_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in
-          ignore (L.build_call push_f [| bstree_ptr; void_d_ptr |] "" llbuilder)
+          ignore (L.build_call obj_method [| bstree_ptr; void_d_ptr |] "" llbuilder)
         in ignore (List.map add_element act);
         bstree_ptr
       | A.Binop (e1, op, e2) ->
