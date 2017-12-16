@@ -8,5 +8,9 @@ int main() {
 	int x = s.size();
 	print(x);
 	print(topelement);
+
+        Stack::int emptyStack = new Stack::int();
+        emptyStack.show();
+
 	return 0;
 }

@@ -133,6 +133,11 @@ void printIndexes(struct LinkedList *list, int typ) {
 }
 
 void ll_show(struct LinkedList *list, int typ) {
+    if (list->size == 0) {
+        printf("LinkedList is empty!");
+        return;
+    }
+
     printLlBorder(list, typ);
 
     int i;
@@ -164,17 +169,3 @@ void ll_show_float(struct LinkedList* list)
 {	
     ll_show(list, FLOATING);
 }
-
-
-// int main()
-// {
-//     struct LinkedList* list = initList();
- 
-//     add(list, 10);
-//     add(list, 20);
-//     add(list, 30);
- 
-//     printf("Front item is %d\n", get(list, 0));
-//	   show(list);
-//     return 0;
-// }
