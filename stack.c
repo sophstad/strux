@@ -64,6 +64,11 @@ void printLine(int size) {
 }
 
 void stack_show(struct Stack *stack, int typ) {
+        if (stack->size == 0) {
+            printf("Stack is empty!");
+            return;
+        }
+
         int INTEGER_MAX = 13;
         int FLOATING_MAX = 20;
         int STRING_MAX = 48;
