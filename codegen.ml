@@ -128,6 +128,12 @@ and translate (globals, functions) =
   let num_show_quickSort_t = L.function_type void_t [| L.pointer_type (ltype_of_typ A.Num); i32_t |] in
   let num_show_quickSort_f = L.declare_function "cShowfQuickSort" num_show_quickSort_t the_module in
 
+  (*takes in string[] to do quick sort *)
+  let string_quickSort_t = L.function_type (L.pointer_type (ltype_of_typ A.String)) [| L.pointer_type (ltype_of_typ A.String); i32_t |] in
+  let string_quickSort_f = L.declare_function "cQuicksSort" string_quickSort_t the_module in
+  let string_show_quickSort_t = L.function_type void_t [| L.pointer_type (ltype_of_typ A.String); i32_t |] in
+  let string_show_quickSort_f = L.declare_function "cShowsQuickSort" string_show_quickSort_t the_module in
+
   (*built-in bstree functions*)
   let initBSTree_t = L.function_type bstree_t [| |] in 
   let initBSTree_f = L.declare_function "initBSTree" initBSTree_t the_module in
@@ -393,7 +399,8 @@ and translate (globals, functions) =
       A.Id name -> (match (name_to_type name) with
         A.Arraytype(_, _) -> (match data_type with
           A.Int -> int_quickSort_f
-        | A.Num -> num_quickSort_f)
+        | A.Num -> num_quickSort_f
+        | A.String -> string_quickSort_f)
       | _ -> raise (Failure ("Cannot perform quicksort on this datatype")))
     in
 
@@ -401,7 +408,8 @@ and translate (globals, functions) =
       A.Id name -> (match (name_to_type name) with
         A.Arraytype(_, _) -> (match data_type with
           A.Int -> int_show_quickSort_f
-        | A.Num -> num_show_quickSort_f)
+        | A.Num -> num_show_quickSort_f
+        | A.String -> string_show_quickSort_f)
       | _ -> raise (Failure ("Cannot perform quicksort on this datatype")))
     in
 
