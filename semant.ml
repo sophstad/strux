@@ -242,7 +242,8 @@ let check (globals, functions) =
 
       | Reassign(var, e) as ex ->
           let rt = expr e and lt = type_of_identifier var in
-          check_assign lt rt (Failure ("illegal assignment " ^ string_of_typ lt ^ " = " ^ string_of_typ rt ^ " in " ^ string_of_expr ex))
+          check_assign lt rt (Failure ("illegal assignment " ^ string_of_typ lt ^ 
+                              " = " ^ string_of_typ rt ^ " in " ^ string_of_expr ex))
       | FuncCall(fname, actuals) as call ->
         if fname = "print"
         then (if List.length actuals == 1
@@ -253,8 +254,9 @@ let check (globals, functions) =
                        arg_type = string_of_typ (Bool) ||
                        arg_type = string_of_typ (AnyType)
                     then Void
-                    else raise (Failure ("illegal actual argument found in print " ^ string_of_typ (expr (List.hd actuals)) ^
-                                                      " in " ^ string_of_expr (List.hd actuals)))
+                    else raise (Failure ("illegal actual argument found in print " ^
+                                string_of_typ (expr (List.hd actuals)) ^
+                                " in " ^ string_of_expr (List.hd actuals)))
                else raise (Failure ("expecting 1 argument in " ^ string_of_expr call)))
         else let fd = function_decl fname in
            if List.length actuals != List.length fd.formals
@@ -269,25 +271,25 @@ let check (globals, functions) =
              fd.typ
       | ArrayLit(el) -> expr (List.nth el 0)
       | ArrayAccess(var, el) as element->
-          if expr el != Int then raise (Failure ("Invalid element access in " ^ string_of_expr element))
+          if expr el != Int 
+          then raise (Failure ("Invalid element access in " ^ string_of_expr element))
           else array_typ (type_of_identifier var)
       | ArrayElementAssign (s, i, e) as ex ->
           let lt =
-            if expr i != Int then raise (Failure ("invalid element access in " ^ string_of_expr ex))
+            if expr i != Int 
+            then raise (Failure ("invalid element access in " ^ string_of_expr ex))
             else array_typ (type_of_identifier s)
           in
           let rt = expr e in
           check_assign lt rt (Failure ("illegal assignment " ^ string_of_typ lt ^ " = " ^ string_of_typ rt ^ " in " ^ string_of_expr ex));
-      | ObjectCall(oname, fname, actuals) as objectcall -> let fd = function_decl fname in
+      | ObjectCall(oname, fname, actuals) as objectcall -> 
+          let fd = function_decl fname in
           let returntype = ref (fd.typ) in
           if List.length actuals != List.length fd.formals then
-            raise (Failure ("expecting " ^ string_of_int
-               (List.length fd.formals) ^ " arguments in " ^ string_of_expr objectcall))
-
+            raise (Failure ("expecting " ^ string_of_int (List.length fd.formals) ^ 
+                  " arguments in " ^ string_of_expr objectcall))
           else
              List.iter2 (fun (ft, _) e -> let et = expr e in
-
-              (* if fname = "qfront" then let _ = print_endline (string_of_typ actqtype) in returntype := actqtype *)
                 if fname = "add" then
                    let acttype = expr oname in
                    let actqtype = get_type acttype in
@@ -303,7 +305,6 @@ let check (globals, functions) =
                   let actatype = array_typ acttype in
                   ignore(check_assign actatype et (Failure ("illegal actual size argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ actatype ^ " in " ^ string_of_expr e)))
-    
                 else if fname = "delete" then
                    let acttype = expr oname in
                    let actqtype = get_type acttype in
@@ -312,14 +313,6 @@ let check (globals, functions) =
                   " expected " ^ string_of_typ actqtype ^ " type " ^ " in " ^ string_of_expr e)))
                    | LinkedListType(actqtype) -> ignore(check_assign Int et (Failure ("illegal actual delete argument found " ^ string_of_typ et ^
                   " expected int type " ^ " in " ^ string_of_expr e)))
-                  
-                 (* else if fname = "peek" then
-                   let acttype = expr oname in
-                   let actqtype = getQueueType acttype in
-                  ignore(check_assign actqtype et (Failure ("illegal actual peek for queue argument found " ^ string_of_typ et ^
-
-                  " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e)))
-              *)
                 else ignore (check_assign ft et (Failure ("illegal actual argument found " ^ string_of_typ et ^
                       " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e)))) fd.formals actuals;
                  !returntype

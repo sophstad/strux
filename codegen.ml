@@ -162,11 +162,6 @@ and translate (globals, functions) =
       | A.Num    -> float_format_str b
       | A.String  -> string_format_str b
       | A.Bool     -> int_format_str b
-      (*TODO: fix this!!!!!!!!!*)
-(*       | A.QueueType _ -> float_format_str b
-      | A.LinkedListType _ -> float_format_str b
-      | A.BSTreeType _ -> float_format_str b
-      | A.StackType _ -> float_format_str b *)
       | _ -> raise (Failure ("Invalid printf type"))
   in
 
@@ -506,13 +501,6 @@ and translate (globals, functions) =
           | A.Geq     -> L.build_icmp L.Icmp.Sge
           | _ -> L.build_icmp L.Icmp.Eq
         )
-       (*  and str_ops = (match op with
-            A.Concat -> expr_generator llbuilder (A.StringLit((string_from_expr e1) ^ (string_from_expr e2), t))
-          | _ -> (L.const_int i32_t 0)
-        ) *)
-
-        (*  if ((L.type_of e1' = str_t) && (L.type_of e2' = str_t)) then str_ops
-         else  *)
         in
 
         if ((L.type_of e1' = f_t) && (L.type_of e2' = f_t)) then num_ops e1' e2' "tmp" llbuilder
