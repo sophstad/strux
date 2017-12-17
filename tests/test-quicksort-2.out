@@ -48,3 +48,5 @@ current array: [ 1 2 3 4 6 23 7 37 99 ]
 pivot swapped: 23,7
 array after swap: [ 1 2 3 4 6 7 23 37 99 ]
 pivot is 7
+=====================================================================================
+QuickSort complete! Final Result: [ 1 2 3 4 6 7 23 37 99 ]

@@ -66,7 +66,7 @@ void sdisplay(char* a[], int length) {
     int i;
     printf("[ ");
 
-    for(i = 0;i<length;i++) {
+    for(i = 1;i<=length;i++) {
       printf("%s ",a[i]);
   }
 
@@ -447,18 +447,27 @@ void cShowQuickSort(int a[], int length) {
   int right = length;
   length = length;
   showQuickSort(a, 0, right, length);
+  printf("%s\n", "=====================================================================================");
+  printf("%s", "QuickSort complete! Final Result: ");
+  display(a, length);
 }
 
 void cShowfQuickSort(double a[], int length) {
   int right = length;
   length = length;
   showfQuickSort(a, 0, right, length);
+  printf("%s\n", "=====================================================================================");
+  printf("%s", "QuickSort complete! Final Result: ");
+  fdisplay(a, length);
 }
 
 void cShowsQuickSort(char *a[], int length) {
   int right = length;
   length = length;
   showsQuickSort(a, 1, right, length);
+  printf("%s\n", "=====================================================================================");
+  printf("%s", "QuickSort complete! Final Result: ");
+  sdisplay(a, length);
 }
 
 void cQuickSort(int a[], int length) {
