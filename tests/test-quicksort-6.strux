@@ -1,0 +1,6 @@
+int main() {
+    string[5] a = ["kofi", "josh", "millie", "sophie", "edwards"];
+    a.quickSort();
+    a.show();
+    return 0;
+}
