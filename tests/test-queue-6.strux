@@ -2,5 +2,6 @@ int main() {
 	Queue::string q = new Queue::string();
 	q.add("S");
 	string s = q.peek(); 
+	q.show();
 	return 0;
 }

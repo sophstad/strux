@@ -4,6 +4,6 @@ int main() {
 
   	myArray[2] = 3.5;
   	print(myArray[2]);
-        myArray.show();
+    myArray.show();
   	return 0;
 }

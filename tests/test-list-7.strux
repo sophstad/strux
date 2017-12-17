@@ -6,10 +6,10 @@ int main() {
 	l.add("WWW");
 	l.show();
 
-        LinkedList::bool lb = new LinkedList::bool();
-        lb.add(false);
-        lb.add(true);
-        lb.show();
+    LinkedList::bool lb = new LinkedList::bool();
+    lb.add(false);
+    lb.add(true);
+    lb.show();
 
 	return 0;
 }

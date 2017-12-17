@@ -3,9 +3,8 @@
 %token SEMI LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK COMMA DOUBLECOL
 %token PLUS MINUS TIMES DIVIDE INCR DECR MOD ASSIGN NOT
 %token EQ NEQ LT LEQ GT GEQ TRUE FALSE AND OR
-%token RETURN NULL IF ELSE ELIF BREAK CONTINUE NEW FOR FOREACH IN WHILE NUM INT BOOL STRING VOID DOT
+%token RETURN NULL IF ELIF ELSE NEW FOR WHILE NUM INT BOOL STRING VOID DOT
 %token QUEUE LINKEDLIST STACK BSTREE
-/*%token STACK QUEUE LINKEDLIST LISTNODE BSTREE TREENODE*/
 %token <float> NUM_LITERAL
 %token <int> INT_LITERAL
 %token <string> STRING_LITERAL
@@ -59,17 +58,17 @@ primitive:
   | STRING       { String }
   | BOOL         { Bool }
   | VOID         { Void }
-  | QUEUE DOUBLECOL typ { QueueType($3) }
-  | LINKEDLIST DOUBLECOL typ { LinkedListType($3) }
-  | STACK DOUBLECOL typ { StackType($3) }
-  | BSTREE DOUBLECOL typ { BSTreeType($3) }
 
-array_type:
+ds_type:
     primitive LBRACK INT_LITERAL RBRACK { Arraytype($1, $3) }
+  | QUEUE DOUBLECOL primitive           { QueueType($3) }
+  | LINKEDLIST DOUBLECOL primitive      { LinkedListType($3) }
+  | STACK DOUBLECOL primitive           { StackType($3) }
+  | BSTREE DOUBLECOL primitive          { BSTreeType($3) }
 
 typ:
     primitive   { $1 }
-  | array_type  { $1 }
+  | ds_type     { $1 }
 
 stmt_list:
     /* nothing */  { [] }
@@ -85,11 +84,10 @@ stmt:
   | IF LPAREN expr RPAREN stmt else_stmt    { If($3, $5, $6) }
   | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt
      { For($3, $5, $7, $9) }
-  /*| FOREACH LPAREN typ expr IN expr RPAREN stmt { ForEach($3, $4, $6, $8) }*/
   | WHILE LPAREN expr RPAREN stmt { While($3, $5) }
 
 else_stmt:
-  ELIF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([])) }
+    ELIF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([])) }
   | ELIF LPAREN expr RPAREN stmt else_stmt { If($3, $5, $6) }
   | ELIF LPAREN expr RPAREN stmt ELSE stmt { If($3, $5, $7) }
 

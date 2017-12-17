@@ -2,5 +2,9 @@ int main() {
 	LinkedList::string l = new LinkedList::string();
 	l.add("S");
 	l.delete(0);
+
+        LinkedList::int emptyL = new LinkedList::int();
+        emptyL.show();
+
 	return 0;
 }

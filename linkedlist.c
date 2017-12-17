@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdlib.h>
 #include <string.h>
+#include "utils.h"
 
 struct LinkedList {
 	struct ListNode *head;
@@ -91,60 +92,105 @@ int size(struct LinkedList *list) {
 	return (list->size);
 }
 
+void printLlBorder(struct LinkedList *list, int typ) {
+    int i;
+    for (i = 0; i < list->size; i++) {
+        int len = 0;
+        char tmp[256];
+        if (typ == INTEGER) {
+            len = sprintf(tmp, " %d ", *(int *) get(list, i));
+        } else if (typ == FLOATING) {
+            len = sprintf(tmp, " %f ", *(double *) get(list, i));
+        } else if (typ == STRING) {
+            len = sprintf(tmp, " %s ", *(char **) get(list, i));
+        }
+
+        int j;
+        printf("+");
+        for (j = 0; j < len; j++) {
+            printf("-");
+        }
+        printf("+  ");
+    }
+    printf("+------+\n");
+}
+
+void printIndexes(struct LinkedList *list, int typ) {
+    int i;
+    for (i = 0; i < list->size; i++) {
+        int len = 0;
+        char tmp[256];
+        if (typ == INTEGER) {
+            len = sprintf(tmp, "| %d |->", *(int *) get(list, i));
+        } else if (typ == FLOATING) {
+            len = sprintf(tmp, "| %f |->", *(double *) get(list, i));
+        } else if (typ == STRING) {
+            len = sprintf(tmp, "| %s |->", *(char **) get(list, i));
+        }
+        printf("%-*d", len, i);
+    }
+    printf("<- Index\n");
+}
+
+void ll_simple_show(struct LinkedList *list, int typ) {
+    int i;
+    for (i = 0; i < list->size; i++) {
+        printf("[ ");
+        if (typ == INTEGER) {
+            printf("%d", *(int *) get(list, i));
+        } else if (typ == FLOATING) {
+            printf("%f", *(double *) get(list, i));
+        } else if (typ == STRING) {
+            printf("%s", *(char **) get(list, i));
+        }
+        printf(" ]");
+
+        if (access(list, i) -> next != NULL) {
+            printf("%s", " -> ");
+        }
+    }
+    printf(" -> [ NULL ]\n");
+}
+
+void ll_show(struct LinkedList *list, int typ) {
+    if (list->size == 0) {
+        printf("LinkedList is empty!");
+        return;
+    }
+
+    if (list->size > 10) {
+        ll_simple_show(list, typ);
+        return;
+    }
+
+    printLlBorder(list, typ);
+
+    int i;
+    for (i = 0; i < list->size; i++) {
+        if (typ == INTEGER) {
+            printf("| %d |->", *(int *) get(list, i));
+        } else if (typ == FLOATING) {
+            printf("| %f |->", *(double *) get(list, i));
+        } else if (typ == STRING) {
+            printf("| %s |->", *(char **) get(list, i));
+        }
+    }
+    printf("| NULL |\n");
+    printLlBorder(list, typ);
+    printIndexes(list, typ);
+}
+
 void ll_show_int(struct LinkedList* list)
 {	
-	for (int i = 0; i < list->size; i++) {
-		printf("%s", "[ ");
-		printf("%d", *(int*)get(list, i));
-		printf("%s", " ]");
-
-		if (access(list, i) -> next != NULL) {
-			printf("%s", " -> ");
-		}
-	}
-	printf("\n");
+    ll_show(list, INTEGER);
 }
 
 void ll_show_string(struct LinkedList* list)
-{	
-	
-	for (int i = 0; i < list->size; i++) {
-
-		printf("%s", "[ ");
-		printf("%s", *(char **) get(list, i));
-		printf("%s", " ]");
-
-		if (access(list, i) -> next != NULL) {
-			printf("%s", " -> ");
-		}
-	}
-	printf("\n");
+{
+    ll_show(list, STRING);
 }
 
 void ll_show_float(struct LinkedList* list)
 {	
-	for (int i = 0; i < list->size; i++) {
-		printf("%s", "[ ");
-		printf("%f", *(double*)get(list, i));
-		printf("%s", " ]");
-
-		if (access(list, i) -> next != NULL) {
-			printf("%s", " -> ");
-		}
-	}
-	printf("\n");
+    ll_show(list, FLOATING);
 }
-
-
-// int main()
-// {
-//     struct LinkedList* list = initList();
- 
-//     add(list, 10);
-//     add(list, 20);
-//     add(list, 30);
- 
-//     printf("Front item is %d\n", get(list, 0));
-//	   show(list);
-//     return 0;
-// }
