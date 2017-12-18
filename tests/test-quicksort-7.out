@@ -5,12 +5,12 @@ pivot swapped: kofi,edwards
 array after swap: [ edwards josh millie sophie kofi ]
 pivot swapped: millie,kofi
 array after swap: [ edwards josh kofi sophie millie ]
-numbers swapped: sophie,kofi
+strings swapped: sophie,kofi
 array after swap: [ edwards josh sophie kofi millie ]
 pivot is kofi
-numbers swapped: sophie,kofi
+strings swapped: sophie,kofi
 array after swap: [ edwards josh kofi sophie millie ]
-numbers swapped: millie,sophie
+strings swapped: millie,sophie
 array after swap: [ edwards josh kofi millie sophie ]
 =====================================================================================
 At this step:
