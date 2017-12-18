@@ -3,7 +3,9 @@ int main() {
     tree.add(2);
     tree.add(3);
     tree.add(1);
-    int i = tree.contains(1);
+    bool i = tree.contains(1);
+    bool j = tree.contains(5);
     print(i);
+    print(j);
     return 0;
 }

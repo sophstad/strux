@@ -92,7 +92,7 @@ let check (globals, functions) =
         body = [] }
 
         (StringMap.add "contains"
-     { typ = Int; fname = "contains"; formals = [(NumberType, "x")];
+     { typ = Bool; fname = "contains"; formals = [(NumberType, "x")];
         body = [] }
 
         (StringMap.add "fquickSort"
