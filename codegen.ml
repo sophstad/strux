@@ -302,6 +302,16 @@ and translate (globals, functions) =
       | _ -> 0 (* If index is a variable we can't check, so default to 0 *)
     in
 
+    let get_type = function
+      A.Id name -> (match (name_to_type name) with
+        A.QueueType(typ) -> typ
+      | A.LinkedListType(typ) -> typ
+      | A.BSTreeType(typ) -> typ
+      | A.StackType(typ) -> typ
+      | A.Arraytype(typ, _) -> typ
+      | _ as typ -> typ)
+    in
+
     let rec gen_type = function
         A.IntLit _ -> A.Int
       | A.NumLit _ -> A.Num
@@ -321,17 +331,11 @@ and translate (globals, functions) =
                             List.find (fun x -> x.A.fname = var) functions in
                             fdecl.A.typ
       | A.ArrayAccess(id,_) -> gen_type (A.Id(id))
+      | A.ObjectCall(_, "size", _) -> A.Int
+      | A.ObjectCall(obj, "peek", _) -> get_type obj
+      | A.ObjectCall(obj, "get", _) -> get_type obj
+      | A.ObjectCall(obj, "contains", _) -> A.Bool
       | A.Noexpr -> A.Void
-    in
-
-    let get_type = function
-      A.Id name -> (match (name_to_type name) with
-        A.QueueType(typ) -> typ
-      | A.LinkedListType(typ) -> typ
-      | A.BSTreeType(typ) -> typ
-      | A.StackType(typ) -> typ
-      | A.Arraytype(typ, _) -> typ
-      | _ as typ -> typ)
     in
 
     let call_size_ptr = function

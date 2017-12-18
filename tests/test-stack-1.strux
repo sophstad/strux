@@ -9,10 +9,8 @@ int main() {
 
         s2.add(2.63);
         s2.add(5.2);
-        num top = s2.peek();
-        int numSize = s2.size();
-        print(numSize);
-        print(top);
+        print(s2.size());
+        print(s2.peek());
 
         s3.add(35);
         int popInt = s3.peek();
