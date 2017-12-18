@@ -1,0 +1,7 @@
+int main() {
+    BSTree::int tree1 = new BSTree::int(1,3,2,4,6,0,-1,53);
+    tree1.show();
+    BSTree::num tree2 = new BSTree::num(1.9,42.1,4.44,3.10,1.1);
+    tree2.show();
+    return 0;
+}

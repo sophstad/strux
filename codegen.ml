@@ -138,6 +138,10 @@ and translate (globals, functions) =
   let bstreedelete_int_f = L.declare_function "deleteIntFromTree" bstreedelete_int_t the_module in
   let bstreedelete_float_t = L.function_type void_t [| bstree_t; f_t|] in
   let bstreedelete_float_f = L.declare_function "deleteNumFromTree" bstreedelete_float_t the_module in
+  let bstreecontains_int_t = L.function_type i1_t [| bstree_t; i32_t|] in
+  let bstreecontains_int_f = L.declare_function "treeContainsInt" bstreecontains_int_t the_module in
+  let bstreecontains_float_t = L.function_type i1_t [| bstree_t; f_t|] in
+  let bstreecontains_float_f = L.declare_function "treeContainsFloat" bstreecontains_float_t the_module in
   let bstree_show_t = L.function_type void_t [| bstree_t |] in 
   let bstree_show_int = L.declare_function "showIntTree" bstree_show_t the_module in
   let bstree_show_float = L.declare_function "showNumTree" bstree_show_t the_module in
@@ -387,6 +391,15 @@ and translate (globals, functions) =
           | A.Num -> bstreedelete_float_f)
       | _ -> raise (Failure ("Invalid data structure type - delete function")))
     in
+
+    let call_contains_ptr ds_type = function
+      A.Id name -> (match (name_to_type name) with
+        A.BSTreeType _ -> (match ds_type with 
+            A.Int -> bstreecontains_int_f
+          | A.Num -> bstreecontains_float_f)
+      | _ -> raise (Failure ("Invalid data structure type - contains function")))
+    in
+
     let call_quicksort_ptr data_type = function
       A.Id name -> (match (name_to_type name) with
         A.Arraytype(_, _) -> (match data_type with
@@ -410,6 +423,20 @@ and translate (globals, functions) =
         A.QueueType _ -> peek_f
       | A.StackType _ -> top_f
       | _ -> raise (Failure ("Invalid data structure type - peek function")))
+    in
+
+   (*  let check_add_value typ val = match typ with
+        A.Int -> if val > 9999 || val < -999 then raise (Failure ("Tree ints must be between -999 and 9999"))
+      | A.Num -> if val > 99.99 || val < -9.99 then raise (Failure ("Tree nums must be between -9.99 and 99.99"))
+      | _ -> raise (Failure ("Unsupported value for add"))
+    in *)
+
+
+
+    let init_bstree_add typ = match typ with
+      | A.Int -> bstreeadd_int_f
+      | A.Num -> bstreeadd_float_f
+      | _ -> raise (Failure ("Invalid tree constructor"))
     in
 
     let rec expr_generator llbuilder = function
@@ -463,6 +490,7 @@ and translate (globals, functions) =
       | A.BSTreeLit (typ, act) ->
         let d_ltyp = ltype_of_typ typ in
         let bstree_ptr = L.build_call initBSTree_f [| |] "init" llbuilder in 
+        let obj_method = init_bstree_add typ in
         let add_element elem = 
           let d_ptr = match typ with 
           | A.BSTreeType _ -> expr_generator llbuilder elem 
@@ -471,7 +499,7 @@ and translate (globals, functions) =
             let d_ptr = L.build_malloc d_ltyp "tmp" llbuilder in 
             ignore (L.build_store element d_ptr llbuilder); d_ptr in 
           let void_d_ptr = L.build_bitcast d_ptr (L.pointer_type i8_t) "ptr" llbuilder in
-          ignore (L.build_call push_f [| bstree_ptr; void_d_ptr |] "" llbuilder)
+          ignore (L.build_call obj_method [| bstree_ptr; void_d_ptr |] "" llbuilder)
         in ignore (List.map add_element act);
         bstree_ptr
       | A.Binop (e1, op, e2) ->
@@ -635,6 +663,13 @@ and translate (globals, functions) =
         let obj_method = call_delete_ptr obj_type obj in
         ignore (L.build_call obj_method [| obj_val; e_val |] "" llbuilder);
         obj_val
+      | A.ObjectCall (obj, "contains", [e]) -> 
+        let obj_val = expr_generator llbuilder obj in
+        let obj_type = get_type obj in
+        let e_val = expr_generator llbuilder e in
+        let obj_method = call_contains_ptr obj_type obj in
+        let result = L.build_call obj_method [| obj_val; e_val |] "res" llbuilder in
+        result
       | A.ObjectCall (l, "get", [e]) ->
         let l_ptr = expr_generator llbuilder l in
         let e_val = expr_generator llbuilder e in

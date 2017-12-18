@@ -275,7 +275,7 @@ int spartition(char *a[], int left, int right, int length)
       i++;
       sswap(&a[i], &a[j]);
       if (strcmp(a[i], a[j]) != 0 && i != j) {
-        printf("numbers swapped: %s,%s\n", a[j],a[i]);
+        printf("strings swapped: %s,%s\n", a[j],a[i]);
         printf("array after swap: ");
         sdisplay(a, length);
       }
@@ -283,7 +283,7 @@ int spartition(char *a[], int left, int right, int length)
   }
   sswap(&a[i+1], &a[right]);
   if (strcmp(a[i+1], a[right]) != 0 && ((i+1) != right)) {
-    printf("numbers swapped: %s,%s\n", a[i+1],a[right]);
+    printf("strings swapped: %s,%s\n", a[i+1],a[right]);
     printf("array after swap: ");
     sdisplay(a, length);
   }
@@ -399,7 +399,7 @@ char *show_smedian_of_3(char *a[], int left, int right, int length)
 
     sswap(&a[middle], &a[right - 1]);
     if (strcmp(a[middle], a[right-1]) != 0 && (middle != (right-1))) {
-      printf("numbers swapped: %s,%s\n", a[middle],a[right-1]);
+      printf("strings swapped: %s,%s\n", a[middle],a[right-1]);
       printf("array after swap: ");
       sdisplay(a, length);
     }
@@ -446,7 +446,7 @@ void showsQuickSort(char *a[], int left, int right, int length)
 void cShowQuickSort(int a[], int length) {
   int right = length;
   length = length;
-  showQuickSort(a, 0, right, length);
+  showQuickSort(a, 1, right, length);
   printf("%s\n", "=====================================================================================");
   printf("%s", "QuickSort complete! Final Result: ");
   display(a, length);
@@ -455,7 +455,7 @@ void cShowQuickSort(int a[], int length) {
 void cShowfQuickSort(double a[], int length) {
   int right = length;
   length = length;
-  showfQuickSort(a, 0, right, length);
+  showfQuickSort(a, 1, right, length);
   printf("%s\n", "=====================================================================================");
   printf("%s", "QuickSort complete! Final Result: ");
   fdisplay(a, length);
@@ -472,12 +472,12 @@ void cShowsQuickSort(char *a[], int length) {
 
 void cQuickSort(int a[], int length) {
   length = length;
-  quickSort(a, 0, length);
+  quickSort(a, 1, length);
 }
 
 void cQuickfSort(double a[], int length) {
   length = length;
-  fquickSort(a, 0, length);
+  fquickSort(a, 1, length);
 }
 
 void cQuicksSort(char *a[], int length) {
