@@ -437,6 +437,14 @@ and translate (globals, functions) =
       | _ -> raise (Failure ("Invalid data structure type - peek function")))
     in
 
+   (*  let check_add_value typ val = match typ with
+        A.Int -> if val > 9999 || val < -999 then raise (Failure ("Tree ints must be between -999 and 9999"))
+      | A.Num -> if val > 99.99 || val < -9.99 then raise (Failure ("Tree nums must be between -9.99 and 99.99"))
+      | _ -> raise (Failure ("Unsupported value for add"))
+    in *)
+
+
+
     let init_bstree_add typ = match typ with
       | A.Int -> bstreeadd_int_f
       | A.Num -> bstreeadd_float_f
