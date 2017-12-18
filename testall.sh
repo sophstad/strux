@@ -166,38 +166,31 @@ LLIFail() {
 
 which "$LLI" >> $globallog || LLIFail
 
-# if [ ! -f stack.bc ]
-#     then
-#         echo "Could not find stack.bc"
-#         echo "Try \"./generateModules.sh\""
-#         exit 1
-# fi
-
 if [ ! -f linkedlist.bc ]
     then
         echo "Could not find linkedlist.bc"
-        echo "Try \"./generateModules.sh\""
+        echo "Try \"./linkStrux.sh\""
         exit 1
 fi
 
 if [ ! -f queue.bc ]
     then
         echo "Could not find queue.bc"
-        echo "Try \"./generateModules.sh\""
+        echo "Try \"./linkStrux.sh\""
         exit 1
 fi
 
 if [ ! -f bstree.bc ]
     then
         echo "Could not find bstree.bc"
-        echo "Try \"./generateModules.sh\""
+        echo "Try \"./linkStrux.sh\""
         exit 1
 fi
 
 if [ ! -f stack.bc ]
     then
         echo "Could not find stack.bc"
-        echo "Try \"./generateModules.sh\""
+        echo "Try \"./linkStrux.sh\""
         exit 1
 fi
 
