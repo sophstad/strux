@@ -30,10 +30,17 @@ void fswap(double *x, double *y)
     return ;
 }
 
+void sswap(char **x, char **y)
+{
+    char *temp = *x;
+    *x = *y;
+    *y = temp;
+}
+
 // prints out int list
 void display(int a[], int length) {
     int i;
-    printf("[");
+    printf("[ ");
 
     for(i = 1;i<=length;i++) {
       printf("%d ",a[i]);
@@ -45,10 +52,22 @@ void display(int a[], int length) {
 // prints out float list
 void fdisplay(double a[], int length) {
     int i;
-    printf("[");
+    printf("[ ");
 
     for(i = 1;i<=length;i++) {
       printf("%f ",a[i]);
+  }
+
+  printf("]\n");
+}
+
+// prints out string list
+void sdisplay(char* a[], int length) {
+    int i;
+    printf("[ ");
+
+    for(i = 1;i<=length;i++) {
+      printf("%s ",a[i]);
   }
 
   printf("]\n");
@@ -95,6 +114,26 @@ double fmedian_of_3(double a[], int left, int right)
     return a[right - 1];
 }
 
+char *smedian_of_3(char *a[], int left, int right)
+{
+// get middle of array
+    int middle = (left + right)/2;
+
+// rearrange arrange now with pivot known
+    if (strcmp(a[middle], a[left]) < 0) {
+        sswap(&a[left],&a[middle]);
+    }
+    if (strcmp(a[right], a[left]) < 0) {
+        sswap(&a[left],&a[right]);
+    }
+    if (strcmp(a[right], a[middle]) < 0) {
+        sswap(&a[middle],&a[right]);
+    }
+
+    sswap(&a[middle], &a[right - 1]);
+    return a[right - 1];
+}
+
 void quickSort(int a[], int left, int right)
 {
   if (left < right) {
@@ -122,7 +161,7 @@ void quickSort(int a[], int left, int right)
 void fquickSort(double a[], int left, int right)
 {
   if (left < right) {
-    int pivot = fmedian_of_3(a,left,right);
+    double pivot = fmedian_of_3(a,left,right);
 
     if (left == right - 1) return;
     int i = left;
@@ -140,6 +179,33 @@ void fquickSort(double a[], int left, int right)
             fswap(&a[i], &a[right -1]);
             fquickSort(a,left,i-1);
             fquickSort(a,i+1,right);
+        }
+
+        return ;
+    }
+
+void squickSort(char *a[], int left, int right)
+{
+  if (left < right) {
+    char *pivot = smedian_of_3(a,left,right);
+    //printf("%s\n", pivot);}
+
+    if (left == right - 1) return;
+    int i = left;
+    int j = right - 1;
+    for ( ; ;) {
+        while(strcmp(a[++i],pivot)<0) {}
+            while(strcmp(pivot,a[--j])<0) {}
+                if ( i < j) {
+                    sswap(&a[i],&a[j]);
+                }
+                else {
+                    break ;
+                }
+            }
+            sswap(&a[i], &a[right -1]);
+            squickSort(a,left,i-1);
+            squickSort(a,i+1,right);
         }
 
         return ;
@@ -172,7 +238,7 @@ int partition(int a[], int left, int right, int length)
   return i+1;
 }
 
-double fpartition(double a[], int left, int right, int length)
+int fpartition(double a[], int left, int right, int length)
 {
   double x = a[right];
   int i = left-1;
@@ -198,13 +264,39 @@ double fpartition(double a[], int left, int right, int length)
   return i+1;
 }
 
+int spartition(char *a[], int left, int right, int length)
+{
+  char *x = a[right];
+  int i = left-1;
+  for(int j=left; j<right; j++)
+  {
+    if(strcmp(a[j], x) <= 0)
+    {
+      i++;
+      sswap(&a[i], &a[j]);
+      if (strcmp(a[i], a[j]) != 0 && i != j) {
+        printf("numbers swapped: %s,%s\n", a[j],a[i]);
+        printf("array after swap: ");
+        sdisplay(a, length);
+      }
+    }
+  }
+  sswap(&a[i+1], &a[right]);
+  if (strcmp(a[i+1], a[right]) != 0 && ((i+1) != right)) {
+    printf("numbers swapped: %s,%s\n", a[i+1],a[right]);
+    printf("array after swap: ");
+    sdisplay(a, length);
+  }
+  return i+1;
+}
+
 int show_median_of_3(int a[], int left, int right, int length)
 {
     // get middle of array
     int middle = (left + right)/2;
     printf("=====================================================================================\n");
     printf("At this step:\n");
-    printf("current array:");
+    printf("current array: ");
     display(a, length);
 
     // rearrange arrange now with pivot known
@@ -243,7 +335,7 @@ double show_fmedian_of_3(double a[], int left, int right, int length)
     int middle = (left + right)/2;
     printf("=====================================================================================\n");
     printf("At this step:\n");
-    printf("current array:");
+    printf("current array: ");
     fdisplay(a, length);
 
 // rearrange arrange now with pivot known
@@ -276,6 +368,45 @@ double show_fmedian_of_3(double a[], int left, int right, int length)
     return a[right - 1];
 }
 
+char *show_smedian_of_3(char *a[], int left, int right, int length)
+{
+// get middle of array
+    int middle = (left + right)/2;
+    printf("=====================================================================================\n");
+    printf("At this step:\n");
+    printf("current array: ");
+    sdisplay(a, length);
+
+// rearrange arrange now with pivot known
+    if (strcmp(a[middle], a[left]) < 0) {
+        sswap(&a[left],&a[middle]);
+        printf("pivot swapped: %s,%s\n", a[middle],a[left]);
+        printf("array after swap: ");
+        sdisplay(a, length);
+    }
+    if (strcmp(a[right], a[left]) < 0) {
+        sswap(&a[left],&a[right]);
+        printf("pivot swapped: %s,%s\n", a[right],a[left]);
+        printf("array after swap: ");
+        sdisplay(a, length);
+    }
+    if (strcmp(a[right], a[middle]) < 0) {
+        sswap(&a[middle],&a[right]);
+        printf("pivot swapped: %s,%s\n", a[right],a[middle]);
+        printf("array after swap: ");
+        sdisplay(a, length);
+    }
+
+    sswap(&a[middle], &a[right - 1]);
+    if (strcmp(a[middle], a[right-1]) != 0 && (middle != (right-1))) {
+      printf("numbers swapped: %s,%s\n", a[middle],a[right-1]);
+      printf("array after swap: ");
+      sdisplay(a, length);
+    }
+    printf("pivot is %s\n", a[right-1]);
+    return a[right - 1];
+}
+
 void showQuickSort(int a[], int left, int right, int length)
 {
   if(left < right)
@@ -300,16 +431,43 @@ void showfQuickSort(double a[], int left, int right, int length)
   }
 }
 
+void showsQuickSort(char *a[], int left, int right, int length)
+{
+  if(left < right)
+  {
+    show_smedian_of_3(a, left, right, length);
+
+    int q = spartition(a, left, right, length);
+    showsQuickSort(a, left, q-1, length);
+    showsQuickSort(a, q+1, right, length);
+  }
+}
+
 void cShowQuickSort(int a[], int length) {
   int right = length;
   length = length;
   showQuickSort(a, 0, right, length);
+  printf("%s\n", "=====================================================================================");
+  printf("%s", "QuickSort complete! Final Result: ");
+  display(a, length);
 }
 
 void cShowfQuickSort(double a[], int length) {
   int right = length;
   length = length;
   showfQuickSort(a, 0, right, length);
+  printf("%s\n", "=====================================================================================");
+  printf("%s", "QuickSort complete! Final Result: ");
+  fdisplay(a, length);
+}
+
+void cShowsQuickSort(char *a[], int length) {
+  int right = length;
+  length = length;
+  showsQuickSort(a, 1, right, length);
+  printf("%s\n", "=====================================================================================");
+  printf("%s", "QuickSort complete! Final Result: ");
+  sdisplay(a, length);
 }
 
 void cQuickSort(int a[], int length) {
@@ -321,31 +479,40 @@ void cQuickfSort(double a[], int length) {
   length = length;
   fquickSort(a, 0, length);
 }
-//
+
+void cQuicksSort(char *a[], int length) {
+  length = length;
+  squickSort(a, 1, length);
+}
+
 // int main()
 // {
 //     int a[] = {10, 35, 25, 56, 2002, 100, 90, 86, 40, 50, 7};
 //     cShowQuickSort(a, 11);
 //     cQuickSort(a, 11);
-//
+
 //     int b[] = {85,331,234,46,4,3,22,89,7,12, 33, 44,55,66,77};
 //     cShowQuickSort(b, 15);
 //     cQuickSort(b, 15);
-//
+
 //     double c[] = { 3.4, 56.2, 5.3, 6.0, 2.6, 566.7, 778.3};
 //     cShowfQuickSort(c, 7);
 //     cQuickfSort(c, 7);
-//
+
 //     double d[] = { 55.4, 36.2, 23.3, 16.0, 52.6, 26.7, 78.3};
 //     cShowfQuickSort(d, 7);
 //     cQuickfSort(d, 7);
-//
+
 //     int f[] = {10, 100, 30, 90, 40, 50, 70};
 //     cShowQuickSort(f, 7);
 //     cQuickSort(f, 7);
-//
+
 //     int g[] = {4,6,3,2,1,9,7};
 //     cShowQuickSort(g, 7);
 //     cQuickSort(g, 7);
-//
+//     char *a[] = {"abx", "cdf", "eadfaer", "baweaw", "dwaw"};
+//     cQuicksSort(a, 4);
+//     sswap(&a[0], &a[1]);
+//     sdisplay(a, 5);
+
 // }

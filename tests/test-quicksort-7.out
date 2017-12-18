@@ -1,0 +1,24 @@
+=====================================================================================
+At this step:
+current array: [ kofi josh millie sophie edwards ]
+pivot swapped: kofi,edwards
+array after swap: [ edwards josh millie sophie kofi ]
+pivot swapped: millie,kofi
+array after swap: [ edwards josh kofi sophie millie ]
+numbers swapped: sophie,kofi
+array after swap: [ edwards josh sophie kofi millie ]
+pivot is kofi
+numbers swapped: sophie,kofi
+array after swap: [ edwards josh kofi sophie millie ]
+numbers swapped: millie,sophie
+array after swap: [ edwards josh kofi millie sophie ]
+=====================================================================================
+At this step:
+current array: [ edwards josh kofi millie sophie ]
+pivot is josh
+=====================================================================================
+At this step:
+current array: [ edwards josh kofi millie sophie ]
+pivot is edwards
+=====================================================================================
+QuickSort complete! Final Result: [ edwards josh kofi millie sophie ]

@@ -13,5 +13,8 @@ int main() {
     print("uh oh!");
   }
 
+  bool a = true;
+  print(not a);
+
   return 0;
 }

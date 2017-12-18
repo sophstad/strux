@@ -9,8 +9,8 @@
 LLI="lli"
 #LLI="/usr/local/opt/llvm/bin/lli"
 # Path to the LLVM compiler
-LLC="llc"
-#LLC="/usr/local/opt/llvm@3.7/bin/llc-3.7"
+#LLC="llc"
+LLC="/usr/local/opt/llvm@3.7/bin/llc-3.7"
 
 # Path to the C compiler
 CC="clang"

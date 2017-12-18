@@ -1,4 +1,8 @@
 int main() {
 	print(3 + 6);
+        int a = 4;
+        int b = 2;
+        int c = a + b;
+        print(c);
 	return 0;
 }

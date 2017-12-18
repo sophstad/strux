@@ -1,8 +1,6 @@
 (* Code generation: translate takes a semantically checked AST and
 produces LLVM IR
 *)
-open Llvm
-
 module L = Llvm
 module A = Ast
 
@@ -53,10 +51,6 @@ let rec ltype_of_typ = function (* LLVM type for AST type *)
   | _ -> raise(Failure("Invalid Data Type"))
 
 and translate (globals, functions) =
-  let global_types =
-    let global_type m (t, n) = StringMap.add n t m in
-    List.fold_left global_type StringMap.empty globals
-  in
   (* Declare each global variable; remember its value in a map *)
   let global_vars = ref StringMap.empty in
 
@@ -128,6 +122,12 @@ and translate (globals, functions) =
   let num_show_quickSort_t = L.function_type void_t [| L.pointer_type (ltype_of_typ A.Num); i32_t |] in
   let num_show_quickSort_f = L.declare_function "cShowfQuickSort" num_show_quickSort_t the_module in
 
+  (*takes in string[] to do quick sort *)
+  let string_quickSort_t = L.function_type (L.pointer_type (ltype_of_typ A.String)) [| L.pointer_type (ltype_of_typ A.String); i32_t |] in
+  let string_quickSort_f = L.declare_function "cQuicksSort" string_quickSort_t the_module in
+  let string_show_quickSort_t = L.function_type void_t [| L.pointer_type (ltype_of_typ A.String); i32_t |] in
+  let string_show_quickSort_f = L.declare_function "cShowsQuickSort" string_show_quickSort_t the_module in
+
   (*built-in bstree functions*)
   let initBSTree_t = L.function_type bstree_t [| |] in 
   let initBSTree_f = L.declare_function "initBSTree" initBSTree_t the_module in
@@ -172,11 +172,6 @@ and translate (globals, functions) =
       | A.Num    -> float_format_str b
       | A.String  -> string_format_str b
       | A.Bool     -> int_format_str b
-      (*TODO: fix this!!!!!!!!!*)
-(*       | A.QueueType _ -> float_format_str b
-      | A.LinkedListType _ -> float_format_str b
-      | A.BSTreeType _ -> float_format_str b
-      | A.StackType _ -> float_format_str b *)
       | _ -> raise (Failure ("Invalid printf type"))
   in
 
@@ -237,20 +232,11 @@ and translate (globals, functions) =
         ref (List.fold_left2 add_formal StringMap.empty func_decl.A.formals
           (Array.to_list (L.params the_function))) in
 
-    let local_types =
-      let add_type m (t, n) = StringMap.add n t m in
-      let formal_types = List.fold_left add_type StringMap.empty func_decl.A.formals in
-          List.fold_left add_type formal_types func_decl.A.formals in
-
       (* Return the value or the type for a variable or formal argument *)
       (* All the tables have the structure (type, llvalue) *)
       let lookup n : L.llvalue =
         try (snd (StringMap.find n !local_vars))
         with Not_found -> (snd (StringMap.find n !global_vars))
-      in
-
-      let lookup_types n = try StringMap.find n global_types
-        with Not_found -> StringMap.find n global_types
       in
 
       let name_to_type n : A.typ =
@@ -418,7 +404,8 @@ and translate (globals, functions) =
       A.Id name -> (match (name_to_type name) with
         A.Arraytype(_, _) -> (match data_type with
           A.Int -> int_quickSort_f
-        | A.Num -> num_quickSort_f)
+        | A.Num -> num_quickSort_f
+        | A.String -> string_quickSort_f)
       | _ -> raise (Failure ("Cannot perform quicksort on this datatype")))
     in
 
@@ -426,7 +413,8 @@ and translate (globals, functions) =
       A.Id name -> (match (name_to_type name) with
         A.Arraytype(_, _) -> (match data_type with
           A.Int -> int_show_quickSort_f
-        | A.Num -> num_show_quickSort_f)
+        | A.Num -> num_show_quickSort_f
+        | A.String -> string_show_quickSort_f)
       | _ -> raise (Failure ("Cannot perform quicksort on this datatype")))
     in
 
@@ -549,13 +537,6 @@ and translate (globals, functions) =
           | A.Geq     -> L.build_icmp L.Icmp.Sge
           | _ -> L.build_icmp L.Icmp.Eq
         )
-       (*  and str_ops = (match op with
-            A.Concat -> expr_generator llbuilder (A.StringLit((string_from_expr e1) ^ (string_from_expr e2), t))
-          | _ -> (L.const_int i32_t 0)
-        ) *)
-
-        (*  if ((L.type_of e1' = str_t) && (L.type_of e2' = str_t)) then str_ops
-         else  *)
         in
 
         if ((L.type_of e1' = f_t) && (L.type_of e2' = f_t)) then num_ops e1' e2' "tmp" llbuilder
@@ -726,7 +707,6 @@ and translate (globals, functions) =
     | A.If (predicate, s1, s2) -> generate_if predicate s1 s2 llbuilder
     | A.While (predicate, body) -> generate_while  predicate body llbuilder
     | A.For (e1, e2, e3, s) -> stmt_generator llbuilder ( A.Block [A.Expr e1 ; A.While (e2, A.Block [s ; A.Expr e3]) ] )
-    (* | A.ForEach (e1, e2, s) -> generate_for_each typ e1 e2 e3 s llbuilder *)
 
     and generate_if predicate s1 s2 llbuilder =
       let bool_val = expr_generator llbuilder predicate in
