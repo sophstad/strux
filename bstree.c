@@ -128,6 +128,17 @@ struct BSTreeNode *deleteIntFromTreeHelper(struct BSTreeNode *node, int data)
 
 void deleteIntFromTree(struct BSTree *tree, int data)
 {
+    if (tree->root->left == NULL && tree->root->right == NULL) {
+
+        if ( *(int *) tree->root->data == data) {
+            struct BSTreeNode *temp = tree->root;
+            tree->root = NULL;
+            free(temp);
+        }
+
+        return ;
+    }
+
     deleteIntFromTreeHelper(tree->root, data);
 }
 
@@ -175,6 +186,18 @@ struct BSTreeNode *deleteNumFromTreeHelper(struct BSTreeNode *node, double data)
 
 void deleteNumFromTree(struct BSTree *tree, double data)
 {
+    if (tree->root->left == NULL && tree->root->right == NULL) {
+
+        if ( *(double *) tree->root->data == data) {
+            struct BSTreeNode *temp = tree->root;
+            tree->root = NULL;
+            free(temp);
+        }
+
+        return ;
+    }
+
+
     deleteNumFromTreeHelper(tree->root, data);
 }
 
