@@ -337,6 +337,13 @@ void showTree(struct BSTreeNode *root, int typ)
 
     printLeftChild(root, 0, 0, s, typ);
 
+    int until;
+
+    if (maxDepth * 2 - 1 > 50)
+        until = 50;
+    else
+        until = maxDepth * 2 - 1;
+
     for (int i = 0; i < maxDepth*2-1; i++)
         printf("%s\n", s[i]);
 }
