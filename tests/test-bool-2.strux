@@ -1,0 +1,13 @@
+int main() {
+	bool t = true;
+	bool f = false;
+	print(f or t);
+	print(f and t);
+	print(t and f);
+	print(t or f);
+	print(f or f);
+	print(f and f);
+	print(t or t);
+	print(t and t);
+	return 0;
+}

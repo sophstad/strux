@@ -1,5 +1,7 @@
 int main() {
 	int i = 3;
+	num j = 9.0;
+	print(j*j);
 	print(i*i);
 	return 0;
 }

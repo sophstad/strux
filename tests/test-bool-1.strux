@@ -1,0 +1,7 @@
+int main() {
+	bool t = true;
+	bool f = false;
+	print(t == f);
+	print(f != t);
+	return 0;
+}

@@ -1,0 +1,12 @@
+int main() {
+	num three = 3.0;
+	num ten = 10.0;
+	print(three / ten);
+	print(ten / three);
+	print(three + ten);
+	print(ten + three);
+	print(ten - three);
+	print(ten % three);
+	print(three % ten);
+	return 0;
+}
