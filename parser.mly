@@ -34,8 +34,12 @@ program:
   decls EOF { $1 }
 
 decls:
-   /* nothing */ { [], [] }
- | decls fdecl { fst $1, ($2 :: snd $1) }
+    /* nothing */ { [] }
+  | fdecl_list { $1 }
+
+fdecl_list:
+    /* nothing */    { [] }
+  | fdecl_list fdecl { $2 :: $1 }
 
 fdecl:
   typ ID LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
@@ -88,8 +92,8 @@ stmt:
 
 else_stmt:
     ELIF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([])) }
-  | ELIF LPAREN expr RPAREN stmt else_stmt { If($3, $5, $6) }
-  | ELIF LPAREN expr RPAREN stmt ELSE stmt { If($3, $5, $7) }
+  | ELIF LPAREN expr RPAREN stmt else_stmt    { If($3, $5, $6) }
+  | ELIF LPAREN expr RPAREN stmt ELSE stmt    { If($3, $5, $7) }
 
 expr_opt:
     /* nothing */ { Noexpr }
@@ -110,23 +114,23 @@ expr:
   | expr GEQ    expr { Binop($1, Geq,   $3) }
   | expr AND    expr { Binop($1, And,   $3) }
   | expr OR     expr { Binop($1, Or,    $3) }
-  | NEW QUEUE DOUBLECOL typ LPAREN actuals_opt RPAREN { QueueLit($4, $6) }
-  | NEW LINKEDLIST DOUBLECOL typ LPAREN actuals_opt RPAREN { LinkedListLit($4, $6) }
-  | NEW STACK DOUBLECOL typ LPAREN actuals_opt RPAREN { StackLit($4, $6) }
-  | NEW BSTREE DOUBLECOL typ LPAREN actuals_opt RPAREN { BSTreeLit($4, $6) }
   | MINUS expr %prec NEG  { Unop(Neg, $2) }
   | NOT expr              { Unop(Not, $2) }
   | expr INCR             { Postop($1, Incr) }
   | expr DECR             { Postop($1, Decr) }
   | typ ID                { Assign($1, $2, Noexpr) }
   | typ ID ASSIGN expr    { Assign($1, $2, $4) }
-  | expr DOT ID LPAREN actuals_opt RPAREN { ObjectCall($1, $3, $5) }  
-  | ID ASSIGN expr        { Reassign($1, $3) }
-  | ID LPAREN actuals_opt RPAREN { FuncCall($1, $3) }
+  | expr DOT ID LPAREN actuals_opt RPAREN    { ObjectCall($1, $3, $5) }  
+  | ID ASSIGN expr                           { Reassign($1, $3) }
+  | ID LPAREN actuals_opt RPAREN             { FuncCall($1, $3) }
   | LBRACK actuals_opt RBRACK                { ArrayLit($2) }
   | ID LBRACK expr RBRACK                    { ArrayAccess($1, $3) }
   | ID LBRACK expr RBRACK ASSIGN expr        { ArrayElementAssign($1, $3, $6) }
   | LPAREN expr RPAREN                       { $2 }
+  | NEW QUEUE DOUBLECOL typ LPAREN actuals_opt RPAREN       { QueueLit($4, $6) }
+  | NEW LINKEDLIST DOUBLECOL typ LPAREN actuals_opt RPAREN  { LinkedListLit($4, $6) }
+  | NEW STACK DOUBLECOL typ LPAREN actuals_opt RPAREN       { StackLit($4, $6) }
+  | NEW BSTREE DOUBLECOL typ LPAREN actuals_opt RPAREN      { BSTreeLit($4, $6) }
 
 literal:
     STRING_LITERAL   { StringLit($1) }

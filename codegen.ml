@@ -50,10 +50,7 @@ let rec ltype_of_typ = function (* LLVM type for AST type *)
   | A.NumberType -> str_t 
   | _ -> raise(Failure("Invalid Data Type"))
 
-and translate (globals, functions) =
-  (* Declare each global variable; remember its value in a map *)
-  let global_vars = ref StringMap.empty in
-
+and translate (functions) =
   (* -------BUILT IN FUNCTIONS----------- *)
 
   (* print *)
@@ -236,12 +233,12 @@ and translate (globals, functions) =
       (* All the tables have the structure (type, llvalue) *)
       let lookup n : L.llvalue =
         try (snd (StringMap.find n !local_vars))
-        with Not_found -> (snd (StringMap.find n !global_vars))
+        with Not_found -> (raise ( Failure ("Variable not found!")))
       in
 
       let name_to_type n : A.typ =
         try (fst (StringMap.find n !local_vars))
-        with Not_found -> (fst (StringMap.find n !global_vars))
+        with Not_found -> (raise ( Failure ("Variable not found!")))
       in
     (* Array creation, initialization, access *)
     let create_array t len builder =
@@ -428,14 +425,6 @@ and translate (globals, functions) =
       | A.StackType _ -> top_f
       | _ -> raise (Failure ("Invalid data structure type - peek function")))
     in
-
-   (*  let check_add_value typ val = match typ with
-        A.Int -> if val > 9999 || val < -999 then raise (Failure ("Tree ints must be between -999 and 9999"))
-      | A.Num -> if val > 99.99 || val < -9.99 then raise (Failure ("Tree nums must be between -9.99 and 99.99"))
-      | _ -> raise (Failure ("Unsupported value for add"))
-    in *)
-
-
 
     let init_bstree_add typ = match typ with
       | A.Int -> bstreeadd_int_f
@@ -748,7 +737,7 @@ and translate (globals, functions) =
 
       (* Add a return if the last block falls off the end *)
       add_terminal llbuilder (match func_decl.A.typ with
-         A.String -> L.build_ret (L.build_global_stringptr "" "string" llbuilder)
+          A.String -> L.build_ret (L.build_global_stringptr "" "string" llbuilder)
         | A.Void -> L.build_ret_void
         | A.Num -> L.build_ret (L.const_float f_t 0.)
         | A.Bool -> L.build_ret (L.const_int i1_t 0)

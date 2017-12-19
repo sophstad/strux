@@ -5,11 +5,9 @@ open Ast
 module StringMap = Map.Make(String)
 
 (* Semantic checking of a program. Returns void if successful,
-   throws an exception if something is wrong.
+   throws an exception if something is wrong. Checks each function *)
 
-   Check each global variable, then check each function *)
-
-let check (globals, functions) =
+let check (functions) =
 
   (* Raise an exception if the given list has a duplicate *)
   let report_duplicate exceptf list =
@@ -38,11 +36,6 @@ let check (globals, functions) =
     else if lvaluet = Int && rvaluet = NumberType then lvaluet
     else raise err
   in
-
-  (**** Checking Global Variables ****)
-  List.iter (check_not_void (fun n -> "illegal void global " ^ n)) globals;
-
-  report_duplicate (fun n -> "duplicate global " ^ n) (List.map snd globals);
 
   (**** Checking Functions ****)
   if List.mem "print" (List.map (fun fd -> fd.fname) functions)
@@ -123,9 +116,6 @@ let check (globals, functions) =
        with Not_found -> raise (Failure ("unrecognized function " ^ s))
   in
 
-  (* Store global variables from Ast.Id to llvalue *)
-  let global_vars = ref StringMap.empty in
-
   let _ = function_decl "main" in (* Ensure "main" is defined *)
 
   let check_function func =
@@ -144,13 +134,12 @@ let check (globals, functions) =
     (* Helper: Returns type of identifier *)
     let type_of_identifier name =
       try StringMap.find name (!variables)
-      with Not_found -> try StringMap.find name (!global_vars)
       with Not_found -> raise (Failure ("undeclared identifier " ^ name))
     in
 
     (* Helper: Check if variable is already declared *)
     let check_var_decl var_name err =
-      if StringMap.mem var_name (!variables) || StringMap.mem var_name (!global_vars)
+      if StringMap.mem var_name (!variables)
       then raise err
     in
 
@@ -182,8 +171,6 @@ let check (globals, functions) =
       | _ -> Void  
     in
 
-
-    (*TODO(josh): IMPLEMENT BSTREE CHECKING STUFF HERE *)
     (* Return the type of an expression or throw an exception *)
     let rec expr = function
         NumLit _ -> Num
@@ -239,7 +226,6 @@ let check (globals, functions) =
           check_var_decl var (Failure ("duplicate declaration of variable " ^ var));
           let _ =
             (match func.fname with
-              "main" -> global_vars := StringMap.add var typ (!global_vars)
               | _ -> variables := StringMap.add var typ (!variables)
             )
           in rt
@@ -311,28 +297,19 @@ let check (globals, functions) =
                   " expected " ^ string_of_typ actatype ^ " in " ^ string_of_expr e)))
                 else if fname = "delete" then
                    let acttype = expr oname in
-                   let actqtype = get_type acttype in
                    match acttype with
                    | BSTreeType(actqtype) -> ignore(check_assign actqtype et (Failure ("illegal actual delete argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ actqtype ^ " type " ^ " in " ^ string_of_expr e)))
-                   | LinkedListType(actqtype) -> ignore(check_assign Int et (Failure ("illegal actual delete argument found " ^ string_of_typ et ^
+                   | LinkedListType(_) -> ignore(check_assign Int et (Failure ("illegal actual delete argument found " ^ string_of_typ et ^
                   " expected int type " ^ " in " ^ string_of_expr e)))
 
                 else if fname = "contains" then
                    let acttype = expr oname in
-                   let actqtype = get_type acttype in
                    match acttype with
                    | BSTreeType(actqtype) -> ignore(check_assign actqtype et (Failure ("illegal actual contains argument found " ^ string_of_typ et ^
                   " expected " ^ string_of_typ actqtype ^ " type " ^ " in " ^ string_of_expr e)))
                    | _ -> raise (Failure (".contains() is only applicable to the the tree data type"))
                   
-                 (* else if fname = "peek" then
-                   let acttype = expr oname in
-                   let actqtype = getQueueType acttype in
-                  ignore(check_assign actqtype et (Failure ("illegal actual peek for queue argument found " ^ string_of_typ et ^
-
-                  " expected " ^ string_of_typ actqtype ^ " in " ^ string_of_expr e)))
-              *)
                 else ignore (check_assign ft et (Failure ("illegal actual argument found " ^ string_of_typ et ^
                       " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e)))) fd.formals actuals;
                  !returntype

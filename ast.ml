@@ -49,7 +49,7 @@ type func_decl = {
     body : stmt list;
   }
 
-type program = bind list * func_decl list
+type program = func_decl list
 
 (* Pretty-printing functions *)
 
@@ -119,7 +119,6 @@ let rec string_of_stmt = function
       "{\n" ^ String.concat "" (List.map string_of_stmt stmts) ^ "}\n"
   | Expr(expr) -> string_of_expr expr ^ ";\n";
   | Return(expr) -> "return " ^ string_of_expr expr ^ ";\n";
-  (* TODO: implement elif *)
   | If(e, s, Block([])) -> "if (" ^ string_of_expr e ^ ")\n" ^ string_of_stmt s
   | If(e, s1, s2) ->  "if (" ^ string_of_expr e ^ ")\n" ^
       string_of_stmt s1 ^ "else\n" ^ string_of_stmt s2
@@ -137,6 +136,5 @@ let string_of_fdecl fdecl =
   String.concat "" (List.map string_of_stmt fdecl.body) ^
   "}\n"
 
-let string_of_program (vars, funcs) =
-  String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
+let string_of_program (funcs) =
   String.concat "\n" (List.map string_of_fdecl funcs)
