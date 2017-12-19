@@ -16,7 +16,7 @@ let id = alphabet alphanumund*
 
 rule token = parse
     whitespace  { token lexbuf } (* Whitespace *)
-  | ":("      { comment lexbuf }          (* Comments *)
+  | ":("      { comment lexbuf } (* Comments *)
   | '('       { LPAREN }
   | ')'       { RPAREN }
   | '{'       { LBRACE }
