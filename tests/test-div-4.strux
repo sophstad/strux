@@ -6,7 +6,5 @@ int main() {
 	print(three + ten);
 	print(ten + three);
 	print(ten - three);
-	print(ten % three);
-	print(three % ten);
 	return 0;
 }
