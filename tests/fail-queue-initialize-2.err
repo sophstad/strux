@@ -1,1 +1,0 @@
-Assertion failed: (getOperand(0)->getType() == cast<PointerType>(getOperand(1)->getType())->getElementType() && "Ptr must be a pointer to Val type!"), function AssertOK, file /private/tmp/llvm@3.7-20170130-86139-15td9ho/llvm-3.7.1.src/lib/IR/Instructions.cpp, line 995.
