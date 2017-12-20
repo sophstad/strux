@@ -50,6 +50,7 @@ void delete(struct LinkedList* list, int index) {
 	if (isEmpty(list)) {
 		return;
 	}
+
 	if (index == 0) {
 		struct ListNode* temp = list->head;
 		list->head = list->head->next;
@@ -58,11 +59,11 @@ void delete(struct LinkedList* list, int index) {
 		return;
 	}
 
-	int ctr = 0;
+	int pointer = 0;
 	struct ListNode* temp = list->head;
-	while(ctr < index-1) {
+	while(pointer < index-1) {
 		temp = temp->next;
-		ctr++;
+		pointer++;
 	}
 	temp->next = temp->next->next;
 	temp = temp->next;
@@ -181,7 +182,7 @@ void ll_show(struct LinkedList *list, int typ) {
 }
 
 void ll_show_int(struct LinkedList* list)
-{	
+{
     ll_show(list, INTEGER);
 }
 
@@ -191,6 +192,6 @@ void ll_show_string(struct LinkedList* list)
 }
 
 void ll_show_float(struct LinkedList* list)
-{	
+{
     ll_show(list, FLOATING);
 }
