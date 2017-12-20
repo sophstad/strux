@@ -1,0 +1,4 @@
+int main() {
+  BSTree::string tree = new BSTree::string();
+  return 0;
+}

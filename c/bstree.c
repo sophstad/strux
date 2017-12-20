@@ -269,23 +269,32 @@ int treeHeight(struct BSTreeNode* node)
 
 int printLeftChild(struct BSTreeNode *tree, int offset, int depth, char s[50][255], int typ)
 {
-    char b[20];
+    char data[20];
 
     if (!tree) return 0;
 
     if (typ == FLOATING)
-        sprintf(b, "(%.2lf)", *(double *)tree->data);
+        sprintf(data, "(%.2lf)", *(double *)tree->data);
     else
-        sprintf(b, "(%04d)", *(int *)tree->data);
+        sprintf(data, "(%04d)", *(int *)tree->data);
 
     int left  = printLeftChild(tree->left, offset, depth + 1, s, typ);
-    int right = printRightChild(tree->right, offset + left + DATA_WIDTH, depth + 1, s, typ);
+    int right = printRightChild(tree->right, offset + left + DATA_WIDTH, depth + 1, s, typ);    
+
+    // Don't go past the allocated space
+    if (2 * depth - 1 > 50) {
+        return left + DATA_WIDTH + right;
+    }
+    if (offset + left + DATA_WIDTH + right + DATA_WIDTH/2 > 255) {
+        return left + DATA_WIDTH + right;
+    }
 
     for (int i = 0; i < DATA_WIDTH; i++)
-        s[2 * depth][offset + left + i] = b[i];
+        s[2 * depth][offset + left + i] = data[i];
 
     if (depth) {
 
+        // Adding lines and stars above nodes
         for (int i = 0; i < DATA_WIDTH + right; i++)
             s[2 * depth - 1][offset + left + DATA_WIDTH/2 + i] = '-';
 
@@ -299,23 +308,33 @@ int printLeftChild(struct BSTreeNode *tree, int offset, int depth, char s[50][25
 
 int printRightChild(struct BSTreeNode *tree, int offset, int depth, char s[50][255], int typ)
 {
-    char b[20];
+    char data[20];
 
     if (!tree) return 0;
 
     if (typ == FLOATING)
-        sprintf(b, "(%.2lf)", *(double *)tree->data);
+        sprintf(data, "(%.2lf)", *(double *)tree->data);
     else
-        sprintf(b, "(%04d)", *(int *)tree->data);
+        sprintf(data, "(%04d)", *(int *)tree->data);
 
     int left  = printLeftChild(tree->left, offset, depth + 1, s, typ);
     int right = printRightChild(tree->right, offset + left + DATA_WIDTH, depth + 1, s, typ);
 
+    // Don't go past the allocated space
+    if (2 * depth - 1 > 50) {
+        return left + DATA_WIDTH + right;
+    }
+    if (offset + left + DATA_WIDTH + right + DATA_WIDTH/2 > 255) {
+        return left + DATA_WIDTH + right;
+    }
+
+    // Print the data itself
     for (int i = 0; i < DATA_WIDTH; i++)
-        s[2 * depth][offset + left + i] = b[i];
+        s[2 * depth][offset + left + i] = data[i];
 
     if (depth) {
 
+        // Adding lines and stars above nodes
         for (int i = 0; i < left + DATA_WIDTH; i++)
             s[2 * depth - 1][offset - DATA_WIDTH/2 + i] = '-';
 
@@ -344,12 +363,14 @@ void showTree(struct BSTreeNode *root, int typ)
     else
         until = maxDepth * 2 - 1;
 
-    for (int i = 0; i < maxDepth*2-1; i++)
+    // Only print up the top of the tree if it's too big to display
+    for (int i = 0; i < until; i++)
         printf("%s\n", s[i]);
 }
 
 void showIntTree(struct BSTree *tree)
 {
+    // Checking if the tree is empty
     if (tree->root) {
         showTree(tree -> root, INTEGER);
         printf("\n%s\n", "--------------------------------------------------------------------------------");
@@ -360,7 +381,8 @@ void showIntTree(struct BSTree *tree)
 }
 
 void showNumTree(struct BSTree *tree)
-{   
+{
+    // Checking if the tree is empty
     if (tree->root) {
         showTree(tree -> root, FLOATING);
         printf("\n%s\n", "--------------------------------------------------------------------------------");

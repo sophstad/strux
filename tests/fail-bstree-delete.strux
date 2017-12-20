@@ -1,5 +1,5 @@
 int main() {
     BSTree::int tree = new BSTree::int();
-    tree.show();
+    tree.delete("woah");
     return 0;
 }
