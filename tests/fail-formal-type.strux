@@ -1,0 +1,8 @@
+int main() {
+  printNum("hello");
+  return 0;
+}
+
+void printNum(int a) {
+  print(a);
+}
