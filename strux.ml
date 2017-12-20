@@ -9,7 +9,7 @@ let _ =
   let action = ref Compile in
   let set_action a () = action := a in
   let speclist = [
-    ("-a", Arg.Unit (set_action Ast), "Print the SAST");
+    ("-a", Arg.Unit (set_action Ast), "Print the AST");
     ("-l", Arg.Unit (set_action LLVM_IR), "Print the generated LLVM IR");
     ("-c", Arg.Unit (set_action Compile),
       "Check and print the generated LLVM IR (default)");
