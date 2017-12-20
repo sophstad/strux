@@ -35,11 +35,7 @@ program:
 
 decls:
     /* nothing */ { [] }
-  | fdecl_list { $1 }
-
-fdecl_list:
-    /* nothing */    { [] }
-  | fdecl_list fdecl { $2 :: $1 }
+  | decls fdecl   { $2 :: $1 }
 
 fdecl:
   typ ID LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
