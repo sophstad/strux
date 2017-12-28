@@ -1,4 +1,7 @@
 # Strux
+Strux is a language created for [COMS W4115 Programming Languages and Translators](http://www.cs.columbia.edu/~sedwards/classes/2017/4115-fall/index.html) at Columbia University. It is a general purpose language with a focus on data structure visualization, and compiles into LLVM.
+
+A detailed report on Strux is available [here](http://www.cs.columbia.edu/~sedwards/classes/2017/4115-fall/reports/Strux.pdf).
 
 ## Compiling & Running
 Strux requires LLVM and its development libraries, the m4 macro preprocessor, opam, and clang. Useful instructions for installing these on your operating system can be found in the MicroC README.
